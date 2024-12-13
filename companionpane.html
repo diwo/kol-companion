@@ -1,0 +1,46 @@
+<style>
+    ul { margin: 0 }
+    .section { margin: 10px 0 }
+    .subsection { margin: 10px 0 }
+</style>
+
+<div class="section">
+    <div class="subsection">
+        <input type="checkbox" id="spend-mp-buff" checked />Spend MP with /buff<br/>
+        <input type="checkbox" id="stop-mp-full" checked />Stop if MP full<br/>
+    </div>
+    <div class="subsection">
+        <div>Until Turn: <input id="until-turn" type="text" style="width:40px"/><input id="until-turn-clear" type="button" value="x"/></div>
+    </div>
+    <div class="subsection">
+        <div>While text: <input id="while-text" type="text"/><input id="while-text-clear" type="button" value="x"/></div>
+    </div>
+    <div class="subsection">
+        <div>After Adv. Cmd: <input id="after-adv-cmd" type="text"/><input id="after-adv-cmd-clear" type="button" value="x"/></div>
+        <div>Cmd Only If Text: <input id="after-adv-cmd-text" type="text"/><input id="after-adv-cmd-text-clear" type="button" value="x"/></div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="subsection">
+        <a id="re-adventure" href="#">Re-adventure</a><br/>
+        <span id="re-adventure-result"></span>
+    </div>
+
+    <div class="subsection">
+        <span>Presets:</span>
+        <ul>
+            <li><a id="preset-hospital" href="#">Hospital</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="section">
+    <a id="farm-dust-bunnies" href="#">Farm Dust Bunnies</a><br/>
+    <span id="farm-dust-bunnies-result"></span>
+</div>
+
+<!--
+<hr/>
+<div><a id="test-button" href="#">Test Button</a></div>
+-->

@@ -1,0 +1,50 @@
+{
+    "manifest_version": 2,
+    "name": "Kingdom of Loathing Companion",
+    "version": "1.0",
+    "description": "",
+    "icons": {
+        "48": "icons/48.png"
+    },
+    "web_accessible_resources": [
+        "companionpane.html",
+        "item_price_cache_backup.json"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["https://www.kingdomofloathing.com/*"],
+            "js": [
+                "common.js",
+                "game.js",
+                "inventory.js",
+                "backoffice.js",
+                "mining.js",
+                "charpane.js",
+                "description.js",
+                "kol.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://kol.coldfront.net/thekolwiki/index.php/*"],
+            "js": [
+                "common.js",
+                "wiki.js"
+            ],
+            "all_frames": true
+        }
+    ],
+    "background": {
+        "scripts": [
+            "common.js",
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "permissions": [
+        "storage",
+        "alarms",
+        "clipboardWrite",
+        "*://kol.coldfront.net/*"
+    ]
+}
