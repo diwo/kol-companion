@@ -13,6 +13,13 @@ async function registerCommandReceiver() {
         if (message.windowId != selfId) return;
         if (message.command == "gotoUrl") {
             getPane("mainpane").location = message.url;
+        } else if (message.command == "chooseIcon") {
+            let editForm = getPane("menupane", {id: "edit"});
+            if (editForm) {
+                let imgElem = editForm.ownerDocument.evaluate(".//img", editForm).iterateNext();
+                imgElem.src = `https://d2uyhvukfffg5a.cloudfront.net/itemimages/${message.iconName}.gif`;
+                editForm.icon.value = message.iconName;
+            }
         }
     });
 }

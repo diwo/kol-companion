@@ -8,6 +8,7 @@
     },
     "web_accessible_resources": [
         "companionpane.html",
+        "icons.html",
         "item_price_cache_backup.json"
     ],
     "content_scripts": [
@@ -15,6 +16,7 @@
             "matches": ["https://www.kingdomofloathing.com/*"],
             "js": [
                 "common.js",
+                "topmenu.js",
                 "game.js",
                 "inventory.js",
                 "backoffice.js",

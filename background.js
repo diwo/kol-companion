@@ -57,6 +57,8 @@ browser.runtime.onMessage.addListener(message => {
             return registerWindow();
         case "gotoUrl":
             return notifyGotoUrl(message.url);
+        case "chooseIcon":
+            return notifyChooseIcon(message.iconName);
         case "fetchPrice":
             return fetchPrice(message.itemId);
         case "queuePriceCheck":
@@ -201,6 +203,16 @@ function notifyGotoUrl(url) {
             windowId: lastWindowId,
             command: "gotoUrl",
             url
+        });
+    }
+}
+
+function notifyChooseIcon(iconName) {
+    for (let port of Object.values(commandListenerPorts)) {
+        port.postMessage({
+            windowId: lastWindowId,
+            command: "chooseIcon",
+            iconName
         });
     }
 }

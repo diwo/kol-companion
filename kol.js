@@ -17,6 +17,9 @@ switch (pathname) {
     case "/charpane.php":
         handleCharPane();
         break;
+    case "/awesomemenu.php":
+        handleTopMenu();
+        break;
     case "/desc_item.php":
     case "/desc_outfit.php":
     case "/desc_effect.php":
