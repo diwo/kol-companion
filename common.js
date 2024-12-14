@@ -1,3 +1,22 @@
+async function registerCommandReceiver() {
+    if (URL.parse(window.top.document.URL).pathname != "/game.php") {
+        return;
+    }
+
+    let selfId = null;
+    let registerWindow = async () => selfId = await browser.runtime.sendMessage({operation: "registerWindow"});
+    registerWindow();
+    document.addEventListener("click", registerWindow);
+
+    let commandListener = browser.runtime.connect({name: "commandListener"});
+    commandListener.onMessage.addListener(message => {
+        if (message.windowId != selfId) return;
+        if (message.command == "gotoUrl") {
+            getPane("mainpane").location = message.url;
+        }
+    });
+}
+
 function addWikiLinkToHeadings() {
     let pathname = new URL(document.URL).pathname;
     let evaluateResult = document.evaluate(
@@ -23,6 +42,9 @@ function addWikiLinkToHeadings() {
             headingNodes[i].parentElement.appendChild(wikiDiv);
 
             let searchTerm = headingNodes[i].innerText;
+            if (searchTerm.endsWith(":")) {
+                searchTerm = searchTerm.replace(/:$/, "");
+            }
             if (pathname == "/fight.php") {
                 let monnameNode = document.getElementById("monname");
                 searchTerm = monnameNode.innerText.replace(/^(a|an) /, "");
@@ -44,6 +66,7 @@ function isPageBindKeyBlacklisted() {
         case "/mall.php":
         case "/town_sellflea.php":
         case "/makeoffer.php":
+        case "/sendmessage.php":
             return true;
     }
     return false;
@@ -193,8 +216,18 @@ function openWiki(searchTerm) {
     open(url);
 }
 
-function openMall(searchTerm) {
-    // https://www.kingdomofloathing.com/mall.php?pudnuggler=one-day+ticket+to+Spring+Break+Beach
+async function searchMall(searchTerm) {
+    let searchParams = new URLSearchParams();
+    searchParams.set("pudnuggler", searchTerm);
+    let url = `https://www.kingdomofloathing.com/mall.php?${searchParams.toString()}`;
+    return browser.runtime.sendMessage({operation: "gotoUrl", url});
+}
+
+async function searchInventory(searchTerm) {
+    let searchParams = new URLSearchParams();
+    searchParams.set("ftext", searchTerm);
+    let url = `https://www.kingdomofloathing.com/inventory.php?${searchParams.toString()}`;
+    return browser.runtime.sendMessage({operation: "gotoUrl", url});
 }
 
 function openPriceCheck(itemId) {

@@ -1,4 +1,5 @@
-switch (URL.parse(document.URL).pathname) {
+let pathname = URL.parse(document.URL).pathname;
+switch (pathname) {
     case "/game.php":
         handleGamePage();
         break;
@@ -28,4 +29,5 @@ switch (URL.parse(document.URL).pathname) {
         addPriceToAdventureRewardItems();
 }
 
+registerCommandReceiver();
 addWikiLinkToHeadings();

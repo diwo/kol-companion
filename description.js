@@ -32,9 +32,12 @@ async function handleDescriptionPage() {
             document.body.innerHTML.match(/Cannot be traded/) ||
             document.body.innerHTML.match(/Gift Item/);
 
+        addDiv(koliteminfo, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
+
         if (untradable) {
             await browser.runtime.sendMessage({operation: "setUntradable", itemId});
         } else {
+            addDiv(koliteminfo, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
             addDiv(koliteminfo, '[<a id="pricecheck" href="#">PC</a>]', style => style.display = "inline");
             addDiv(koliteminfo, 'Average: <span id="market-average"><i>loading</i></span>');
             addDiv(koliteminfo, 'Volume: <span id="market-volume"><i>loading</i></span>');
@@ -46,10 +49,27 @@ async function handleDescriptionPage() {
 
     document.body.appendChild(koliteminfo);
 
-    document.getElementById("wiki").addEventListener("click", () => {
+    let wikiElem = document.getElementById("wiki");
+    wikiElem.addEventListener("click", () => {
         openWiki(thingName);
         window.close();
     });
+
+    let searchInventoryElem = document.getElementById("searchinv");
+    if (searchInventoryElem) {
+        searchInventoryElem.addEventListener("click", () => {
+            searchInventory(thingName);
+            window.close();
+        });
+    }
+
+    let searchMallElem = document.getElementById("searchmall");
+    if (searchMallElem) {
+        searchMallElem.addEventListener("click", () => {
+            searchMall(thingName);
+            window.close();
+        });
+    }
 
     let pricecheckElem = document.getElementById("pricecheck");
     if (pricecheckElem) {
@@ -84,12 +104,12 @@ async function handleDescriptionPage() {
         poopLink.href = href;
     }
 
-    bindKey("w", () => {
-        openWiki(thingName);
-        window.close();
-    });
-    bindKey("c", () => navigator.clipboard.writeText(thingName));
     bindKey(["Escape", "q"], () => window.close());
+    bindKey("w", () => wikiElem.click());
+    bindKey("s", () => searchInventoryElem && searchInventoryElem.click());
+    bindKey("d", () => searchMallElem && searchMallElem.click());
+    bindKey("g", () => pricecheckElem && pricecheckElem.click());
+    bindKey("c", () => navigator.clipboard.writeText(thingName));
 }
 
 function wrapElemWithAnchor(elem, href) {

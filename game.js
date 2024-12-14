@@ -122,7 +122,7 @@ async function readventure() {
             
             if (isAdventureEnd) {
                 resultElem.innerText = "Running";
-                await sleep(300, ctx);
+                await sleep(600, ctx);
                 if (await isContinue()) {
                     await sendAfterAdventureCommand();
                     await exec(ctx, withDelay(goLastAdventure));
@@ -176,16 +176,27 @@ function useSkill(skillName) {
 
 function chooseAdventureOption() {
     return sequence([
+        chooseOvergrownLotOption(),
         chooseDailyDungeonOption(),
-        chooseBlackForestOption(),
-        choosePFAirshipOption(),
         chooseHauntedGalleryOption(),
         chooseDungeonsOfDoomOption(),
+        choosePFAirshipOption(),
+        chooseBlackForestOption(),
+        chooseCastleSkyTopOption(),
+    ], {ignoreErrors: true, firstOnly: true});
+}
+
+function chooseOvergrownLotOption() {
+    return sequence([
+        // The Overgrown Lot : 0
+        () => clickButtonIfPageText(/Lots of Options/, /Follow the booze map/),
+        () => clickButtonIfPageText(/Lots of Options/, /Look through the cardboard boxes/),
     ], {ignoreErrors: true, firstOnly: true});
 }
 
 function chooseDailyDungeonOption() {
     return sequence([
+        // The Daily Dungeon : 15
         () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Go through the boring door/),
         () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Ignore the chest/),
         () => clickButtonIfPageText(/In the 15th and final chamber of the Daily Dungeon/, /Open it!/),
@@ -195,25 +206,9 @@ function chooseDailyDungeonOption() {
     ], {ignoreErrors: true, firstOnly: true});
 }
 
-function chooseBlackForestOption() {
-    return sequence([
-        // The Black Forest
-        () => clickButtonIfPageText(/All Over the Map/, /Go to the black gold mine/),
-        () => clickButtonIfPageText(/Be Mine/, /Go left/),
-    ], {ignoreErrors: true, firstOnly: true});
-}
-
-function choosePFAirshipOption() {
-    return sequence([
-        // Penultimate Fantasy Airship
-        () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
-        () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
-    ], {ignoreErrors: true, firstOnly: true});
-}
-
 function chooseHauntedGalleryOption() {
     return sequence([
-        // The Haunted Gallery
+        // The Haunted Gallery : 40
         () => clickButtonIfPageText(/Louvre It or Leave It/, /Pass on by/),
         () => clickButtonIfPageText(/Out in the Garden/, /None of the above/),
         () => clickButtonIfPageText(/Lights Out in the Gallery/, /Quit the Gallery/),
@@ -222,8 +217,34 @@ function chooseHauntedGalleryOption() {
 
 function chooseDungeonsOfDoomOption() {
     return sequence([
-        // The Dungeons of Doom
+        // The Dungeons of Doom : 44
         () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
+    ], {ignoreErrors: true, firstOnly: true});
+}
+
+function choosePFAirshipOption() {
+    return sequence([
+        // Penultimate Fantasy Airship : 90
+        () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
+        () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
+    ], {ignoreErrors: true, firstOnly: true});
+}
+
+function chooseBlackForestOption() {
+    return sequence([
+        // The Black Forest : 110
+        () => clickButtonIfPageText(/All Over the Map/, /Go to the black gold mine/),
+        () => clickButtonIfPageText(/Be Mine/, /Go left/),
+    ], {ignoreErrors: true, firstOnly: true});
+}
+
+function chooseCastleSkyTopOption() {
+    return sequence([
+        // The Castle in the Clouds in the Sky (Top Floor) : 130
+        () => clickButtonIfPageText(/Flavor of a Raver/, /Check Behind the Giant Poster/),
+        () => clickButtonIfPageText(/Yeah, You're for Me, Punk Rock Giant/, /Check behind the trash can/),
+        () => clickButtonIfPageText(/Copper Feel/, /Go through the Crack/),
+        () => clickButtonIfPageText(/Melon Collie and the Infinite Lameness/, /Snag some Candles/),
     ], {ignoreErrors: true, firstOnly: true});
 }
 
@@ -360,7 +381,7 @@ function withRetry(action, {delay, maxRetry} = {}) {
     };
 }
 
-function withDelay(action, delay = 800) {
+function withDelay(action, delay = 500) {
     return async ctx => {
         let result = await exec(ctx, stoppable(action));
         // if (delay > 0) console.log(`Sleeping ${delay}`);

@@ -53,6 +53,10 @@ let priceCheckQueue = {};
 
 browser.runtime.onMessage.addListener(message => {
     switch (message.operation) {
+        case "registerWindow":
+            return registerWindow();
+        case "gotoUrl":
+            return notifyGotoUrl(message.url);
         case "fetchPrice":
             return fetchPrice(message.itemId);
         case "queuePriceCheck":
@@ -64,17 +68,25 @@ browser.runtime.onMessage.addListener(message => {
     return false;
 });
 
-let priceUpdateListenerPorts = {};
-let nextPriceUpdateListenerPortNum = 0;
+let commandListenerPorts = {};
+browser.runtime.onConnect.addListener(port => {
+    if (port.name == "commandListener") {
+        let portId = randomId();
+        commandListenerPorts[portId] = port;
+        port.onDisconnect.addListener(() => {
+            delete commandListenerPorts[portId];
+        });
+    }
+});
 
+let priceUpdateListenerPorts = {};
 browser.runtime.onConnect.addListener(port => {
     if (port.name == "priceUpdateListener") {
-        let portNum = nextPriceUpdateListenerPortNum;
-        priceUpdateListenerPorts[portNum] = port;
+        let portId = randomId();
+        priceUpdateListenerPorts[portId] = port;
         port.onDisconnect.addListener(() => {
-            delete priceUpdateListenerPorts[portNum];
+            delete priceUpdateListenerPorts[portId];
         });
-        nextPriceUpdateListenerPortNum += 1;
     }
 });
 
@@ -104,6 +116,16 @@ browser.alarms.onAlarm.addListener(alarm => {
     }
 });
 browser.alarms.create("priceCheckQueueWorker", {delayInMinutes: 5/60});
+
+let lastWindowId = null;
+async function registerWindow() {
+    lastWindowId = randomId();
+    return lastWindowId;
+}
+
+function randomId() {
+    return Math.floor(Math.random() * 1_000_000_000);
+}
 
 async function fetchPrice(itemId) {
     const oneWeekTimespan = 2;
@@ -170,5 +192,15 @@ async function setUntradable(itemId) {
 function notifyPriceUpdated(itemIds) {
     for (let port of Object.values(priceUpdateListenerPorts)) {
         port.postMessage({event: "priceUpdated", itemIds});
+    }
+}
+
+function notifyGotoUrl(url) {
+    for (let port of Object.values(commandListenerPorts)) {
+        port.postMessage({
+            windowId: lastWindowId,
+            command: "gotoUrl",
+            url
+        });
     }
 }
