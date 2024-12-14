@@ -20,6 +20,7 @@
                 "game.js",
                 "inventory.js",
                 "backoffice.js",
+                "fleamarket.js",
                 "mining.js",
                 "charpane.js",
                 "description.js",

@@ -10,6 +10,9 @@ switch (pathname) {
     case "/backoffice.php":
         handleBackoffice();
         break;
+    case "/town_fleamarket.php":
+        handleFleaMarket();
+        break;
     case "/mining.php":
         handleMining();
         addPriceToAdventureRewardItems();
