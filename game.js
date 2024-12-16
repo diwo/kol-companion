@@ -122,7 +122,11 @@ async function readventure() {
             
             if (isAdventureEnd) {
                 resultElem.innerText = "Running";
-                await sleep(600, ctx);
+                let turnsRemaining = await getTurnsWithRetry()(ctx);
+                let untilTurn = getUntilTurn();
+                if (getWhileText() || (untilTurn && turnsRemaining - untilTurn <= 5)) {
+                    await sleep(500, ctx);
+                }
                 if (await isContinue()) {
                     await sendAfterAdventureCommand();
                     await exec(ctx, withDelay(goLastAdventure));
@@ -266,11 +270,14 @@ function shouldStopMpFull() {
 
 async function isTurnCountReached(ctx, {minTurn} = {}) {
     if (!minTurn) minTurn = 0;
-
-    let untilTurnElem = getPane("companionpane", {id: "until-turn"});
-    let untilTurn = parseInt(untilTurnElem.value) || minTurn;
+    let untilTurn = getUntilTurn(minTurn);
     let turnsRemaining = await getTurnsWithRetry()(ctx);
     return turnsRemaining <= untilTurn;
+}
+
+function getUntilTurn(minTurn = 0) {
+    let untilTurnElem = getPane("companionpane", {id: "until-turn"});
+    return parseInt(untilTurnElem.value) || minTurn;
 }
 
 function getTurnsWithRetry() {
@@ -281,9 +288,12 @@ function getTurnsWithRetry() {
 }
 
 function isQuestTextMatch() {
-    let whileTextElem = getPane("companionpane", {id: "while-text"});
     let charpaneText = getPane("charpane").document.body.innerText;
-    return charpaneText.match(whileTextElem.value);
+    return charpaneText.match(getWhileText());
+}
+
+function getWhileText() {
+    return getPane("companionpane", {id: "while-text"}).value;
 }
 
 async function sendAfterAdventureCommand() {
@@ -381,7 +391,7 @@ function withRetry(action, {delay, maxRetry} = {}) {
     };
 }
 
-function withDelay(action, delay = 500) {
+function withDelay(action, delay = 600) {
     return async ctx => {
         let result = await exec(ctx, stoppable(action));
         // if (delay > 0) console.log(`Sleeping ${delay}`);
