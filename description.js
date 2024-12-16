@@ -109,7 +109,7 @@ async function handleDescriptionPage() {
     bindKey("s", () => searchInventoryElem && searchInventoryElem.click());
     bindKey("d", () => searchMallElem && searchMallElem.click());
     bindKey("g", () => pricecheckElem && pricecheckElem.click());
-    bindKey("c", () => navigator.clipboard.writeText(thingName));
+    bindKey("c", () => { navigator.clipboard.writeText(thingName); window.close(); });
 }
 
 function wrapElemWithAnchor(elem, href) {

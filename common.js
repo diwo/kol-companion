@@ -73,6 +73,7 @@ function isPageBindKeyBlacklisted() {
         case "/mall.php":
         case "/town_sellflea.php":
         case "/makeoffer.php":
+        case "/counteroffer.php":
         case "/sendmessage.php":
             return true;
     }
