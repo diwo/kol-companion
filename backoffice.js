@@ -34,9 +34,46 @@ function sortStoreInventory() {
 function formatStoreActivity() {
     let activityHeading = document.evaluate("//b[text()='Recent Store Activity (past 2 weeks)']", document).iterateNext();
     if (activityHeading) {
-        let activityNode = activityHeading.nextSibling.nextSibling;
-        activityNode.innerHTML = activityNode.innerHTML.replaceAll(
-            /\d{4,}(?= Meat)/g, str => `<span style="color: ${getPriceColor(true, str, 0)}">${parseInt(str).toLocaleString()}</span>`);
+        let parent = activityHeading.nextSibling.nextSibling;
+        let node = parent.firstChild;
+        while (node) {
+            let nextNode = node.nextSibling;
+            let match = node.textContent.match(/^ bought (\d+) \((.*)\) for (\d+) Meat.$/);
+            if (match) {
+                let count = parseInt(match[1]);
+                let itemName = match[2];
+                let totalPrice = parseInt(match[3]);
+
+                let wrapper = document.createElement("span");
+
+                let itemLink = document.createElement("a");
+                itemLink.innerText = itemName;
+                itemLink.style.fontStyle = "italic";
+                itemLink.href = "#";
+                itemLink.onclick = e => e.preventDefault() || searchMall(itemName);
+
+                let totalPriceNode = document.createElement("span");
+                totalPriceNode.innerText = totalPrice.toLocaleString();
+                totalPriceNode.style.color = getPriceColor(true, totalPrice);
+                totalPriceNode.style.fontWeight = "bold";
+
+                wrapper.appendChild(document.createTextNode(` bought ${count} `));
+                wrapper.appendChild(itemLink);
+                wrapper.appendChild(document.createTextNode(" for "));
+                wrapper.appendChild(totalPriceNode);
+                wrapper.appendChild(document.createTextNode(" Meat"));
+
+                if (count > 1) {
+                    let unitPrice = totalPrice / count;
+                    wrapper.appendChild(document.createTextNode(` (${unitPrice.toLocaleString()}/ea)`));
+                }
+                wrapper.appendChild(document.createTextNode("."));
+
+                parent.insertBefore(wrapper, node);
+                parent.removeChild(node);
+            }
+            node = nextNode;
+        }
     }
 }
 
