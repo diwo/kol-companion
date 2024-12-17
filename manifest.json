@@ -21,6 +21,7 @@
                 "inventory.js",
                 "backoffice.js",
                 "fleamarket.js",
+                "pvp.js",
                 "mining.js",
                 "charpane.js",
                 "description.js",

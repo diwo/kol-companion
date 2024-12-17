@@ -13,6 +13,9 @@ switch (pathname) {
     case "/town_fleamarket.php":
         handleFleaMarket();
         break;
+    case "/peevpee.php":
+        handlePvp();
+        break;
     case "/mining.php":
         handleMining();
         addPriceToAdventureRewardItems();
