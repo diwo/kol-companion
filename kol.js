@@ -15,6 +15,7 @@ switch (pathname) {
         break;
     case "/peevpee.php":
         handlePvp();
+        addPriceToAdventureRewardItems();
         break;
     case "/mining.php":
         handleMining();
