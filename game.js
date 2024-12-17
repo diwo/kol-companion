@@ -1,21 +1,22 @@
 function handleGamePage() {
     let companionpane = document.getElementById("companionpane");
-    if (!companionpane) {
+    if (companionpane) {
+        bindCompanionPaneScripts();
+    } else {
         companionpane = document.createElement("frame");
+        companionpane.id = "companionpane";
         companionpane.name = "companionpane";
-        companionpane.onload = setupCompanionPane;
+        companionpane.onload = bindCompanionPaneScripts;
         companionpane.src = browser.runtime.getURL("companionpane.html");
         document.getElementById("rootset").appendChild(companionpane);
     }
 
     let chatpane = getPane("chatpane", {returnFrame: true});
-    chatpane.onload = () => {
-        chatpane.contentWindow.removeEventListener("contextmenu", handleEventToggleCompanionPane);
-        chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
-    };
+    chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
+    chatpane.onload = () => chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
 }
 
-function setupCompanionPane() {
+function bindCompanionPaneScripts() {
     getPane("companionpane").addEventListener("contextmenu", handleEventToggleCompanionPane);
 
     getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));
