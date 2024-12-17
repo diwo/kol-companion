@@ -5,8 +5,8 @@ async function registerCommandReceiver() {
 
     let selfId = null;
     let registerWindow = async () => selfId = await browser.runtime.sendMessage({operation: "registerWindow"});
-    registerWindow();
-    document.addEventListener("click", registerWindow);
+    if (document.hasFocus()) registerWindow();
+    window.addEventListener("focus", () => document.hasFocus() && registerWindow());
 
     let commandListener = browser.runtime.connect({name: "commandListener"});
     commandListener.onMessage.addListener(message => {
