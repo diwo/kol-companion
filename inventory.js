@@ -97,30 +97,32 @@ async function sortInventorySection(section) {
     while (row) {
         let item = row.firstChild;
         while (item) {
-            let last = item;
+            items.push(item);
             item = item.nextSibling;
-            last.parentElement.removeChild(last);
-            items.push(last);
         }
         row = row.nextSibling;
     }
 
     let getItemId = item => parseInt(new URLSearchParams(item.firstChild.getAttribute("rel")).get("id"));
-    let itemPrices = {};
-    for (let item of items) {
-        let itemId = getItemId(item);
-        let price = await getPrice(itemId, {cachedOnly: true});
-        itemPrices[itemId] = price;
+
+    let itemIds = items.map(getItemId);
+    let itemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
+    let itemPriceMap = {};
+    for (let i=0; i<itemIds.length; i++) {
+        let itemId = itemIds[i];
+        itemPriceMap[itemId] = itemPrices[i];
     }
-    
+
     items.sort((a, b) => {
-        let priceA = itemPrices[getItemId(a)];
-        let priceB = itemPrices[getItemId(b)];
+        let priceA = itemPriceMap[getItemId(a)];
+        let priceB = itemPriceMap[getItemId(b)];
         if (priceA.untradable && priceB.untradable) return 0;
         if (priceA.untradable) return -1;
         if (priceB.untradable) return 1;
         return (priceA.data.average ?? 0) - (priceB.data.average ?? 0);
     });
+
+    items.forEach(item => item.parentElement.removeChild(item));
 
     row = section.firstChild.firstChild;
     while (items.length) {
