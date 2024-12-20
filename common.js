@@ -57,27 +57,8 @@ function addWikiLinkToHeadings() {
                 searchTerm = monnameNode.innerText.replace(/^(a|an) /, "");
             }
             document.getElementById(wikiNodeId).addEventListener("click", () => openWiki(searchTerm));
-            if (i == 0 && !isPageBindKeyBlacklisted()) {
-                bindKey("w", () => openWiki(searchTerm));
-            }
         }
     }
-}
-
-function isPageBindKeyBlacklisted() {
-    let pathname = new URL(document.URL).pathname;
-    switch (pathname) {
-        case "/inventory.php":
-        case "/skillz.php":
-        case "/craft.php":
-        case "/mall.php":
-        case "/town_sellflea.php":
-        case "/makeoffer.php":
-        case "/counteroffer.php":
-        case "/sendmessage.php":
-            return true;
-    }
-    return false;
 }
 
 function addPriceToAdventureRewardItems() {
