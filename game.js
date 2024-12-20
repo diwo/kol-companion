@@ -113,17 +113,21 @@ async function readventure() {
             let isCombat = !!mainpane.document.evaluate("//td/b[text()='Combat!']", mainpane.document).iterateNext();
             let isAdventureEnd = mainpane.document.firstChild.innerText.match(/Adventure Again/);
 
-            if (isAdventureEnd && isMpAlmostFull()) {
-                if (shouldSpendMpBuff()) {
-                    await sendCommandWithPause("/buff", 3000);
+            if (isAdventureEnd) {
+                if (isMpAlmostFull()) {
+                    if (shouldSpendMpBuff()) {
+                        await sendCommandWithPause("/buff", 3000);
+                    }
+                    if (shouldStopMpFull()) {
+                        resultElem.innerText = "MP Full";
+                        return stop();
+                    }
                 }
-                if (shouldStopMpFull() && isMpAlmostFull()) {
-                    resultElem.innerText = "MP Full";
+                if (shouldStopMpLow() && isMpLow()) {
+                    resultElem.innerText = "MP Low";
                     return stop();
                 }
-            }
-            
-            if (isAdventureEnd) {
+
                 resultElem.innerText = "Running";
                 if (getWhileText() || await exec(ctx, getTurnsUseRemaining) <= 2) {
                     await sleep(500, ctx);
@@ -323,6 +327,10 @@ function shouldSpendMpBuff() {
 
 function shouldStopMpFull() {
     return getPane("companionpane", {id: "stop-mp-full"}).checked;
+}
+
+function shouldStopMpLow() {
+    return getPane("companionpane", {id: "stop-mp-low"}).checked;
 }
 
 function getTurnsUseRemaining() {

@@ -307,6 +307,10 @@ function isMpAlmostFull() {
     return getMp().ratio >= 0.85;
 }
 
+function isMpLow() {
+    return getMp().ratio <= 0.15;
+}
+
 async function sendCommand(command) {
     if (!command.startsWith("/")) {
         command = "/" + command;
