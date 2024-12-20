@@ -226,7 +226,7 @@ function openWiki(searchTerm) {
 
 async function searchMall(searchTerm) {
     let searchParams = new URLSearchParams();
-    searchParams.set("pudnuggler", searchTerm);
+    searchParams.set("pudnuggler", `"${searchTerm}"`);
     let url = `https://www.kingdomofloathing.com/mall.php?${searchParams.toString()}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", url});
 }
