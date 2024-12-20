@@ -72,7 +72,8 @@ async function farmDustBunnies() {
     let resultElem = getPane("companionpane", {id: "farm-dust-bunnies-result"});
 
     try {
-        while (!(await isTurnCountReached(ctx, {minTurn: 1}))) {
+        let isDone = async () => await exec(ctx, getTurnsUseRemaining) < 2;
+        while (!await isDone()) {
             if (isMpAlmostFull()) {
                 if (shouldSpendMpBuff()) {
                     await sendCommandWithPause("/buff", 3000);
@@ -88,7 +89,8 @@ async function farmDustBunnies() {
                 withDelay(() => goto("/place.php?whichplace=monorail&action=monorail_downtown")),
                 withDelay(() => clickButton(/Factory District Stop/)),
                 withDelay(() => clickButton(/Visit some empty buildings/)),
-            ], {ignoreErrors: true}));
+                // withDelay(() => clickButton(/Nevermind/), 2000),
+            ]));
         }
         resultElem.innerText = "Finished";
     } catch (e) {
@@ -105,8 +107,8 @@ async function readventure() {
     let resultElem = getPane("companionpane", {id: "re-adventure-result"});
 
     try {
-        let isContinue = async () => !(await isTurnCountReached(ctx)) && isQuestTextMatch();
-        while (await isContinue()) {
+        let isDone = async () => !await exec(ctx, checkQuestTextMatch) || await exec(ctx, getTurnsUseRemaining) <= 0;
+        while (!await isDone()) {
             let mainpane = getPane("mainpane");
             let isCombat = !!mainpane.document.evaluate("//td/b[text()='Combat!']", mainpane.document).iterateNext();
             let isAdventureEnd = mainpane.document.firstChild.innerText.match(/Adventure Again/);
@@ -123,12 +125,10 @@ async function readventure() {
             
             if (isAdventureEnd) {
                 resultElem.innerText = "Running";
-                let turnsRemaining = await getTurnsWithRetry()(ctx);
-                let untilTurn = getUntilTurn();
-                if (getWhileText() || (untilTurn && turnsRemaining - untilTurn <= 5)) {
+                if (getWhileText() || await exec(ctx, getTurnsUseRemaining) <= 2) {
                     await sleep(500, ctx);
                 }
-                if (await isContinue()) {
+                if (!await isDone()) {
                     await sendAfterAdventureCommand();
                     await exec(ctx, withDelay(goLastAdventure));
                 }
@@ -163,20 +163,66 @@ function applyPreset({whileText, afterAdvCmd, afterAdvCmdText} = {}) {
 }
 
 function useCombatAction() {
+    let useSteal = getPane("companionpane", {id: "use-steal"}).checked;
+    let useStun = getPane("companionpane", {id: "use-steal"}).checked;
+    let actions = [];
+
+    if (useSteal) {
+        actions.push(() => clickButton(/Pick .* Pocket/));
+    }
+    if (useStun) {
+        actions.push(useSkill(/Accordion Bash/));
+        actions.push(useSkill(/Entangling Noodles/));
+        actions.push(useSkill(/Soul Bubble/));
+    }
+    if (useSteal) {
+        actions.push(() => clickButton(/Steal Accordion/));
+    }
+    actions.push(useAttackCombatAction);
+
+    return sequence(actions, {stopOnSuccess: true});
+}
+
+function useAttackCombatAction() {
+    let enemyName = getEnemyName();
+    switch (enemyName) {
+        case "Section 11":
+            return usePhysicalAttackCombatAction();
+        case "spectre of war":
+            return useElementalAttackCombatAction();
+    }
+    return useGeneralAttackCombatAction();
+}
+
+function usePhysicalAttackCombatAction() {
     return sequence([
-        () => clickButton(/Pick .* Pocket/),
-        () => clickButton(/Steal Accordion/),
+        useSkill(/Weapon of the Pastalord/),
+        useSkill(/Curse of Marinara/),
+        () => clickButton(/Attack with/),
+    ], {stopOnSuccess: true});
+}
+
+function useElementalAttackCombatAction() {
+    return sequence([
+        useSkill(/Saucestorm/),
+        useSkill(/Cannelloni Cannon/),
+        useSkill(/Bawdy Refrain/),
+    ], {stopOnSuccess: true});
+}
+
+function useGeneralAttackCombatAction() {
+    return sequence([
         useSkill(/Saucestorm/),
         useSkill(/Cannelloni Cannon/),
         () => clickButton(/Attack with/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function useSkill(skillName) {
     return sequence([
         () => select("whichskill", skillName),
         () => clickButton(/Use Skill/),
-    ]);
+    ], {stopOnError: true});
 }
 
 function chooseAdventureOption() {
@@ -188,7 +234,8 @@ function chooseAdventureOption() {
         choosePFAirshipOption(),
         chooseBlackForestOption(),
         chooseCastleSkyTopOption(),
-    ], {ignoreErrors: true, firstOnly: true});
+        chooseCrimbo2024Option(),
+    ], {stopOnSuccess: true});
 }
 
 function chooseOvergrownLotOption() {
@@ -196,7 +243,7 @@ function chooseOvergrownLotOption() {
         // The Overgrown Lot : 0
         () => clickButtonIfPageText(/Lots of Options/, /Follow the booze map/),
         () => clickButtonIfPageText(/Lots of Options/, /Look through the cardboard boxes/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function chooseDailyDungeonOption() {
@@ -208,7 +255,7 @@ function chooseDailyDungeonOption() {
         () => clickButtonIfPageText(/It's Almost Certainly a Trap/, /Use your eleven-foot pole/),
         () => clickButtonIfPageText(/I Wanna Be a Door/, /Use your lockpicks/),
         () => clickButtonIfPageText(/I Wanna Be a Door/, /Use a skeleton key/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function chooseHauntedGalleryOption() {
@@ -217,14 +264,14 @@ function chooseHauntedGalleryOption() {
         () => clickButtonIfPageText(/Louvre It or Leave It/, /Pass on by/),
         () => clickButtonIfPageText(/Out in the Garden/, /None of the above/),
         () => clickButtonIfPageText(/Lights Out in the Gallery/, /Quit the Gallery/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function chooseDungeonsOfDoomOption() {
     return sequence([
         // The Dungeons of Doom : 44
         () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function choosePFAirshipOption() {
@@ -232,7 +279,7 @@ function choosePFAirshipOption() {
         // Penultimate Fantasy Airship : 90
         () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
         () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function chooseBlackForestOption() {
@@ -240,7 +287,7 @@ function chooseBlackForestOption() {
         // The Black Forest : 110
         () => clickButtonIfPageText(/All Over the Map/, /Go to the black gold mine/),
         () => clickButtonIfPageText(/Be Mine/, /Go left/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
 }
 
 function chooseCastleSkyTopOption() {
@@ -250,7 +297,16 @@ function chooseCastleSkyTopOption() {
         () => clickButtonIfPageText(/Yeah, You're for Me, Punk Rock Giant/, /Check behind the trash can/),
         () => clickButtonIfPageText(/Copper Feel/, /Go through the Crack/),
         () => clickButtonIfPageText(/Melon Collie and the Infinite Lameness/, /Snag some Candles/),
-    ], {ignoreErrors: true, firstOnly: true});
+    ], {stopOnSuccess: true});
+}
+
+function chooseCrimbo2024Option() {
+    return sequence([
+        // Crimbo 2024
+        () => clickButtonIfPageText(/The Eggdump/, /Dig through the eggs/),
+        () => clickButtonIfPageText(/Snakes in the Grasses/, /See what's under the snakes/),
+        () => clickButtonIfPageText(/War is Like Hell: Very Hot/, /Bravely explore/),
+    ], {stopOnSuccess: true});
 }
 
 function clickButtonIfPageText(pageTextPattern, buttonTextPattern) {
@@ -269,28 +325,19 @@ function shouldStopMpFull() {
     return getPane("companionpane", {id: "stop-mp-full"}).checked;
 }
 
-async function isTurnCountReached(ctx, {minTurn} = {}) {
-    if (!minTurn) minTurn = 0;
-    let untilTurn = getUntilTurn(minTurn);
-    let turnsRemaining = await getTurnsWithRetry()(ctx);
-    return turnsRemaining <= untilTurn;
+function getTurnsUseRemaining() {
+    return withRetry(() => {
+        let untilTurnElem = getPane("companionpane", {id: "until-turn"});
+        let untilTurn = parseInt(untilTurnElem.value) || 0;
+        return getTurns() - untilTurn;
+    });
 }
 
-function getUntilTurn(minTurn = 0) {
-    let untilTurnElem = getPane("companionpane", {id: "until-turn"});
-    return parseInt(untilTurnElem.value) || minTurn;
-}
-
-function getTurnsWithRetry() {
-    return async ctx => {
-        let result = await withRetry(() => ({turns: getTurns()}))(ctx);
-        return result.turns;
-    };
-}
-
-function isQuestTextMatch() {
-    let charpaneText = getPane("charpane").document.body.innerText;
-    return charpaneText.match(getWhileText());
+function checkQuestTextMatch() {
+    return withRetry(() => {
+        let charpaneText = getPane("charpane").document.body.innerText;
+        return charpaneText.match(getWhileText());
+    });
 }
 
 function getWhileText() {
@@ -358,18 +405,14 @@ function stoppable(action) {
     };
 }
 
-function sequence(actions, {ignoreErrors, firstOnly} = {}) {
+function sequence(actions, {stopOnError, stopOnSuccess} = {}) {
     return async ctx => {
         let result = null;
         for (let action of actions) {
             result = await exec(ctx, stoppable(action));
             await sleep(0, ctx);
-            if (!ignoreErrors && !result) {
-                return false;
-            }
-            if (firstOnly && result) {
-                return result;
-            }
+            if (stopOnError && !result) return false;
+            if (stopOnSuccess && result) return result;
         }
         return !!result;
     };
@@ -380,15 +423,16 @@ function withRetry(action, {delay, maxRetry} = {}) {
     if (!maxRetry) maxRetry = 5;
 
     return async ctx => {
-        let success = await exec(ctx, stoppable(action)).catch(() => false);
+        let wrappedAction = async ctx => ({value: await exec(ctx, action)});
+        let result = await exec(ctx, stoppable(wrappedAction)).catch(() => false);
         let retryCount = 0;
-        while (!success && retryCount < maxRetry) {
+        while (!result && retryCount < maxRetry) {
             // console.log(`Retrying ${retryCount} of ${maxRetry}`);
             await sleep(delay, ctx);
-            success = await exec(ctx, stoppable(action)).catch(() => false);
+            result = await exec(ctx, stoppable(wrappedAction)).catch(() => false);
             retryCount += 1;
         }
-        return success;
+        return result.value;
     };
 }
 

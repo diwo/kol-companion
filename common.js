@@ -53,12 +53,16 @@ function addWikiLinkToHeadings() {
                 searchTerm = searchTerm.replace(/:$/, "");
             }
             if (pathname == "/fight.php") {
-                let monnameNode = document.getElementById("monname");
-                searchTerm = monnameNode.innerText.replace(/^(a|an) /, "");
+                searchTerm = getEnemyName();
             }
             document.getElementById(wikiNodeId).addEventListener("click", () => openWiki(searchTerm));
         }
     }
+}
+
+function getEnemyName() {
+    let monnameNode = getPane("mainpane", {id: "monname"});
+    return monnameNode.innerText.replace(/^(a|an) /, "");
 }
 
 function addPriceToAdventureRewardItems() {
