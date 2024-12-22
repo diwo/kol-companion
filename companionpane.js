@@ -8,9 +8,8 @@ async function initSearchMallSection() {
     let addLinkElem = document.evaluate(".//a[@class='addlink']", searchMallElem).iterateNext();
     addLinkElem.addEventListener("click", onClickAddLink);
 
-    let cacheFetch = await browser.storage.local.get(searchMallQuickLinksKey);
-    searchMallQuickLinks = cacheFetch[searchMallQuickLinksKey] || [];
-    searchMallQuickLinks.forEach(addSearchMallEntry);
+    searchMallQuickLinks = await loadSearchMallSearchTerms();
+    searchMallQuickLinks.forEach(addSearchMallSearchTermElem);
 }
 
 function onClickAddLink() {
@@ -21,13 +20,15 @@ function onClickAddLink() {
         inputElem.type = "text";
         let ul = document.evaluate(".//ul", searchMallElem).iterateNext();
         let li = document.createElement("li");
-        li.appendChild(createSearchMallRemoveLink());
+        li.appendChild(createSearchMallRemoveLinkElem());
         li.appendChild(inputElem);
         ul.appendChild(li);
         inputElem.addEventListener("keyup", e => {
             if (e.key == "Enter") {
-                if (addSearchMallEntry(e.target.value)) {
-                    searchMall(e.target.value);
+                let searchTerm = e.target.value;
+                if (addSearchMallSearchTermElem(searchTerm)) {
+                    saveSearchMallSearchTerm(searchTerm);
+                    searchMall(searchTerm);
                 }
             }
         });
@@ -35,7 +36,7 @@ function onClickAddLink() {
     }
 }
 
-function addSearchMallEntry(searchTerm) {
+function addSearchMallSearchTermElem(searchTerm) {
     let searchMallElem = document.getElementById("searchmall");
     let ul = document.evaluate(".//ul", searchMallElem).iterateNext();
 
@@ -66,28 +67,55 @@ function addSearchMallEntry(searchTerm) {
     searchTermLink.addEventListener("click", e => searchMall(e.target.innerText));
 
     let li = document.createElement("li");
-    li.appendChild(createSearchMallRemoveLink());
+    li.appendChild(createSearchMallRemoveLinkElem());
     li.appendChild(searchTermLink);
     ul.appendChild(li);
-
-    searchMallQuickLinks.push(searchTerm);
-    browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
 
     return true;
 }
 
-function createSearchMallRemoveLink() {
+function createSearchMallRemoveLinkElem() {
     let removeLink = document.createElement("a");
     removeLink.href = "#";
     removeLink.className = "removelink";
     removeLink.innerText = "[-]";
     removeLink.addEventListener("click", e => {
         let li = e.target.parentElement;
-        let searchTerm = document.evaluate("./a[@class='searchterm']", li).iterateNext().innerText;
+        let searchTerm = document.evaluate("./a[@class='searchterm']", li).iterateNext()?.innerText;
+        if (searchTerm) {
+            deleteSearchMallSearchTerm(searchTerm);
+        }
         li.parentElement.removeChild(li);
-
-        searchMallQuickLinks = searchMallQuickLinks.filter(quicklink => quicklink.toLowerCase() != searchTerm);
-        browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
     });
     return removeLink;
+}
+
+async function loadSearchMallSearchTerms() {
+    let cacheFetch = await browser.storage.local.get(searchMallQuickLinksKey);
+    let quicklinks = cacheFetch[searchMallQuickLinksKey] || [];
+    return caseInsensitiveDedupe(quicklinks);
+}
+
+async function saveSearchMallSearchTerm(searchTerm) {
+    searchMallQuickLinks.push(searchTerm);
+    searchMallQuickLinks = caseInsensitiveDedupe(searchMallQuickLinks);
+    browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
+}
+
+async function deleteSearchMallSearchTerm(searchTerm) {
+    searchMallQuickLinks = searchMallQuickLinks.filter(quicklink => quicklink.toLowerCase() != searchTerm.toLowerCase());
+    browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
+}
+
+function caseInsensitiveDedupe(strArray) {
+    let added = {};
+    let deduped = [];
+    for (let str of strArray) {
+        let lc = str.toLowerCase();
+        if (!added[lc]) {
+            deduped.push(str);
+            added[lc] = true;
+        }
+    }
+    return deduped;
 }
