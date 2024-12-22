@@ -193,6 +193,7 @@ function useAttackCombatAction() {
         case "Section 11":
             return usePhysicalAttackCombatAction();
         case "spectre of war":
+        case "pumpkin spice wraith":
             return useElementalAttackCombatAction();
     }
     return useGeneralAttackCombatAction();
@@ -310,6 +311,7 @@ function chooseCrimbo2024Option() {
         () => clickButtonIfPageText(/The Eggdump/, /Dig through the eggs/),
         () => clickButtonIfPageText(/Snakes in the Grasses/, /See what's under the snakes/),
         () => clickButtonIfPageText(/War is Like Hell: Very Hot/, /Bravely explore/),
+        () => clickButtonIfPageText(/The Edge of Winter/, /Venture into the cold/),
     ], {stopOnSuccess: true});
 }
 
