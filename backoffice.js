@@ -50,7 +50,7 @@ function formatStoreActivity() {
                 itemLink.innerText = itemName;
                 itemLink.style.fontStyle = "italic";
                 itemLink.href = "#";
-                itemLink.onclick = e => e.preventDefault() || searchMall(itemName);
+                itemLink.onclick = e => e.preventDefault() || searchMall(itemName, {exactMatch: true});
 
                 let totalPriceNode = document.createElement("span");
                 totalPriceNode.innerText = totalPrice.toLocaleString();

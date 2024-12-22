@@ -40,7 +40,7 @@ function addMarketLinksToPvpLogs() {
             mallLink.innerText = itemName;
             mallLink.onclick = e => {
                 e.preventDefault();
-                searchMall(itemName);
+                searchMall(itemName, {exactMatch: true});
             };
             result.appendChild(mallLink);
 

@@ -1,7 +1,13 @@
 <style>
-    ul { margin: 0 }
-    .section { margin: 10px 0 }
+    ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .section { margin: 20px 0 }
     .subsection { margin: 10px 0 }
+    .addlink, .removelink { font-size: 0.7em }
+    .removelink { padding-right: 2px }
+    #searchmall input { width: 90% }
 </style>
 
 <div class="section">
@@ -43,7 +49,15 @@
     <span id="farm-dust-bunnies-result"></span>
 </div>
 
+<div class="section" id="searchmall">
+    <span>Search Mall: <a class="addlink" href="#">[+]</a></span>
+    <ul></ul>
+</div>
+
 <!--
 <hr/>
 <div><a id="test-button" href="#">Test Button</a></div>
 -->
+
+<script src="common.js"></script>
+<script src="companionpane.js"></script>

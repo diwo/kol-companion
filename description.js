@@ -66,7 +66,7 @@ async function handleDescriptionPage() {
     let searchMallElem = document.getElementById("searchmall");
     if (searchMallElem) {
         searchMallElem.addEventListener("click", () => {
-            searchMall(thingName);
+            searchMall(thingName, {exactMatch: true});
             window.close();
         });
     }

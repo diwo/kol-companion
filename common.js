@@ -209,9 +209,10 @@ function openWiki(searchTerm) {
     open(url);
 }
 
-async function searchMall(searchTerm) {
+async function searchMall(searchTerm, {exactMatch} = {}) {
+    if (exactMatch) searchTerm = `"${searchTerm}"`;
     let searchParams = new URLSearchParams();
-    searchParams.set("pudnuggler", `"${searchTerm}"`);
+    searchParams.set("pudnuggler", searchTerm);
     let url = `https://www.kingdomofloathing.com/mall.php?${searchParams.toString()}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", url});
 }

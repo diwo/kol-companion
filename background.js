@@ -26,9 +26,15 @@ async function clearItemPriceCacheErrorOrNoPrice() {
     });
 }
 
-async function exportCacheToClipboard() {
+async function exportItemPriceCacheToClipboard() {
     let cacheFetch = await browser.storage.local.get(null);
-    let json = JSON.stringify(cacheFetch);
+    let itemPrices = {};
+    for (let key of Object.keys(cacheFetch)) {
+        if (key.startsWith("item_price_")) {
+            itemPrices[key] = cacheFetch[key];
+        }
+    }
+    let json = JSON.stringify(itemPrices);
     navigator.clipboard.writeText(json);
 }
 
