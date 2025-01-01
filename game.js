@@ -74,14 +74,12 @@ async function farmDustBunnies() {
     try {
         let isDone = async () => await exec(ctx, getTurnsUseRemaining) < 2;
         while (!await isDone()) {
-            if (isMpAlmostFull()) {
-                if (shouldSpendMpBuff()) {
-                    await sendCommandWithPause("/buff", 3000);
-                }
-                if (shouldStopMpFull() && isMpAlmostFull()) {
-                    resultElem.innerText = "MP Full";
-                    return stop();
-                }
+            if (shouldSpendMpBuff() && isMpAlmostFull()) {
+                await sendCommandWithPause("/buff", 3000);
+            }
+            if (shouldStopMpFull() && isMpAlmostFull()) {
+                resultElem.innerText = "MP Full";
+                return stop();
             }
 
             resultElem.innerText = `Running`;
@@ -114,14 +112,12 @@ async function readventure() {
             let isAdventureEnd = mainpane.document.firstChild.innerText.match(/Adventure Again/);
 
             if (isAdventureEnd) {
-                if (isMpAlmostFull()) {
-                    if (shouldSpendMpBuff()) {
-                        await sendCommandWithPause("/buff", 3000);
-                    }
-                    if (shouldStopMpFull()) {
-                        resultElem.innerText = "MP Full";
-                        return stop();
-                    }
+                if (shouldSpendMpBuff() && isMpAlmostFull()) {
+                    await sendCommandWithPause("/buff", 3000);
+                }
+                if (shouldStopMpFull() && isMpAlmostFull()) {
+                    resultElem.innerText = "MP Full";
+                    return stop();
                 }
                 if (shouldStopMpLow() && isMpLow()) {
                     resultElem.innerText = "MP Low";
