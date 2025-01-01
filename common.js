@@ -218,8 +218,9 @@ async function searchMall(searchTerm, {exactMatch} = {}) {
 }
 
 async function searchInventory(searchTerm) {
+    let searchTermUnicodeStripped = searchTerm.replace(/[^\x00-\x7F]+/g, "*");
     let searchParams = new URLSearchParams();
-    searchParams.set("ftext", searchTerm);
+    searchParams.set("ftext", searchTermUnicodeStripped);
     let url = `https://www.kingdomofloathing.com/inventory.php?${searchParams.toString()}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", url});
 }
