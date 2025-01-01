@@ -308,6 +308,7 @@ function chooseCrimbo2024Option() {
         () => clickButtonIfPageText(/Snakes in the Grasses/, /See what's under the snakes/),
         () => clickButtonIfPageText(/War is Like Hell: Very Hot/, /Bravely explore/),
         () => clickButtonIfPageText(/The Edge of Winter/, /Venture into the cold/),
+        () => clickButtonIfPageText(/The Malevolent Spirit of the Holiday/, /Explore the spooky woods/),
     ], {stopOnSuccess: true});
 }
 
