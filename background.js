@@ -39,13 +39,12 @@ async function exportItemPriceCacheToClipboard() {
 }
 
 async function importCacheFromBackup() {
-    let response = await fetch(browser.runtime.getURL("item_price_cache_backup.json"));
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    let keyVals = await response.json();
-    await browser.storage.local.set(keyVals);
-    console.log(`Imported ${Object.keys(keyVals).length} entries`);
+    try {
+        let response = await fetch(browser.runtime.getURL("item_price_cache_backup.json"));
+        let keyVals = await response.json();
+        await browser.storage.local.set(keyVals);
+        console.log(`Imported ${Object.keys(keyVals).length} entries`);
+    } catch (e) {}
 }
 
 (async function() {
