@@ -1,5 +1,12 @@
 function handleCharPane() {
+    updateHpColor();
     updateMpColor();
+}
+
+function updateHpColor() {
+    if (isHpLow()) {
+        getHpTextNode().style.color = "red";
+    }
 }
 
 function updateMpColor() {

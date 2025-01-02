@@ -175,6 +175,9 @@ function useCombatAction() {
         actions.push(useSkill(/Entangling Noodles/));
         actions.push(useSkill(/Soul Bubble/));
     }
+    if (isHpLow()) {
+        actions.push(useItem(/New Age healing crystal/));
+    }
     if (useSteal) {
         actions.push(() => clickButton(/Steal Accordion/));
     }
@@ -223,6 +226,13 @@ function useSkill(skillName) {
     return sequence([
         () => select("whichskill", skillName),
         () => clickButton(/Use Skill/),
+    ], {stopOnError: true});
+}
+
+function useItem(itemName) {
+    return sequence([
+        () => select("whichitem", itemName),
+        () => clickButton(/Use Item/),
     ], {stopOnError: true});
 }
 

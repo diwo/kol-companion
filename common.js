@@ -290,19 +290,36 @@ function getTurns() {
     return parseInt(hourglass.parentNode.nextSibling.firstChild.innerText);
 }
 
+function getHp() {
+    return parseHpMpText(getHpTextNode().innerText);
+}
+
 function getMp() {
-    let mpText = getMpTextNode().innerText;
-    let match = mpText.match(/(\d+)\s\/\s(\d+)/);
-    let current = parseInt(match[1]);
-    let total = parseInt(match[2]);
-    let ratio = current / total;
-    return { current, total, ratio };
+    return parseHpMpText(getMpTextNode().innerText);
+}
+
+function getHpTextNode() {
+    let charDoc = getPane("charpane").document;
+    let hpIcon = charDoc.evaluate("//img[@title='Hit Points']", charDoc).iterateNext();
+    return hpIcon.parentNode.nextSibling.firstChild;
 }
 
 function getMpTextNode() {
     let charDoc = getPane("charpane").document;
     let mpIcon = charDoc.evaluate("//img[@title='Mojo Points' or @title='Mana Points' or @title='Muscularity Points']", charDoc).iterateNext();
     return mpIcon.parentNode.nextSibling.firstChild;
+}
+
+function parseHpMpText(text) {
+    let match = text.match(/(\d+)\s\/\s(\d+)/);
+    let current = parseInt(match[1]);
+    let total = parseInt(match[2]);
+    let ratio = current / total;
+    return { current, total, ratio };
+}
+
+function isHpLow() {
+    return getHp().ratio <= 0.35;
 }
 
 function isMpAlmostFull() {
