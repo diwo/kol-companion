@@ -27,6 +27,8 @@ function bindCompanionPaneScripts() {
     getPane("companionpane", {id: "farm-dust-bunnies"}).addEventListener("click", farmDustBunnies);
     getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
+    getPane("companionpane", {id: "preset-soulfood"}).addEventListener("click",
+        () => applyPreset({whileText: "", afterAdvCmd: "/cast 20 Soul Food", afterAdvCmdText: "Soulsauce:	100"}));
     getPane("companionpane", {id: "preset-hospital"}).addEventListener("click",
         () => applyPreset({whileText: "", afterAdvCmd: "/closet 1 head mirror", afterAdvCmdText: "pygmy witch surgeon"}));
 
@@ -366,8 +368,10 @@ async function sendAfterAdventureCommand() {
     if (cmd) {
         let textPattern = getPane("companionpane", {id: "after-adv-cmd-text"}).value;
         if (textPattern) {
-            let text = getPane("mainpane").document.firstChild.innerText;
-            if (!text.toLowerCase().includes(textPattern.toLowerCase())) {
+            let mainpaneText = getPane("mainpane").document.firstChild.innerText;
+            let charpaneText = getPane("charpane").document.firstChild.innerText;
+            let textIncludes = (haystack, needle) => haystack.toLowerCase().includes(needle.toLowerCase());
+            if (!textIncludes(mainpaneText, textPattern) && !textIncludes(charpaneText, textPattern)) {
                 return;
             }
         }
