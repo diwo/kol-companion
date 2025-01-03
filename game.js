@@ -111,6 +111,11 @@ async function readventure() {
         while (!await isDone()) {
             let mainpane = getPane("mainpane");
             let isCombat = !!mainpane.document.evaluate("//td/b[text()='Combat!']", mainpane.document).iterateNext();
+            let mainpaneText = mainpane.document.firstChild?.innerText;
+            if (!mainpaneText) {
+                await sleep(200, ctx);
+                continue;
+            }
             let isAdventureEnd = mainpane.document.firstChild.innerText.match(/Adventure Again/);
 
             if (isAdventureEnd) {
