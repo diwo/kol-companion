@@ -132,7 +132,7 @@ async function readventure() {
                 }
                 if (!await isDone()) {
                     await sendAfterAdventureCommand();
-                    await exec(ctx, withDelay(goLastAdventure));
+                    await exec(ctx, withDelay(goLastAdventure, 1000));
                 }
             } else if (isCombat) {
                 resultElem.innerText = "Running";
@@ -166,7 +166,7 @@ function applyPreset({whileText, afterAdvCmd, afterAdvCmdText} = {}) {
 
 function useCombatAction() {
     let useSteal = getPane("companionpane", {id: "use-steal"}).checked;
-    let useStun = getPane("companionpane", {id: "use-steal"}).checked;
+    let useStun = getPane("companionpane", {id: "use-stun"}).checked;
     let actions = [];
 
     if (useSteal) {
