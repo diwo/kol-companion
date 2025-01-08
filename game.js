@@ -245,14 +245,25 @@ function useItem(itemName) {
 
 function chooseAdventureOption() {
     return sequence([
-        chooseOvergrownLotOption(),
         chooseDailyDungeonOption(),
+        chooseSpookyForestOption(),
+        chooseOvergrownLotOption(),
+        chooseHauntedBathroomOption(),
         chooseHauntedGalleryOption(),
         chooseDungeonsOfDoomOption(),
+        chooseExtremeSlopeOption(),
         choosePFAirshipOption(),
         chooseBlackForestOption(),
         chooseCastleSkyTopOption(),
         chooseCrimbo2024Option(),
+    ], {stopOnSuccess: true});
+}
+
+function chooseSpookyForestOption() {
+    return sequence([
+        // The Spooky Forest : 0
+        () => clickButtonIfPageText(/Arboreal Respite/, /Explore the stream/),
+        () => clickButtonIfPageText(/Consciousness of a Stream/, /Squeeze into the cave/),
     ], {stopOnSuccess: true});
 }
 
@@ -276,6 +287,16 @@ function chooseDailyDungeonOption() {
     ], {stopOnSuccess: true});
 }
 
+function chooseHauntedBathroomOption() {
+    return sequence([
+        // The Haunted Bathroom : 40
+        () => clickButtonIfPageText(/Having a Medicine Ball/, /Open it and see what's inside/),
+        () => clickButtonIfPageText(/Bad Medicine is What You Need/, /Take off/),
+        () => clickButtonIfPageText(/Off the Rack/, /Take the towel/),
+        () => clickButtonIfPageText(/Lights Out in the Bathroom/, /Fumble Your Way to the Door/),
+    ], {stopOnSuccess: true});
+}
+
 function chooseHauntedGalleryOption() {
     return sequence([
         // The Haunted Gallery : 40
@@ -289,6 +310,17 @@ function chooseDungeonsOfDoomOption() {
     return sequence([
         // The Dungeons of Doom : 44
         () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
+    ], {stopOnSuccess: true});
+}
+
+function chooseExtremeSlopeOption() {
+    return sequence([
+        // The eXtreme Slope : 70
+        () => clickButtonIfPageText(/Yeti Nother Hippy/, /Negotiate his release/),
+        () => clickButtonIfPageText(/Saint Beernard/, /Ask for some beer, first/),
+        () => clickButtonIfPageText(/Generic Teen Comedy Snowboarding Adventure/, /Offer to help him cheat/),
+        () => clickButtonIfPageText(/Duffel on the Double/, /Dig deeper/),
+        () => clickButtonIfPageText(/Duffel on the Double/, /Scram/),
     ], {stopOnSuccess: true});
 }
 
