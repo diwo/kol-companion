@@ -245,39 +245,67 @@ function useItem(itemName) {
 
 function chooseAdventureOption() {
     return sequence([
-        chooseDailyDungeonOption(),
         chooseSpookyForestOption(),
-        chooseOvergrownLotOption(),
+        chooseDungeonsOfDoomOption(),
+        choosePFAirshipOption(),
+        chooseExtremeSlopeOption(),
+        chooseCastleSkyTopOption(),
+        chooseDailyDungeonOption(),
         chooseHauntedBathroomOption(),
         chooseHauntedGalleryOption(),
-        chooseDungeonsOfDoomOption(),
-        chooseExtremeSlopeOption(),
-        choosePFAirshipOption(),
         chooseBlackForestOption(),
-        chooseCastleSkyTopOption(),
+        chooseOvergrownLotOption(),
         chooseCrimbo2024Option(),
     ], {stopOnSuccess: true});
 }
 
 function chooseSpookyForestOption() {
     return sequence([
-        // The Spooky Forest : 0
+        // 15: The Spooky Forest
         () => clickButtonIfPageText(/Arboreal Respite/, /Explore the stream/),
         () => clickButtonIfPageText(/Consciousness of a Stream/, /Squeeze into the cave/),
     ], {stopOnSuccess: true});
 }
 
-function chooseOvergrownLotOption() {
+function chooseDungeonsOfDoomOption() {
     return sequence([
-        // The Overgrown Lot : 0
-        () => clickButtonIfPageText(/Lots of Options/, /Follow the booze map/),
-        () => clickButtonIfPageText(/Lots of Options/, /Look through the cardboard boxes/),
+        // 39: The Dungeons of Doom
+        () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
+    ], {stopOnSuccess: true});
+}
+
+function choosePFAirshipOption() {
+    return sequence([
+        // 81: The Penultimate Fantasy Airship
+        () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
+        () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
+    ], {stopOnSuccess: true});
+}
+
+function chooseExtremeSlopeOption() {
+    return sequence([
+        // 273: The eXtreme Slope
+        () => clickButtonIfPageText(/Yeti Nother Hippy/, /Negotiate his release/),
+        () => clickButtonIfPageText(/Saint Beernard/, /Ask for some beer, first/),
+        () => clickButtonIfPageText(/Generic Teen Comedy Snowboarding Adventure/, /Offer to help him cheat/),
+        () => clickButtonIfPageText(/Duffel on the Double/, /Dig deeper/),
+        () => clickButtonIfPageText(/Duffel on the Double/, /Scram/),
+    ], {stopOnSuccess: true});
+}
+
+function chooseCastleSkyTopOption() {
+    return sequence([
+        // 324: The Castle in the Clouds in the Sky (Top Floor)
+        () => clickButtonIfPageText(/Flavor of a Raver/, /Check Behind the Giant Poster/),
+        () => clickButtonIfPageText(/Yeah, You're for Me, Punk Rock Giant/, /Check behind the trash can/),
+        () => clickButtonIfPageText(/Copper Feel/, /Go through the Crack/),
+        () => clickButtonIfPageText(/Melon Collie and the Infinite Lameness/, /Snag some Candles/),
     ], {stopOnSuccess: true});
 }
 
 function chooseDailyDungeonOption() {
     return sequence([
-        // The Daily Dungeon : 15
+        // 325: The Daily Dungeon
         () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Go through the boring door/),
         () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Ignore the chest/),
         () => clickButtonIfPageText(/In the 15th and final chamber of the Daily Dungeon/, /Open it!/),
@@ -289,7 +317,7 @@ function chooseDailyDungeonOption() {
 
 function chooseHauntedBathroomOption() {
     return sequence([
-        // The Haunted Bathroom : 40
+        // 392: The Haunted Bathroom
         () => clickButtonIfPageText(/Having a Medicine Ball/, /Open it and see what's inside/),
         () => clickButtonIfPageText(/Bad Medicine is What You Need/, /Take off/),
         () => clickButtonIfPageText(/Off the Rack/, /Take the towel/),
@@ -299,54 +327,26 @@ function chooseHauntedBathroomOption() {
 
 function chooseHauntedGalleryOption() {
     return sequence([
-        // The Haunted Gallery : 40
+        // 394: The Haunted Gallery
         () => clickButtonIfPageText(/Louvre It or Leave It/, /Pass on by/),
         () => clickButtonIfPageText(/Out in the Garden/, /None of the above/),
         () => clickButtonIfPageText(/Lights Out in the Gallery/, /Quit the Gallery/),
     ], {stopOnSuccess: true});
 }
 
-function chooseDungeonsOfDoomOption() {
-    return sequence([
-        // The Dungeons of Doom : 44
-        () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseExtremeSlopeOption() {
-    return sequence([
-        // The eXtreme Slope : 70
-        () => clickButtonIfPageText(/Yeti Nother Hippy/, /Negotiate his release/),
-        () => clickButtonIfPageText(/Saint Beernard/, /Ask for some beer, first/),
-        () => clickButtonIfPageText(/Generic Teen Comedy Snowboarding Adventure/, /Offer to help him cheat/),
-        () => clickButtonIfPageText(/Duffel on the Double/, /Dig deeper/),
-        () => clickButtonIfPageText(/Duffel on the Double/, /Scram/),
-    ], {stopOnSuccess: true});
-}
-
-function choosePFAirshipOption() {
-    return sequence([
-        // Penultimate Fantasy Airship : 90
-        () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
-        () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
-    ], {stopOnSuccess: true});
-}
-
 function chooseBlackForestOption() {
     return sequence([
-        // The Black Forest : 110
+        // 405: The Black Forest
         () => clickButtonIfPageText(/All Over the Map/, /Go to the black gold mine/),
         () => clickButtonIfPageText(/Be Mine/, /Go left/),
     ], {stopOnSuccess: true});
 }
 
-function chooseCastleSkyTopOption() {
+function chooseOvergrownLotOption() {
     return sequence([
-        // The Castle in the Clouds in the Sky (Top Floor) : 130
-        () => clickButtonIfPageText(/Flavor of a Raver/, /Check Behind the Giant Poster/),
-        () => clickButtonIfPageText(/Yeah, You're for Me, Punk Rock Giant/, /Check behind the trash can/),
-        () => clickButtonIfPageText(/Copper Feel/, /Go through the Crack/),
-        () => clickButtonIfPageText(/Melon Collie and the Infinite Lameness/, /Snag some Candles/),
+        // 441: The Overgrown Lot
+        () => clickButtonIfPageText(/Lots of Options/, /Follow the booze map/),
+        () => clickButtonIfPageText(/Lots of Options/, /Look through the cardboard boxes/),
     ], {stopOnSuccess: true});
 }
 
