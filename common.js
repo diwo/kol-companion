@@ -52,6 +52,10 @@ function addWikiLinkToHeadings() {
             if (searchTerm.endsWith(":")) {
                 searchTerm = searchTerm.replace(/:$/, "");
             }
+            if (searchTerm.match(/Adventure Results/)) {
+                let sectionBody = headingNodes[i].parentElement.parentElement.nextSibling;
+                searchTerm = sectionBody.innerText.split('\n')[0];
+            }
             if (pathname == "/fight.php") {
                 searchTerm = getEnemyName();
             }
