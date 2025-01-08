@@ -66,43 +66,42 @@ function getEnemyName() {
 }
 
 function addPriceToAdventureRewardItems() {
-    let itemIds = [];
+    let itemContainers = [];
+    let itemIds = new Set();
 
-    let match;
-    do {
-        let evaluateResult = document.evaluate('//table[@class="item"]', document);
-        match = evaluateResult.iterateNext();
-        while (match) {
-            let itemId = new URLSearchParams(match.getAttribute("rel")).get("id");
-            let nodeId = `item${itemId}`;
-            if (!document.getElementById(nodeId)) {
-                match.id = nodeId;
-                itemIds.push(itemId);
-                break;
-            }
-            match = evaluateResult.iterateNext();
-        }
-    } while (match);
+    const getItemIdFromContainer = itemContainer => new URLSearchParams(itemContainer.getAttribute("rel")).get("id");
+    const getItemNameClass = itemId => `itemName${itemId}`;
+    const getItemPriceClass = itemId => `itemPrice${itemId}`;
 
-    for (let itemId of itemIds) {
-        let priceNodeId = `price${itemId}`;
-        if (!document.getElementById(priceNodeId)) {
-            let itemNode = document.getElementById(`item${itemId}`);
-            let textNode = document.evaluate('.//td[@class="effect"]', itemNode).iterateNext();
+    let evaluateResult = document.evaluate('//table[@class="item"]', document);
+    let itemContainer = evaluateResult.iterateNext();
+    while (itemContainer) {
+        itemIds.add(getItemIdFromContainer(itemContainer));
+        itemContainers.push(itemContainer);
+        itemContainer = evaluateResult.iterateNext();
+    }
 
-            let nameNode = textNode.lastChild;
-            nameNode.id = `itemname${itemId}`;
+    for (let itemContainer of itemContainers) {
+        let itemId = getItemIdFromContainer(itemContainer);
+        let textNode = document.evaluate('.//td[@class="effect"]', itemContainer).iterateNext();
 
-            let priceNode = document.createElement("span");
-            priceNode.id = priceNodeId;
+        let nameNode = document.evaluate('./b', textNode).iterateNext();
+        nameNode.classList.add(getItemNameClass(itemId));
+
+        let itemPriceClass = getItemPriceClass(itemId);
+        let priceNode = document.evaluate(`./span[@class="${itemPriceClass}"]`, textNode).iterateNext();
+        if (!priceNode) {
+            priceNode = document.createElement("span");
+            priceNode.className = itemPriceClass;
             priceNode.innerHTML = "(?)";
             priceNode.style.fontSize = "0.8em";
+            priceNode.style.paddingLeft = "3px";
             textNode.appendChild(priceNode);
         }
     }
 
-    redrawAdventureRewardPrices(itemIds, {cachedOnly: true}).then(() =>
-        redrawAdventureRewardPrices(itemIds, {cachedOnly: false}));
+    redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: true}).then(() =>
+        redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: false}));
 
     let priceUpdateListener = browser.runtime.connect({name: "priceUpdateListener"});
     priceUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds));
@@ -111,15 +110,14 @@ function addPriceToAdventureRewardItems() {
 async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
     return redrawPrices(itemIds, {cachedOnly},
         (itemId, tradable, average, volume, color) => {
-            let itemNameNode = document.getElementById(`itemname${itemId}`);
-            if (itemNameNode) {
+            let itemNameNodes = document.getElementsByClassName(`itemName${itemId}`);
+            for (let itemNameNode of itemNameNodes) {
                 itemNameNode.style.color = color;
             }
 
-            let priceNode = document.getElementById(`price${itemId}`);
-            if (priceNode) {
-                priceNode.innerHTML = tradable ?
-                    ` (${average.toLocaleString()} x ${volume.toLocaleString()})` : "";
+            let priceNodes = document.getElementsByClassName(`itemPrice${itemId}`);
+            for (let priceNode of priceNodes) {
+                priceNode.innerHTML = tradable ? `(${average.toLocaleString()} x ${volume.toLocaleString()})` : "";
             }
         });
 }
