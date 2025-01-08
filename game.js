@@ -24,6 +24,7 @@ function bindCompanionPaneScripts() {
     getPane("companionpane", {id: "after-adv-cmd-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd"));
     getPane("companionpane", {id: "after-adv-cmd-text-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd-text"));
 
+    getPane("companionpane", {id: "mine-gold"}).addEventListener("click", mineGold);
     getPane("companionpane", {id: "farm-dust-bunnies"}).addEventListener("click", farmDustBunnies);
     getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
@@ -67,6 +68,42 @@ function stop() {
     stopTimestamp = Date.now();
 }
 
+async function mineGold() {
+    let ctx = start();
+    if (!ctx) return stop();
+
+    let resultElem = getPane("companionpane", {id: "mine-gold-result"});
+
+    try {
+        let isDone = async () => await exec(ctx, getTurnsUseRemaining) == 0;
+        while (!await isDone()) {
+            if (shouldSpendMpBuff() && isMpAlmostFull()) {
+                await sendCommandWithPause("/buff", 3000);
+            }
+            if (shouldStopMpFull() && isMpAlmostFull()) {
+                resultElem.innerText = "MP Full";
+                return stop();
+            }
+
+            let mainDoc = getPane("mainpane").document;
+            let pathname = URL.parse(mainDoc.URL).pathname;
+            if (pathname == "/mining.php") {
+                resultElem.innerText = "Running";
+                mainDoc.dispatchEvent(new Event("mine-gold-auto"));
+                await sleep(600, ctx);
+            } else {
+                resultElem.innerText = "Waiting";
+                await sleep(1000, ctx);
+            }
+        }
+        resultElem.innerText = "Finished";
+    } catch (e) {
+        resultElem.innerText = e;
+        console.log(e);
+    }
+    stop();
+}
+
 async function farmDustBunnies() {
     let ctx = start();
     if (!ctx) return stop();
@@ -84,7 +121,7 @@ async function farmDustBunnies() {
                 return stop();
             }
 
-            resultElem.innerText = `Running`;
+            resultElem.innerText = "Running";
             await exec(ctx, sequence([
                 withDelay(() => goto("/place.php?whichplace=monorail&action=monorail_downtown")),
                 withDelay(() => clickButton(/Factory District Stop/)),

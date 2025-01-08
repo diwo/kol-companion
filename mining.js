@@ -3,6 +3,7 @@ function handleMining() {
     highlightClickableShinies(grid);
     printGrid(grid);
     bindKey("`", () => nextAction(grid));
+    document.addEventListener("mine-gold-auto", () => nextAction(grid));
 }
 
 function nextAction(grid) {
