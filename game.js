@@ -247,6 +247,7 @@ function chooseAdventureOption() {
     return sequence([
         chooseSpookyForestOption(),
         chooseDungeonsOfDoomOption(),
+        chooseSouthOfBorderOption(),
         choosePFAirshipOption(),
         chooseExtremeSlopeOption(),
         chooseCastleSkyTopOption(),
@@ -271,6 +272,13 @@ function chooseDungeonsOfDoomOption() {
     return sequence([
         // 39: The Dungeons of Doom
         () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
+    ], {stopOnSuccess: true});
+}
+
+function chooseSouthOfBorderOption() {
+    return sequence([
+        // 45: South of The Border
+        () => clickButtonIfPageText(/Finger-Lickin'... Death./, /Walk away in disgust/),
     ], {stopOnSuccess: true});
 }
 
