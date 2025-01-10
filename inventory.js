@@ -110,7 +110,8 @@ async function sortInventorySection(section) {
     let itemPriceMap = {};
     for (let i=0; i<itemIds.length; i++) {
         let itemId = itemIds[i];
-        itemPriceMap[itemId] = itemPrices[i];
+        let itemPrice = itemPrices[i] || {};
+        itemPriceMap[itemId] = itemPrice;
     }
 
     items.sort((a, b) => {
@@ -119,7 +120,7 @@ async function sortInventorySection(section) {
         if (priceA.untradable && priceB.untradable) return 0;
         if (priceA.untradable) return -1;
         if (priceB.untradable) return 1;
-        return (priceA.data.average ?? 0) - (priceB.data.average ?? 0);
+        return (priceA.data?.average ?? 0) - (priceB.data?.average ?? 0);
     });
 
     items.forEach(item => item.parentElement.removeChild(item));
