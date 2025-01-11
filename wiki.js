@@ -10,6 +10,11 @@ function handleWiki() {
             handleWikiItemPage(itemId);
         }
     }
+
+    let pageTitle = document.getElementById("firstHeading")?.innerText;
+    if (pageTitle) {
+        bindKey("c", () => navigator.clipboard.writeText(pageTitle));
+    }
 }
 
 function handleWikiItemPage(itemId) {
