@@ -1,6 +1,18 @@
 handleWiki();
 
 function handleWiki() {
+    let infobox = document.getElementsByClassName("infobox")?.[0];
+    if (infobox) {
+        let lines = infobox.innerText.split("\n").map(line => line.replace(/\s+/g, " "));
+        let matches = lines.map(line => line.match(/Item number: (\d+)/)).filter(m => !!m);
+        if (matches.length) {
+            let itemId = parseInt(matches[0][1]);
+            handleWikiItemPage(itemId);
+        }
+    }
+}
+
+function handleWikiItemPage(itemId) {
     let marketLink = document.evaluate(
         "//a[translate(text(), '\u00a0', ' ') = 'View market statistics']", document).iterateNext();
     if (marketLink) {
@@ -16,11 +28,10 @@ function handleWiki() {
             marketLinkContainer.parentElement.insertBefore(priceContainer, marketLinkContainer.nextElementSibling);
             marketLinkContainer.parentElement.insertBefore(document.createElement("BR"), marketLinkContainer.nextElementSibling);
         }
-    
-        let itemId = marketLink.href.match(/itemid=(\d+)/)[1];
-        redrawWikiItemInfoPrice(itemId, {cachedOnly: true}).then(() =>
-            redrawWikiItemInfoPrice(itemId, {cachedOnly: false}));
     }
+
+    redrawWikiItemInfoPrice(itemId, {cachedOnly: true}).then(() =>
+        redrawWikiItemInfoPrice(itemId, {cachedOnly: false}));
 }
 
 async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
@@ -31,10 +42,12 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
             itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById("marketprice");
-            if (isItemFlagsTradable(flags)) {
-                priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
-            } else {
-                priceNode.innerHTML = "untradable";
+            if (priceNode) {
+                if (isItemFlagsTradable(flags)) {
+                    priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
+                } else {
+                    priceNode.innerHTML = "untradable";
+                }
             }
         });
 }
