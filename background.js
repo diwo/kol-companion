@@ -26,24 +26,43 @@ async function clearItemPriceCacheErrorOrNoPrice() {
     });
 }
 
-async function exportItemPriceCacheToClipboard() {
-    let cacheFetch = await browser.storage.local.get(null);
-    let itemPrices = {};
-    for (let key of Object.keys(cacheFetch)) {
-        if (key.startsWith("item_price_")) {
-            itemPrices[key] = cacheFetch[key];
+async function exportItemPrice() {
+    return exportStorageToClipboard(/^item_price_/);
+}
+
+async function exportItemFlags() {
+    return exportStorageToClipboard(/^item_flags_/);
+}
+
+async function exportMallLinks() {
+    return exportStorageToClipboard(/^mall_links$/);
+}
+
+async function exportStorageToClipboard(keyMatcher) {
+    let fetched = await browser.storage.local.get(null);
+    let keyVals = {};
+    for (let key of Object.keys(fetched)) {
+        if (key.match(keyMatcher)) {
+            keyVals[key] = fetched[key];
         }
     }
-    let json = JSON.stringify(itemPrices);
+    let json = JSON.stringify(keyVals);
     navigator.clipboard.writeText(json);
+    console.log("Exported to clipboard");
 }
 
 async function importCacheFromBackup() {
+    await importDataFile("data/item_price.json", "item price", kv => Object.keys(kv).length);
+    await importDataFile("data/item_flags.json", "item flags", kv => Object.keys(kv).length);
+    await importDataFile("data/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
+}
+
+async function importDataFile(path, type, countEntries) {
     try {
-        let response = await fetch(browser.runtime.getURL("item_price_cache_backup.json"));
+        let response = await fetch(browser.runtime.getURL(path));
         let keyVals = await response.json();
         await browser.storage.local.set(keyVals);
-        console.log(`Imported ${Object.keys(keyVals).length} entries`);
+        console.log(`Imported ${countEntries(keyVals)} ${type} entries`);
     } catch (e) {}
 }
 

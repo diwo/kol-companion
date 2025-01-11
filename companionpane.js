@@ -1,5 +1,5 @@
-const searchMallQuickLinksKey = "searchmall_quicklinks";
-let searchMallQuickLinks = [];
+const mallLinksKey = "mall_links";
+let mallLinks = [];
 
 initSearchMallSection();
 
@@ -8,8 +8,8 @@ async function initSearchMallSection() {
     let addLinkElem = document.evaluate(".//a[@class='addlink']", searchMallElem).iterateNext();
     addLinkElem.addEventListener("click", onClickAddLink);
 
-    searchMallQuickLinks = await loadSearchMallSearchTerms();
-    searchMallQuickLinks.forEach(addSearchMallSearchTermElem);
+    mallLinks = await loadSearchMallTerms();
+    mallLinks.forEach(addSearchMallTermElem);
 }
 
 function onClickAddLink() {
@@ -26,8 +26,8 @@ function onClickAddLink() {
         inputElem.addEventListener("keyup", e => {
             if (e.key == "Enter") {
                 let searchTerm = e.target.value;
-                if (addSearchMallSearchTermElem(searchTerm)) {
-                    saveSearchMallSearchTerm(searchTerm);
+                if (addSearchMallTermElem(searchTerm)) {
+                    saveSearchMallTerm(searchTerm);
                     searchMall(searchTerm);
                 }
             }
@@ -36,7 +36,7 @@ function onClickAddLink() {
     }
 }
 
-function addSearchMallSearchTermElem(searchTerm) {
+function addSearchMallTermElem(searchTerm) {
     let searchMallElem = document.getElementById("searchmall");
     let ul = document.evaluate(".//ul", searchMallElem).iterateNext();
 
@@ -83,28 +83,28 @@ function createSearchMallRemoveLinkElem() {
         let li = e.target.parentElement;
         let searchTerm = document.evaluate("./a[@class='searchterm']", li).iterateNext()?.innerText;
         if (searchTerm) {
-            deleteSearchMallSearchTerm(searchTerm);
+            deleteSearchMallTerm(searchTerm);
         }
         li.parentElement.removeChild(li);
     });
     return removeLink;
 }
 
-async function loadSearchMallSearchTerms() {
-    let cacheFetch = await browser.storage.local.get(searchMallQuickLinksKey);
-    let quicklinks = cacheFetch[searchMallQuickLinksKey] || [];
+async function loadSearchMallTerms() {
+    let cacheFetch = await browser.storage.local.get(mallLinksKey);
+    let quicklinks = cacheFetch[mallLinksKey] || [];
     return caseInsensitiveDedupe(quicklinks);
 }
 
-async function saveSearchMallSearchTerm(searchTerm) {
-    searchMallQuickLinks.push(searchTerm);
-    searchMallQuickLinks = caseInsensitiveDedupe(searchMallQuickLinks);
-    browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
+async function saveSearchMallTerm(searchTerm) {
+    mallLinks.push(searchTerm);
+    mallLinks = caseInsensitiveDedupe(mallLinks);
+    browser.storage.local.set({[mallLinksKey]: mallLinks});
 }
 
-async function deleteSearchMallSearchTerm(searchTerm) {
-    searchMallQuickLinks = searchMallQuickLinks.filter(quicklink => quicklink.toLowerCase() != searchTerm.toLowerCase());
-    browser.storage.local.set({[searchMallQuickLinksKey]: searchMallQuickLinks});
+async function deleteSearchMallTerm(searchTerm) {
+    mallLinks = mallLinks.filter(quicklink => quicklink.toLowerCase() != searchTerm.toLowerCase());
+    browser.storage.local.set({[mallLinksKey]: mallLinks});
 }
 
 function caseInsensitiveDedupe(strArray) {

@@ -9,7 +9,8 @@
     "web_accessible_resources": [
         "companionpane.html",
         "icons.html",
-        "item_price_cache_backup.json"
+        "data/item_price.json",
+        "data/item_flags.json"
     ],
     "content_scripts": [
         {
