@@ -21,6 +21,10 @@ switch (pathname) {
         handleMining();
         addPriceToAdventureRewardItems();
         break;
+    case "/choice.php":
+        handleChoice();
+        addPriceToAdventureRewardItems();
+        break;
     case "/charpane.php":
         handleCharPane();
         break;
