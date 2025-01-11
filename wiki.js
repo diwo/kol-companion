@@ -25,11 +25,16 @@ function handleWiki() {
 
 async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
     return redrawPrices([itemId], {cachedOnly},
-        (_, tradable, average, volume, color) => {
+        (_, flags, average, volume, color, fontStyle) => {
             let itemNameNode = document.evaluate("//div[@id='mw-content-text']//tr[1]//td[1]/p/b[1]", document).iterateNext();
             itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById("marketprice");
-            priceNode.innerHTML = tradable ? `${average.toLocaleString()} x ${volume.toLocaleString()}` : "untradable";
+            if (isItemFlagsTradable(flags)) {
+                priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
+            } else {
+                priceNode.innerHTML = "untradable";
+            }
         });
 }

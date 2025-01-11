@@ -54,7 +54,7 @@ function formatStoreActivity() {
 
                 let totalPriceNode = document.createElement("span");
                 totalPriceNode.innerText = totalPrice.toLocaleString();
-                totalPriceNode.style.color = getPriceColor(true, totalPrice);
+                totalPriceNode.style.color = getPriceColor(totalPrice);
                 totalPriceNode.style.fontWeight = "bold";
 
                 wrapper.appendChild(document.createTextNode(` bought ${count} `));

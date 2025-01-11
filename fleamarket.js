@@ -29,11 +29,16 @@ function redrawFleaMarketPrices(itemIds) {
     let relevantItemIds = itemIds.filter(itemId => document.getElementById(`iname${itemId}`));
 
     return redrawPrices(relevantItemIds, {cachedOnly: true},
-        (itemId, tradable, average, volume, color) => {
+        (itemId, flags, average, volume, color, fontStyle) => {
             let itemNameNode = document.getElementById(`iname${itemId}`);
             itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById(`iprice${itemId}`);
-            priceNode.innerHTML = tradable ? `(${average.toLocaleString()} x ${volume.toLocaleString()})` : "";
+            if (isItemFlagsTradable(flags)) {
+                priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+            } else {
+                priceNode.innerHTML = "";
+            }
         });
 }

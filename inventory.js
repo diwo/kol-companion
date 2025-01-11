@@ -39,12 +39,17 @@ function redrawInventoryPrices(itemIds) {
     let relevantItemIds = itemIds.filter(itemId => document.getElementById(`i${itemId}`));
 
     return redrawPrices(relevantItemIds, {cachedOnly: true},
-        (itemId, tradable, average, volume, color) => {
+        (itemId, flags, average, volume, color, fontStyle) => {
             let itemNameNode = document.getElementById(`i${itemId}`).firstChild;
             itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById(`price${itemId}`);
-            priceNode.innerHTML = tradable ? `(${average.toLocaleString()} x ${volume.toLocaleString()})` : "";
+            if (isItemFlagsTradable(flags)) {
+                priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+            } else {
+                priceNode.innerHTML = "";
+            }
         });
 }
 
@@ -65,12 +70,8 @@ async function scanToolTips() {
     if (tooltipNode) {
         let itemId = tooltipNode.innerHTML.match(/<!-- itemid: (\d+) -->/)?.[1];
         if (itemId) {
-            let untradable =
-                tooltipNode.innerHTML.match(/Cannot be traded/) ||
-                tooltipNode.innerHTML.match(/Gift Item/);
-            if (untradable) {
-                await browser.runtime.sendMessage({operation: "setUntradable", itemId});
-            }
+            let flags = parseItemFlagsFromDescription(tooltipNode.innerHTML);
+            await browser.runtime.sendMessage({operation: "setItemFlags", itemId, flags});
         }
     }
 }
@@ -106,21 +107,36 @@ async function sortInventorySection(section) {
     let getItemId = item => parseInt(new URLSearchParams(item.firstChild.getAttribute("rel")).get("id"));
 
     let itemIds = items.map(getItemId);
-    let itemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
+    let allItemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
+    let allItemFlags = await Promise.all(itemIds.map(getCachedItemFlags));
     let itemPriceMap = {};
+    let itemFlagsMap = {};
     for (let i=0; i<itemIds.length; i++) {
         let itemId = itemIds[i];
-        let itemPrice = itemPrices[i] || {};
-        itemPriceMap[itemId] = itemPrice;
+        itemPriceMap[itemId] = allItemPrices[i] || {};
+        itemFlagsMap[itemId] = allItemFlags[i] || {};
     }
 
+    // Reversed display order, items are popped as a stack
     items.sort((a, b) => {
-        let priceA = itemPriceMap[getItemId(a)];
-        let priceB = itemPriceMap[getItemId(b)];
-        if (priceA.untradable && priceB.untradable) return 0;
-        if (priceA.untradable) return -1;
-        if (priceB.untradable) return 1;
-        return (priceA.data?.average ?? 0) - (priceB.data?.average ?? 0);
+        let itemIdA = getItemId(a);
+        let itemIdB = getItemId(b);
+        let priceA = itemPriceMap[itemIdA];
+        let priceB = itemPriceMap[itemIdB];
+        let flagsA = itemFlagsMap[itemIdA];
+        let flagsB = itemFlagsMap[itemIdB];
+
+        if (!priceA.untradable && !priceB.untradable) {
+            return (priceA.data?.average ?? 0) - (priceB.data?.average ?? 0);
+        }
+        if (!priceA.untradable) return 1;
+        if (!priceB.untradable) return -1;
+
+        if (flagsA.quest && flagsB.quest) return 0;
+        if (flagsA.quest) return 1;
+        if (flagsB.quest) return -1;
+
+        return 0;
     });
 
     items.forEach(item => item.parentElement.removeChild(item));

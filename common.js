@@ -113,17 +113,31 @@ function addPriceToAdventureRewardItems() {
 
 async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
     return redrawPrices(itemIds, {cachedOnly},
-        (itemId, tradable, average, volume, color) => {
+        (itemId, flags, average, volume, color, fontStyle) => {
             let itemNameNodes = document.getElementsByClassName(`itemName${itemId}`);
             for (let itemNameNode of itemNameNodes) {
                 itemNameNode.style.color = color;
+                itemNameNode.style.fontStyle = fontStyle;
             }
 
             let priceNodes = document.getElementsByClassName(`itemPrice${itemId}`);
             for (let priceNode of priceNodes) {
-                priceNode.innerHTML = tradable ? `(${average.toLocaleString()} x ${volume.toLocaleString()})` : "";
+                if (isItemFlagsTradable(flags)) {
+                    priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+                } else {
+                    priceNode.innerHTML = "";
+                }
             }
         });
+}
+
+function parseItemFlagsFromDescription(description) {
+    let notrade = !!description.match(/Cannot be traded/);
+    let nodiscard = !!description.match(/Cannot be( traded or)? discarded/);
+    let gift = !!description.match(/Gift Item/);
+    let quest = !!description.match(/Quest Item/);
+    let oneday = !!description.match(/This item will disappear at the end of the day/);
+    return {notrade, nodiscard, gift, quest, oneday};
 }
 
 function bindKey(keys, action) {
@@ -191,12 +205,16 @@ async function redrawPrices(itemIds, {cachedOnly}, redrawFunc, errorFunc) {
                 continue;
             }
 
-            let tradable = !priceData.untradable;
+            let flags = await getCachedItemFlags(itemId);
+            if (!flags) {
+                flags = { notrade: priceData.untradable };
+            }
             let average = priceData.data?.average || 0;
             let volume = priceData.data?.volume || 0;
-            let color = getPriceColor(tradable, average, volume);
+            let color = getPriceColor(average, volume, flags);
+            let fontStyle = (isItemFlagsTradable(flags) && flags.nodiscard) ? "italic" : "";
 
-            redrawFunc(itemId, tradable, average, volume, color);
+            redrawFunc(itemId, flags, average, volume, color, fontStyle);
         }
     }
 }
@@ -245,19 +263,37 @@ async function queuePriceCheck(itemId) {
 }
 
 async function getCachedPrice(itemId) {
-    let cacheKey = getCachedPriceKey(itemId);
-    let cacheFetch = await browser.storage.local.get(cacheKey);
-    return cacheFetch[cacheKey];
+    let itemPriceKey = getItemPriceKey(itemId);
+    let cacheFetch = await browser.storage.local.get(itemPriceKey);
+    return cacheFetch[itemPriceKey];
 }
 
-function getCachedPriceKey(itemId) {
+async function getCachedItemFlags(itemId) {
+    let itemFlagsKey = getItemFlagsKey(itemId);
+    let cacheFetch = await browser.storage.local.get(itemFlagsKey);
+    return cacheFetch[itemFlagsKey];
+}
+
+function isItemFlagsTradable(itemFlags) {
+    let untradable = itemFlags.notrade || itemFlags.gift || itemFlags.quest || itemFlags.oneday;
+    return !untradable;
+}
+
+function getItemPriceKey(itemId) {
     return `item_price_${itemId}`;
 }
 
-function getPriceColor(tradable, price, volume) {
-    if (!tradable) {
+function getItemFlagsKey(itemId) {
+    return `item_flags_${itemId}`;
+}
+
+function getPriceColor(price, volume, itemFlags = {}) {
+    if (itemFlags.quest) {
+        return "maroon";
+    } else if (!isItemFlagsTradable(itemFlags)) {
         return "darkblue";
     }
+
     if (price >= 1_000_000) {
         return "red";
     } else if (price >= 100_000) {

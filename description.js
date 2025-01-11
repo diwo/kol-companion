@@ -28,15 +28,12 @@ async function handleDescriptionPage() {
     wikiDiv.style.display = 'inline';
 
     if (itemId) {
-        let untradable =
-            document.body.innerHTML.match(/Cannot be traded/) ||
-            document.body.innerHTML.match(/Gift Item/);
-
         addDiv(koliteminfo, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
 
-        if (untradable) {
-            await browser.runtime.sendMessage({operation: "setUntradable", itemId});
-        } else {
+        let flags = parseItemFlagsFromDescription(document.body.innerHTML);
+        await browser.runtime.sendMessage({operation: "setItemFlags", itemId, flags});
+
+        if (isItemFlagsTradable(flags)) {
             addDiv(koliteminfo, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
             addDiv(koliteminfo, '[<a id="pricecheck" href="#">PC</a>]', style => style.display = "inline");
             addDiv(koliteminfo, 'Average: <span id="market-average"><i>loading</i></span>');
@@ -143,10 +140,11 @@ function addDiv(element, content, styleFunc) {
 
 async function redrawItemDescriptionPrice(itemId, itemNameNode, {cachedOnly} = {}) {
     return redrawPrices([itemId], {cachedOnly},
-        (_, tradable, average, volume, color) => {
+        (_, flags, average, volume, color, fontStyle) => {
             itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
 
-            if (tradable) {
+            if (isItemFlagsTradable(flags)) {
                 document.getElementById("market-average").innerHTML = average.toLocaleString();
                 document.getElementById("market-volume").innerHTML = volume.toLocaleString();
             }

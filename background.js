@@ -69,8 +69,8 @@ browser.runtime.onMessage.addListener(message => {
         case "queuePriceCheck":
             priceCheckQueue[message.itemId] = true;
             return Promise.resolve();
-        case "setUntradable":
-            return setUntradable(message.itemId);
+        case "setItemFlags":
+            return setItemFlags(message.itemId, message.flags);
     }
     return false;
 });
@@ -153,8 +153,8 @@ async function fetchPrice(itemId) {
         }
     }
 
-    let cacheKey = getCachedPriceKey(itemId);
-    await browser.storage.local.set({[cacheKey]: fetched});
+    let itemPriceKey = getItemPriceKey(itemId);
+    await browser.storage.local.set({[itemPriceKey]: fetched});
     notifyPriceUpdated([itemId]);
 
     return fetched;
@@ -190,10 +190,16 @@ function parsePrice(page) {
     }
 }
 
-async function setUntradable(itemId) {
-    let cacheKey = getCachedPriceKey(itemId);
-    await browser.storage.local.set({[cacheKey]: {untradable: true}});
-    return notifyPriceUpdated([itemId]);
+async function setItemFlags(itemId, flags) {
+    let itemFlagsKey = getItemFlagsKey(itemId);
+    await browser.storage.local.set({[itemFlagsKey]: flags});
+
+    if (!isItemFlagsTradable(flags)) {
+        let itemPriceKey = getItemPriceKey(itemId);
+        await browser.storage.local.set({[itemPriceKey]: {untradable: true}});
+    }
+
+    notifyPriceUpdated([itemId]);
 }
 
 function notifyPriceUpdated(itemIds) {
