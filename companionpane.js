@@ -12,7 +12,9 @@ async function initSearchMallSection() {
     mallLinks.forEach(addSearchMallTermElem);
 }
 
-function onClickAddLink() {
+function onClickAddLink(evClick) {
+    evClick.preventDefault();
+
     let searchMallElem = document.getElementById("searchmall");
     let inputElem = document.evaluate(".//input", searchMallElem).iterateNext();
     if (!inputElem) {
@@ -23,9 +25,9 @@ function onClickAddLink() {
         li.appendChild(createSearchMallRemoveLinkElem());
         li.appendChild(inputElem);
         ul.appendChild(li);
-        inputElem.addEventListener("keyup", e => {
-            if (e.key == "Enter") {
-                let searchTerm = e.target.value;
+        inputElem.addEventListener("keyup", evKeyup => {
+            if (evKeyup.key == "Enter") {
+                let searchTerm = evKeyup.target.value;
                 if (addSearchMallTermElem(searchTerm)) {
                     saveSearchMallTerm(searchTerm);
                     searchMall(searchTerm);
@@ -64,7 +66,10 @@ function addSearchMallTermElem(searchTerm) {
     searchTermLink.href = "#";
     searchTermLink.className = "searchterm";
     searchTermLink.innerText = searchTerm;
-    searchTermLink.addEventListener("click", e => searchMall(e.target.innerText));
+    searchTermLink.addEventListener("click", e => {
+        e.preventDefault();
+        searchMall(e.target.innerText);
+    });
 
     let li = document.createElement("li");
     li.appendChild(createSearchMallRemoveLinkElem());
@@ -80,6 +85,7 @@ function createSearchMallRemoveLinkElem() {
     removeLink.className = "removelink";
     removeLink.innerText = "[-]";
     removeLink.addEventListener("click", e => {
+        e.preventDefault();
         let li = e.target.parentElement;
         let searchTerm = document.evaluate("./a[@class='searchterm']", li).iterateNext()?.innerText;
         if (searchTerm) {
