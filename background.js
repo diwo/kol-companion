@@ -153,6 +153,7 @@ function randomId() {
     return Math.floor(Math.random() * 1_000_000_000);
 }
 
+let fetchingItemIds = new Set();
 async function fetchPrice(itemId) {
     const oneWeekTimespan = 2;
     const lifetimeTimespan = 4;
@@ -161,7 +162,15 @@ async function fetchPrice(itemId) {
     if (cacheVal && (cacheVal.untradable || Date.now() - cacheVal.timestamp < 6*60*60*1000)) {
         return cacheVal;
     }
-    
+
+    if (fetchingItemIds.has(itemId)) {
+        while (fetchingItemIds.has(itemId)) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        return getCachedPrice(itemId);
+    }
+    fetchingItemIds.add(itemId);
+
     console.log(`Fetching price for itemId=${itemId}`);
     let fetched = await fetchPriceNoCache(getPriceCheckLink(itemId, oneWeekTimespan));
     if (!fetched.data?.error && !fetched.data?.average) {
@@ -174,6 +183,7 @@ async function fetchPrice(itemId) {
 
     let itemPriceKey = getItemPriceKey(itemId);
     await browser.storage.local.set({[itemPriceKey]: fetched});
+    fetchingItemIds.delete(itemId);
     notifyPriceUpdated([itemId]);
 
     return fetched;
