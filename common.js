@@ -82,7 +82,7 @@ function addPriceToAdventureRewardItems() {
         redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: false}));
 
     let priceUpdateListener = browser.runtime.connect({name: "priceUpdateListener"});
-    priceUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds));
+    priceUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds, {cachedOnly: true}));
 }
 
 async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
