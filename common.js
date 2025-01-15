@@ -1,29 +1,3 @@
-async function registerCommandReceiver() {
-    if (URL.parse(window.top.document.URL).pathname != "/game.php") {
-        return;
-    }
-
-    let selfId = null;
-    let registerWindow = async () => selfId = await browser.runtime.sendMessage({operation: "registerWindow"});
-    if (document.hasFocus()) registerWindow();
-    window.addEventListener("focus", () => document.hasFocus() && registerWindow());
-
-    let commandListener = browser.runtime.connect({name: "commandListener"});
-    commandListener.onMessage.addListener(message => {
-        if (message.windowId != selfId) return;
-        if (message.command == "gotoUrl") {
-            getPane("mainpane").location = message.url;
-        } else if (message.command == "chooseIcon") {
-            let editForm = getPane("menupane", {id: "edit"});
-            if (editForm) {
-                let imgElem = editForm.ownerDocument.evaluate(".//img", editForm).iterateNext();
-                imgElem.src = `https://d2uyhvukfffg5a.cloudfront.net/itemimages/${message.iconName}.gif`;
-                editForm.icon.value = message.iconName;
-            }
-        }
-    });
-}
-
 function addWikiLinkToHeadings() {
     let pathname = new URL(document.URL).pathname;
     let evaluateResult = document.evaluate(
@@ -234,7 +208,7 @@ async function searchMall(searchTerm, {exactMatch} = {}) {
     let searchParams = new URLSearchParams();
     searchParams.set("pudnuggler", searchTerm);
     let url = `https://www.kingdomofloathing.com/mall.php?${searchParams.toString()}`;
-    return browser.runtime.sendMessage({operation: "gotoUrl", url});
+    return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
 }
 
 async function searchInventory(searchTerm) {
@@ -242,7 +216,7 @@ async function searchInventory(searchTerm) {
     let searchParams = new URLSearchParams();
     searchParams.set("ftext", searchTermStripped);
     let url = `https://www.kingdomofloathing.com/inventory.php?${searchParams.toString()}`;
-    return browser.runtime.sendMessage({operation: "gotoUrl", url});
+    return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
 }
 
 function openPriceCheck(itemId) {
@@ -308,6 +282,22 @@ function getPriceColor(price, volume, itemFlags = {}) {
 
 function parseFormattedInt(str) {
     return parseInt(str.replace(/,/g, ""));
+}
+
+function setWindowId(windowId, options = {}) {
+    let win = options.window || window;
+    win.document.body.setAttribute("data-window-id", windowId);
+}
+
+function getWindowId(win = window) {
+    let windowId = win.document.body.getAttribute("data-window-id");
+    if (windowId) {
+        return windowId;
+    } else if (win != win.top) {
+        return getWindowId(win.top);
+    } else {
+        return null;
+    }
 }
 
 function getPane(name, {id, returnFrame} = {}) {
@@ -384,4 +374,8 @@ async function sendCommand(command) {
     let inputForm = chatDoc.getElementById("InputForm");
     chatDoc.evaluate(".//input[@name='graf']", inputForm).iterateNext().value = command;
     chatDoc.evaluate(".//input[@type='submit']", inputForm).iterateNext().click();
+}
+
+function randomId() {
+    return Math.floor(Math.random() * 1_000_000_000);
 }

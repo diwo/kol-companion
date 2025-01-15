@@ -1,6 +1,10 @@
 async function handleDescriptionPage() {
     moveWindow();
 
+    if (window.opener) {
+        setWindowId(getWindowId(window.opener.top));
+    }
+
     let pathname = new URL(document.URL).pathname;
     let thingNameNode = document.evaluate("//center//b", document).iterateNext();
     let thingName = thingNameNode.innerText;

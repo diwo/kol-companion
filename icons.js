@@ -1,6 +1,8 @@
 loadIcons();
 
 async function loadIcons() {
+    let windowId = new URLSearchParams(window.location.hash.split("#")[1]).get("return");
+
     const imageBaseUrl = "https://d2uyhvukfffg5a.cloudfront.net/itemimages/";
     let iconFilenames = await getIconFilenames();
     let iconsContainer = document.getElementById("icons");
@@ -13,7 +15,7 @@ async function loadIcons() {
         imgElem.width = 30;
         imgElem.height = 30;
         imgElem.onclick = async () => {
-            await browser.runtime.sendMessage({operation: "chooseIcon", iconName});
+            await browser.runtime.sendMessage({operation: "chooseIcon", windowId, iconName});
             window.close();
         };
         iconsContainer.appendChild(imgElem);

@@ -1,12 +1,14 @@
 function handleGamePage() {
+    registerCommandReceiver();
+
     let companionpane = document.getElementById("companionpane");
     if (companionpane) {
-        bindCompanionPaneScripts();
+        initCompanionPane();
     } else {
         companionpane = document.createElement("frame");
         companionpane.id = "companionpane";
         companionpane.name = "companionpane";
-        companionpane.onload = bindCompanionPaneScripts;
+        companionpane.onload = initCompanionPane;
         companionpane.src = browser.runtime.getURL("companionpane.html");
         document.getElementById("rootset").appendChild(companionpane);
     }
@@ -16,7 +18,29 @@ function handleGamePage() {
     chatpane.onload = () => chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
 }
 
-function bindCompanionPaneScripts() {
+function registerCommandReceiver() {
+    let windowId = randomId();
+    setWindowId(windowId);
+
+    let commandListener = browser.runtime.connect({name: "commandListener"});
+    commandListener.onMessage.addListener(message => {
+        if (message.windowId != windowId) return;
+        if (message.command == "gotoUrl") {
+            getPane("mainpane").location = message.url;
+        } else if (message.command == "chooseIcon") {
+            let editForm = getPane("menupane", {id: "edit"});
+            if (editForm) {
+                let imgElem = editForm.ownerDocument.evaluate(".//img", editForm).iterateNext();
+                imgElem.src = `https://d2uyhvukfffg5a.cloudfront.net/itemimages/${message.iconName}.gif`;
+                editForm.icon.value = message.iconName;
+            }
+        }
+    });
+}
+
+function initCompanionPane() {
+    setWindowId(getWindowId(), {window: getPane("companionpane")});
+
     getPane("companionpane").addEventListener("contextmenu", handleEventToggleCompanionPane);
 
     getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));

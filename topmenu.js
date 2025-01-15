@@ -11,7 +11,7 @@ function addShowAllIconsLink() {
         if (iconDiv) {
             linkNode = document.createElement("a");
             linkNode.id = linkNodeId;
-            linkNode.href = browser.runtime.getURL("icons.html");
+            linkNode.href = browser.runtime.getURL(`icons.html#return=${getWindowId(window.top)}`);
             linkNode.target = "_blank";
             linkNode.innerText = "Show all icons";
             iconDiv.parentElement.appendChild(document.createElement("br"));

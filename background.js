@@ -77,12 +77,10 @@ let priceCheckQueue = {};
 
 browser.runtime.onMessage.addListener(message => {
     switch (message.operation) {
-        case "registerWindow":
-            return registerWindow();
         case "gotoUrl":
-            return notifyGotoUrl(message.url);
+            return notifyGotoUrl(message.windowId, message.url);
         case "chooseIcon":
-            return notifyChooseIcon(message.iconName);
+            return notifyChooseIcon(message.windowId, message.iconName);
         case "fetchPrice":
             return fetchPrice(message.itemId);
         case "queuePriceCheck":
@@ -142,16 +140,6 @@ browser.alarms.onAlarm.addListener(alarm => {
     }
 });
 browser.alarms.create("priceCheckQueueWorker", {delayInMinutes: 5/60});
-
-let lastWindowId = null;
-async function registerWindow() {
-    lastWindowId = randomId();
-    return lastWindowId;
-}
-
-function randomId() {
-    return Math.floor(Math.random() * 1_000_000_000);
-}
 
 let fetchingItemIds = new Set();
 async function fetchPrice(itemId) {
@@ -237,22 +225,14 @@ function notifyPriceUpdated(itemIds) {
     }
 }
 
-function notifyGotoUrl(url) {
+function notifyGotoUrl(windowId, url) {
     for (let port of Object.values(commandListenerPorts)) {
-        port.postMessage({
-            windowId: lastWindowId,
-            command: "gotoUrl",
-            url
-        });
+        port.postMessage({ command: "gotoUrl", windowId, url });
     }
 }
 
-function notifyChooseIcon(iconName) {
+function notifyChooseIcon(windowId, iconName) {
     for (let port of Object.values(commandListenerPorts)) {
-        port.postMessage({
-            windowId: lastWindowId,
-            command: "chooseIcon",
-            iconName
-        });
+        port.postMessage({ command: "chooseIcon", windowId, iconName });
     }
 }

@@ -43,5 +43,4 @@ switch (pathname) {
         addPriceToAdventureRewardItems();
 }
 
-registerCommandReceiver();
 addWikiLinkToHeadings();
