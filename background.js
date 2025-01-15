@@ -119,20 +119,21 @@ browser.alarms.onAlarm.addListener(alarm => {
         let itemIds = Object.keys(priceCheckQueue);
         if (itemIds.length) {
             let itemId = itemIds[Math.floor(Math.random() * itemIds.length)];
-            getCachedPrice(itemId).then(cached => {
-                return fetchPrice(itemId).then(fetched => {
+            getCachedPrice(itemId).then(async cached => {
+                let delayInMinutes;
+                try {
+                    let fetched = await fetchPrice(itemId);
                     delete priceCheckQueue[itemId];
-                    let delayInMinutes;
                     if (fetched.timestamp == cached?.timestamp) {
                         delayInMinutes = 0;
                     } else {
-                        delayInMinutes = 5/60;
+                        delayInMinutes = 5 / 60;
                     }
-                    if (delayInMinutes) {
-                        console.log(`Next alarm in ${Math.floor(delayInMinutes*60)}s fetched=`, fetched);
-                    }
-                    browser.alarms.create("priceCheckQueueWorker", {delayInMinutes});
-                });
+                } catch (e) {
+                    console.error("Fetch price error", e);
+                    delayInMinutes = 30 / 60;
+                }
+                browser.alarms.create("priceCheckQueueWorker", { delayInMinutes });
             });
         } else {
             browser.alarms.create("priceCheckQueueWorker", {delayInMinutes: 5/60});
