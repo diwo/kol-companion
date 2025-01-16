@@ -23,6 +23,7 @@
                 "pvp.js",
                 "mining.js",
                 "choice.js",
+                "fight.js",
                 "charpane.js",
                 "description.js",
                 "kol.js"

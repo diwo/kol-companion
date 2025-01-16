@@ -4,6 +4,8 @@ function handleMining() {
     printGrid(grid);
     bindKey("`", () => nextAction(grid));
     document.addEventListener("mine-gold-auto", () => nextAction(grid));
+
+    addPriceToAdventureRewardItems();
 }
 
 function nextAction(grid) {

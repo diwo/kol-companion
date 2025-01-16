@@ -15,15 +15,15 @@ switch (pathname) {
         break;
     case "/peevpee.php":
         handlePvp();
-        addPriceToAdventureRewardItems();
         break;
     case "/mining.php":
         handleMining();
-        addPriceToAdventureRewardItems();
         break;
     case "/choice.php":
         handleChoice();
-        addPriceToAdventureRewardItems();
+        break;
+    case "/fight.php":
+        handleFight();
         break;
     case "/charpane.php":
         handleCharPane();

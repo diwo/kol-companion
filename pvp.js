@@ -8,6 +8,8 @@ function handlePvp() {
     observer.observe(document.body, {childList: true, subtree: true});
 
     bindKey("`", () => clickButton(/A Fighter is You!/));
+
+    addPriceToAdventureRewardItems();
 }
 
 function addMarketLinksToPvpLogs() {
