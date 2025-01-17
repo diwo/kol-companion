@@ -180,7 +180,7 @@ async function bindInventoryFilterEvents() {
 
     document.addEventListener("keypress", e => {
         if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}\[\]\\]$/i)) return;
-        if (document.activeElement != ftextNode) {
+        if (document.activeElement.tagName != "INPUT" || document.activeElement.type != "text") {
             ftextNode.value += e.key;
             filterNode.dispatchEvent(
                 new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
