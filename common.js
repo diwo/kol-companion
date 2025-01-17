@@ -235,6 +235,10 @@ async function queuePriceCheck(itemId) {
     return browser.runtime.sendMessage({operation: "queuePriceCheck", itemId});
 }
 
+async function queueItemDescriptionFetch(itemId, itemDescId) {
+    return browser.runtime.sendMessage({operation: "queueItemDescriptionFetch", itemId, itemDescId});
+}
+
 async function getCachedPrice(itemId) {
     let itemPriceKey = getItemPriceKey(itemId);
     let cacheFetch = await browser.storage.local.get(itemPriceKey);

@@ -74,6 +74,7 @@ async function importDataFile(path, type, countEntries) {
 })();
 
 let priceCheckQueue = {};
+let itemDescFetchQueue = {};
 
 browser.runtime.onMessage.addListener(message => {
     switch (message.operation) {
@@ -84,7 +85,14 @@ browser.runtime.onMessage.addListener(message => {
         case "fetchPrice":
             return fetchPrice(message.itemId);
         case "queuePriceCheck":
-            priceCheckQueue[message.itemId] = true;
+            if (message.itemId) {
+                priceCheckQueue[message.itemId] = true;
+            }
+            return Promise.resolve();
+        case "queueItemDescriptionFetch":
+            if (message.itemId && message.itemDescId) {
+                itemDescFetchQueue[message.itemId] = message.itemDescId;
+            }
             return Promise.resolve();
         case "setItemDescription":
             return setItemDescription(message.itemId, message.description);
@@ -130,7 +138,7 @@ browser.alarms.onAlarm.addListener(alarm => {
                         delayInMinutes = 5 / 60;
                     }
                 } catch (e) {
-                    console.error("Fetch price error", e);
+                    console.error("Error fetching price", e);
                     delayInMinutes = 30 / 60;
                 }
                 browser.alarms.create("priceCheckQueueWorker", { delayInMinutes });
@@ -141,6 +149,35 @@ browser.alarms.onAlarm.addListener(alarm => {
     }
 });
 browser.alarms.create("priceCheckQueueWorker", {delayInMinutes: 5/60});
+
+browser.alarms.onAlarm.addListener(async alarm => {
+    if (alarm.name == "itemDescFetchQueueWorker") {
+        let itemIds = Object.keys(itemDescFetchQueue);
+        let delayInMinutes = 5 / 60;
+        if (itemIds.length) {
+            let itemId = itemIds[Math.floor(Math.random() * itemIds.length)];
+            try {
+                let itemData = await getItemData(itemId);
+                if (itemData?.description) {
+                    delayInMinutes = 0;
+                } else {
+                    let itemDescId = itemDescFetchQueue[itemId];
+                    await fetchItemDescription(itemId, itemDescId);
+                }
+                delete itemDescFetchQueue[itemId];
+            } catch (e) {
+                if (e.message == "not logged in") {
+                    itemDescFetchQueue = {};
+                } else {
+                    console.error("Error fetching item description", e);
+                    delayInMinutes = 30 / 60;
+                }
+            }
+        }
+        browser.alarms.create("itemDescFetchQueueWorker", {delayInMinutes});
+    }
+});
+browser.alarms.create("itemDescFetchQueueWorker", {delayInMinutes: 5/60});
 
 let fetchingItemIds = new Set();
 async function fetchPrice(itemId) {
@@ -183,14 +220,18 @@ function getPriceCheckLink(itemId, timespan) {
 }
 
 async function fetchPriceNoCache(url) {
+    let page = await fetchUrl(url);
+    let data = parsePrice(page);
+    let timestamp = Date.now();
+    return {timestamp, data};
+}
+
+async function fetchUrl(url) {
     let response = await fetch(url);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    let page = await response.text();
-    let data = parsePrice(page);
-    let timestamp = Date.now();
-    return {timestamp, data};
+    return response.text();
 }
 
 function parsePrice(page) {
@@ -205,6 +246,29 @@ function parsePrice(page) {
         return {average, volume};
     } catch (e) {
         return {error: e};
+    }
+}
+
+async function fetchItemDescription(itemId, itemDescId) {
+    console.log(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
+
+    let page = await fetchUrl(`https://www.kingdomofloathing.com/desc_item.php?whichitem=${itemDescId}`);
+
+    if (page.match(/This script is not available unless you're logged in/)) {
+        throw Error("not logged in");
+    }
+
+    // div must be added to document for \n to be rendered
+    let div = document.createElement("div");
+    div.innerHTML = page;
+    document.body.append(div);
+    let description = document.evaluate(".//blockquote", div).iterateNext()?.innerText;
+    div.remove();
+
+    if (description) {
+        await setItemDescription(itemId, description);
+    } else {
+        console.log(`Unable to parse item description itemDescId=${itemDescId} for itemId=${itemId}`);
     }
 }
 

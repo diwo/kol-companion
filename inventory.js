@@ -28,6 +28,7 @@ async function handleInventoryPage() {
     redrawInventoryPrices(itemIds);
     fetchMissingPrices(itemIds);
     itemIds.forEach(queuePriceCheck);
+    queueAllInventoryItemDescriptionFetch();
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
 
@@ -64,6 +65,15 @@ async function fetchMissingPrices(itemIds) {
         }
     }
     await Promise.all(missingPrices.map(getPrice));
+}
+
+function queueAllInventoryItemDescriptionFetch() {
+    for (let node of iterateInventoryNodeTree()) {
+        let itemId = node.itemId;
+        let imgElem = document.evaluate(".//img[@onclick]", node.element).iterateNext();
+        let itemDescId = parseInt(imgElem.getAttribute("onclick").match(/descitem\((\d+),.*/)?.[1]);
+        queueItemDescriptionFetch(itemId, itemDescId);
+    }
 }
 
 async function scanToolTips() {
