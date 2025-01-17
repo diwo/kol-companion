@@ -1,7 +1,6 @@
 async function handleDescriptionPage() {
-    moveWindow();
-
     if (window.opener) {
+        moveWindow();
         setWindowId(getWindowId(window.opener.top));
     }
 
@@ -129,10 +128,12 @@ function wrapElemWithAnchor(elem, href) {
 }
 
 function moveWindow() {
-    let opener = window.opener.top;
-    let newX = opener.screenX + opener.innerWidth/3;
-    let newY = opener.screenY + opener.innerHeight/3;
-    window.moveTo(newX, newY);
+    let opener = window.opener?.top;
+    if (opener) {
+        let newX = opener.screenX + opener.innerWidth/3;
+        let newY = opener.screenY + opener.innerHeight/3;
+        window.moveTo(newX, newY);
+    }
 }
 
 function addDiv(element, content, styleFunc) {
