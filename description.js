@@ -4,15 +4,11 @@ async function handleDescriptionPage() {
         setWindowId(getWindowId(window.opener.top));
     }
 
+    let thingNameNode = getDescriptionNameNode();
+    let thingName = thingNameNode.innerText;
     let pathname = new URL(document.URL).pathname;
-    let descriptionNode = document.getElementById("description");
-    let thingNameNode, thingName;
     if (pathname == "/desc_guardian.php") {
-        let title = document.evaluate("./font/center/p[1]/font", descriptionNode).iterateNext().innerText;
-        thingName = title.match(/level \d+ (.*)/)[1];
-    } else {
-        thingNameNode = document.evaluate("./center/b", descriptionNode).iterateNext();
-        thingName = thingNameNode.innerText;
+        thingName = thingNameNode.parentNode.innerText.match(/level \d+ (.*)/)[1];
     }
 
     let koliteminfo = document.createElement("div");
@@ -113,6 +109,23 @@ async function handleDescriptionPage() {
     bindKey("d", () => searchMallElem && searchMallElem.click());
     bindKey("g", () => pricecheckElem && pricecheckElem.click());
     bindKey("c", () => { navigator.clipboard.writeText(thingName); window.close(); });
+}
+
+function getDescriptionNameNode() {
+    const xpaths = ["./b", "./center", "./font", "./p[1]"];
+    let node = document.getElementById("description");
+    let prevNode = null;
+    while (node != prevNode) {
+        prevNode = node;
+        for (let xpath of xpaths) {
+            let nextNode = document.evaluate(xpath, node).iterateNext();
+            if (nextNode) {
+                node = nextNode;
+                break;
+            }
+        }
+    }
+    return node;
 }
 
 function wrapElemWithAnchor(elem, href) {

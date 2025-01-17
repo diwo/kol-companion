@@ -383,9 +383,9 @@ function randomId() {
     return Math.floor(Math.random() * 1_000_000_000);
 }
 
-function evaluateToNodesArray(xpath, options = {}) {
-    let doc = options.document || document;
-    let contextNode = options.contextNode || doc;
+function evaluateToNodesArray(xpath, {document: doc, contextNode} = {}) {
+    if (!doc) doc = document;
+    if (!contextNode) contextNode = doc;
 
     let nodes = [];
     let result = doc.evaluate(xpath, contextNode);
