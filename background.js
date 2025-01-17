@@ -98,8 +98,8 @@ browser.runtime.onMessage.addListener(message => {
                 itemDescFetchQueue[message.itemId] = message.itemDescId;
             }
             return Promise.resolve();
-        case "setItemDescription":
-            return setItemDescription(message.itemId, message.description);
+        case "setItemData":
+            return setItemData(message.itemId, message.name, message.description);
     }
     return false;
 });
@@ -266,23 +266,21 @@ async function fetchItemDescription(itemId, itemDescId) {
     let div = document.createElement("div");
     div.innerHTML = page;
     document.body.append(div);
+    let name = document.evaluate(".//div[@id='description']/center/b", div).iterateNext()?.innerText;
     let description = document.evaluate(".//blockquote", div).iterateNext()?.innerText;
     div.remove();
 
-    if (description) {
-        await setItemDescription(itemId, description);
-    } else {
-        console.log(`Unable to parse item description itemDescId=${itemDescId} for itemId=${itemId}`);
-    }
+    await setItemData(itemId, name, description);
 }
 
-async function setItemDescription(itemId, description) {
+async function setItemData(itemId, name, description) {
     let existing = await getItemData(itemId);
     if (existing) return;
+    if (!name || !description) return;
 
-    let itemDataKey = getItemDataKey(itemId);
     let flags = parseItemFlagsFromDescription(description);
-    let itemData = { description, flags };
+    let itemData = { name, description, flags };
+    let itemDataKey = getItemDataKey(itemId);
     await browser.storage.local.set({[itemDataKey]: itemData});
 
     if (!isTradableItemFlags(flags)) {

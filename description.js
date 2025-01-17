@@ -6,12 +6,14 @@ async function handleDescriptionPage() {
     }
 
     let pathname = new URL(document.URL).pathname;
-    let thingNameNode = document.evaluate("//center//b", document).iterateNext();
-    let thingName = thingNameNode.innerText;
-
+    let descriptionNode = document.getElementById("description");
+    let thingNameNode, thingName;
     if (pathname == "/desc_guardian.php") {
-        let title = document.evaluate("//center//b", document).iterateNext().parentNode.innerText;
+        let title = document.evaluate("./font/center/p[1]/font", descriptionNode).iterateNext().innerText;
         thingName = title.match(/level \d+ (.*)/)[1];
+    } else {
+        thingNameNode = document.evaluate("./center/b", descriptionNode).iterateNext();
+        thingName = thingNameNode.innerText;
     }
 
     let koliteminfo = document.createElement("div");
@@ -34,8 +36,8 @@ async function handleDescriptionPage() {
     if (itemId) {
         addDiv(koliteminfo, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
 
-        let description =  document.evaluate(".//blockquote", document).iterateNext().innerText;
-        await browser.runtime.sendMessage({operation: "setItemDescription", itemId, description});
+        let description =  document.evaluate(".//blockquote", document).iterateNext()?.innerText;
+        await browser.runtime.sendMessage({operation: "setItemData", itemId, name: thingName, description});
 
         let flags = parseItemFlagsFromDescription(description);
         if (isTradableItemFlags(flags)) {

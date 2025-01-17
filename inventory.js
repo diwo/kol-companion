@@ -82,8 +82,9 @@ async function scanToolTips() {
     if (tooltipNode) {
         let itemId = tooltipNode.innerHTML.match(/<!-- itemid: (\d+) -->/)?.[1];
         if (itemId) {
-            let description = document.evaluate(".//blockquote", tooltipNode).iterateNext().innerText;
-            await browser.runtime.sendMessage({operation: "setItemDescription", itemId, description});
+            let name = document.evaluate(".//div[@id='description']/center/b", tooltipNode).iterateNext()?.innerText;
+            let description = document.evaluate(".//blockquote", tooltipNode).iterateNext()?.innerText;
+            await browser.runtime.sendMessage({operation: "setItemData", itemId, name, description});
         }
     }
 }
