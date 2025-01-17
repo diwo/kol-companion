@@ -1,17 +1,21 @@
-async function clearCache(keyMatcher, valMatcher) {
+async function selectCache(keyMatcher, valMatcher) {
     let cacheFetch = await browser.storage.local.get(null);
-    let keysToRemove = {};
+    let keyVals = {};
     for (let key of Object.keys(cacheFetch)) {
         if (!keyMatcher || keyMatcher(key)) {
             let val = cacheFetch[key];
             if (!valMatcher || valMatcher(val)) {
-                keysToRemove[key] = val;
+                keyVals[key] = val;
             }
         }
     }
-    await browser.storage.local.remove(Object.keys(keysToRemove));
-    console.log(keysToRemove);
-    return keysToRemove;
+    console.log("Matched entries", keyVals);
+    return keyVals;
+}
+
+async function clearCache(keyMatcher, valMatcher) {
+    let keyValsToRemove = await selectCache(keyMatcher, valMatcher);
+    await browser.storage.local.remove(Object.keys(keyValsToRemove));
 }
 
 async function clearItemPriceCache(valMatcher) {
