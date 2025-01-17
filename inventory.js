@@ -165,7 +165,7 @@ async function bindInventoryFilterEvents() {
                 //$(document).unbind('keyup');
                 $(document).unbind('keypress');
                 $('#filter').unbind('keyup');
-                $('#filter').keyup(function (e) {
+                $('#filter').keyup(function (e) { // manually triggered by page script
                     let text = $(this).find('[name="ftext"]').val() || '';
                     let ftextChange = new CustomEvent('ftext-change', {detail: {text}});
                     document.getElementById('filter').dispatchEvent(ftextChange);
@@ -206,6 +206,7 @@ async function bindInventoryFilterEvents() {
         let hide = node => node.classList.add("filtered");
 
         for (let stuffbox of inventory) {
+            if (stuffbox.element.id == "curequip") continue;
             let showBox = false;
             for (let row of stuffbox.rows) {
                 let showRow = false;
