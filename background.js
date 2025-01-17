@@ -14,6 +14,10 @@ async function selectCache(keyMatcher, valMatcher) {
     return keyVals;
 }
 
+async function selectItemData(valMatcher) {
+    return selectCache(k => k.startsWith("item_data_"), valMatcher);
+}
+
 async function clearCache(keyMatcher, valMatcher) {
     let keyValsToRemove = await selectCache(keyMatcher, valMatcher);
     await browser.storage.local.remove(Object.keys(keyValsToRemove));
