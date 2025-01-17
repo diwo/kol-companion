@@ -48,7 +48,7 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
 
             let priceNode = document.getElementById("marketprice");
             if (priceNode) {
-                if (isItemFlagsTradable(flags)) {
+                if (isTradableItemFlags(flags)) {
                     priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
                 } else {
                     priceNode.innerHTML = "untradable";

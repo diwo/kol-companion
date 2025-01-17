@@ -30,8 +30,8 @@ async function exportItemPrice() {
     return exportStorageToClipboard(/^item_price_/);
 }
 
-async function exportItemFlags() {
-    return exportStorageToClipboard(/^item_flags_/);
+async function exportItemData() {
+    return exportStorageToClipboard(/^item_data_/);
 }
 
 async function exportMallLinks() {
@@ -53,7 +53,7 @@ async function exportStorageToClipboard(keyMatcher) {
 
 async function importCacheFromBackup() {
     await importDataFile("data/item_price.json", "item price", kv => Object.keys(kv).length);
-    await importDataFile("data/item_flags.json", "item flags", kv => Object.keys(kv).length);
+    await importDataFile("data/item_data.json", "item data", kv => Object.keys(kv).length);
     await importDataFile("data/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
 }
 
@@ -86,8 +86,8 @@ browser.runtime.onMessage.addListener(message => {
         case "queuePriceCheck":
             priceCheckQueue[message.itemId] = true;
             return Promise.resolve();
-        case "setItemFlags":
-            return setItemFlags(message.itemId, message.flags);
+        case "setItemDescription":
+            return setItemDescription(message.itemId, message.description);
     }
     return false;
 });
@@ -103,13 +103,13 @@ browser.runtime.onConnect.addListener(port => {
     }
 });
 
-let priceUpdateListenerPorts = {};
+let itemUpdateListenerPorts = {};
 browser.runtime.onConnect.addListener(port => {
-    if (port.name == "priceUpdateListener") {
+    if (port.name == "itemUpdateListener") {
         let portId = randomId();
-        priceUpdateListenerPorts[portId] = port;
+        itemUpdateListenerPorts[portId] = port;
         port.onDisconnect.addListener(() => {
-            delete priceUpdateListenerPorts[portId];
+            delete itemUpdateListenerPorts[portId];
         });
     }
 });
@@ -173,7 +173,7 @@ async function fetchPrice(itemId) {
     let itemPriceKey = getItemPriceKey(itemId);
     await browser.storage.local.set({[itemPriceKey]: fetched});
     fetchingItemIds.delete(itemId);
-    notifyPriceUpdated([itemId]);
+    notifyItemUpdated([itemId]);
 
     return fetched;
 }
@@ -208,21 +208,26 @@ function parsePrice(page) {
     }
 }
 
-async function setItemFlags(itemId, flags) {
-    let itemFlagsKey = getItemFlagsKey(itemId);
-    await browser.storage.local.set({[itemFlagsKey]: flags});
+async function setItemDescription(itemId, description) {
+    let existing = await getItemData(itemId);
+    if (existing) return;
 
-    if (!isItemFlagsTradable(flags)) {
+    let itemDataKey = getItemDataKey(itemId);
+    let flags = parseItemFlagsFromDescription(description);
+    let itemData = { description, flags };
+    await browser.storage.local.set({[itemDataKey]: itemData});
+
+    if (!isTradableItemFlags(flags)) {
         let itemPriceKey = getItemPriceKey(itemId);
         await browser.storage.local.set({[itemPriceKey]: {untradable: true}});
     }
 
-    notifyPriceUpdated([itemId]);
+    notifyItemUpdated([itemId]);
 }
 
-function notifyPriceUpdated(itemIds) {
-    for (let port of Object.values(priceUpdateListenerPorts)) {
-        port.postMessage({event: "priceUpdated", itemIds});
+function notifyItemUpdated(itemIds) {
+    for (let port of Object.values(itemUpdateListenerPorts)) {
+        port.postMessage({event: "itemUpdated", itemIds});
     }
 }
 

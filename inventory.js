@@ -28,11 +28,13 @@ async function handleInventoryPage() {
     redrawInventoryPrices(itemIds);
     fetchMissingPrices(itemIds);
     itemIds.forEach(queuePriceCheck);
-    let priceUpdateListener = browser.runtime.connect({name: "priceUpdateListener"});
-    priceUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
 
     let observer = new MutationObserver(() => scanToolTips());
     observer.observe(document.body, {childList: true, subtree: true});
+
+    bindInventoryFilterEvents();
 }
 
 function redrawInventoryPrices(itemIds) {
@@ -45,7 +47,7 @@ function redrawInventoryPrices(itemIds) {
             itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById(`price${itemId}`);
-            if (isItemFlagsTradable(flags)) {
+            if (isTradableItemFlags(flags)) {
                 priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
             } else {
                 priceNode.innerHTML = "";
@@ -70,8 +72,8 @@ async function scanToolTips() {
     if (tooltipNode) {
         let itemId = tooltipNode.innerHTML.match(/<!-- itemid: (\d+) -->/)?.[1];
         if (itemId) {
-            let flags = parseItemFlagsFromDescription(tooltipNode.innerHTML);
-            await browser.runtime.sendMessage({operation: "setItemFlags", itemId, flags});
+            let description = document.evaluate(".//blockquote", tooltipNode).iterateNext().innerText;
+            await browser.runtime.sendMessage({operation: "setItemDescription", itemId, description});
         }
     }
 }
@@ -104,37 +106,30 @@ async function sortInventorySection(section) {
         row = row.nextSibling;
     }
 
-    let getItemId = item => parseInt(new URLSearchParams(item.firstChild.getAttribute("rel")).get("id"));
-
-    let itemIds = items.map(getItemId);
+    let itemIds = items.map(getItemIdFromInventoryNode);
     let allItemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
-    let allItemFlags = await Promise.all(itemIds.map(getCachedItemFlags));
-    let itemPriceMap = {};
-    let itemFlagsMap = {};
-    for (let i=0; i<itemIds.length; i++) {
-        let itemId = itemIds[i];
-        itemPriceMap[itemId] = allItemPrices[i] || {};
-        itemFlagsMap[itemId] = allItemFlags[i] || {};
-    }
+    let allItemData = await Promise.all(itemIds.map(getItemData));
+    let itemPriceMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemPrices[i]]));
+    let itemDataMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
 
     // Reversed display order, items are popped as a stack
     items.sort((a, b) => {
-        let itemIdA = getItemId(a);
-        let itemIdB = getItemId(b);
+        let itemIdA = getItemIdFromInventoryNode(a);
+        let itemIdB = getItemIdFromInventoryNode(b);
         let priceA = itemPriceMap[itemIdA];
         let priceB = itemPriceMap[itemIdB];
-        let flagsA = itemFlagsMap[itemIdA];
-        let flagsB = itemFlagsMap[itemIdB];
+        let flagsA = itemDataMap[itemIdA]?.flags;
+        let flagsB = itemDataMap[itemIdB]?.flags;
 
-        if (!priceA.untradable && !priceB.untradable) {
-            return (priceA.data?.average ?? 0) - (priceB.data?.average ?? 0);
+        if (!priceA?.untradable && !priceB?.untradable) {
+            return (priceA?.data?.average ?? 0) - (priceB?.data?.average ?? 0);
         }
-        if (!priceA.untradable) return 1;
-        if (!priceB.untradable) return -1;
+        if (!priceA?.untradable) return 1;
+        if (!priceB?.untradable) return -1;
 
-        if (flagsA.quest && flagsB.quest) return 0;
-        if (flagsA.quest) return 1;
-        if (flagsB.quest) return -1;
+        if (flagsA?.quest && flagsB?.quest) return 0;
+        if (flagsA?.quest) return 1;
+        if (flagsB?.quest) return -1;
 
         return 0;
     });
@@ -148,4 +143,104 @@ async function sortInventorySection(section) {
             row = row.nextSibling;
         }
     }
+}
+
+async function bindInventoryFilterEvents() {
+    if (!document.getElementById("unbind-key-events")) {
+        let script = document.createElement("script");
+        script.id = "unbind-key-events";
+        script.text = `
+            jQuery(function($) {
+                //$(document).unbind('keyup');
+                $(document).unbind('keypress');
+                $('#filter').unbind('keyup');
+                $('#filter').keyup(function (e) {
+                    let text = $(this).find('[name="ftext"]').val() || '';
+                    let ftextChange = new CustomEvent('ftext-change', {detail: {text}});
+                    document.getElementById('filter').dispatchEvent(ftextChange);
+                });
+            });
+        `;
+        document.head.appendChild(script);
+    }
+
+    let filterNode = document.getElementById("filter");
+    let ftextNode = document.getElementById("ftext");
+
+    document.addEventListener("keypress", e => {
+        if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}\[\]\\]$/i)) return;
+        if (document.activeElement != ftextNode) {
+            ftextNode.value += e.key;
+            filterNode.dispatchEvent(
+                new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
+            e.preventDefault();
+        }
+    });
+
+    let inventory = getInventoryNodeTree();
+    let itemDataMap;
+    let refreshItemDataMap = async () => {
+        let itemIds = Array.from(iterateInventoryNodeTree(inventory), node => node.itemId);
+        let allItemData = await Promise.all(itemIds.map(getItemData));
+        itemDataMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
+    };
+    await refreshItemDataMap();
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(refreshItemDataMap);
+
+    filterNode.addEventListener("ftext-change", e => {
+        let pattern = e.detail.text;
+        let regex = new RegExp(pattern, "i");
+        let show = node => node.classList.remove("filtered");
+        let hide = node => node.classList.add("filtered");
+
+        for (let stuffbox of inventory) {
+            let showBox = false;
+            for (let row of stuffbox.rows) {
+                let showRow = false;
+                for (let col of row.columns) {
+                    let description = itemDataMap[col.itemId]?.description || "";
+                    let showCol = !pattern.length || col.itemName.match(regex) || description.match(regex);
+                    showCol ? show(col.element) : hide(col.element);
+                    if (showCol) showRow = true;
+                }
+                showRow ? show(row.element) : hide(row.element);
+                if (showRow) showBox = true;
+            }
+            showBox ? show(stuffbox.element) : hide(stuffbox.element);
+        }
+    });
+}
+
+function getInventoryNodeTree() {
+    let root = [];
+    for (let stuffbox of document.getElementsByClassName("stuffbox")) {
+        let rowNodes = evaluateToNodesArray(".//table[@class='guts']/tbody/tr", {contextNode: stuffbox});
+        let rows = rowNodes.map(rowNode => {
+            let colNodes = evaluateToNodesArray("./td", {contextNode: rowNode});
+            let columns = colNodes.map(colNode => {
+                let itemId = getItemIdFromInventoryNode(colNode);
+                let itemName = document.evaluate(".//b[@rel]", colNode).iterateNext()?.textContent;
+                return { element: colNode, itemId, itemName };
+            });
+            return { element: rowNode, columns };
+        });
+        root.push({ element: stuffbox, rows });
+    }
+    return root;
+}
+
+function* iterateInventoryNodeTree(tree) {
+    if (!tree) tree = getInventoryNodeTree();
+    for (let box of tree) {
+        for (let row of box.rows) {
+            for (let col of row.columns) {
+                yield col;
+            }
+        }
+    }
+}
+
+function getItemIdFromInventoryNode(itemNode) {
+    return parseInt(new URLSearchParams(itemNode.firstChild.getAttribute("rel")).get("id"));
 }

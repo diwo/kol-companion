@@ -34,10 +34,11 @@ async function handleDescriptionPage() {
     if (itemId) {
         addDiv(koliteminfo, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
 
-        let flags = parseItemFlagsFromDescription(document.body.innerHTML);
-        await browser.runtime.sendMessage({operation: "setItemFlags", itemId, flags});
+        let description =  document.evaluate(".//blockquote", document).iterateNext().innerText;
+        await browser.runtime.sendMessage({operation: "setItemDescription", itemId, description});
 
-        if (isItemFlagsTradable(flags)) {
+        let flags = parseItemFlagsFromDescription(description);
+        if (isTradableItemFlags(flags)) {
             addDiv(koliteminfo, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
             addDiv(koliteminfo, '[<a id="pricecheck" href="#">PC</a>]', style => style.display = "inline");
             addDiv(koliteminfo, 'Average: <span id="market-average"><i>loading</i></span>');
@@ -148,7 +149,7 @@ async function redrawItemDescriptionPrice(itemId, itemNameNode, {cachedOnly} = {
             itemNameNode.style.color = color;
             itemNameNode.style.fontStyle = fontStyle;
 
-            if (isItemFlagsTradable(flags)) {
+            if (isTradableItemFlags(flags)) {
                 document.getElementById("market-average").innerHTML = average.toLocaleString();
                 document.getElementById("market-volume").innerHTML = volume.toLocaleString();
             }

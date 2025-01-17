@@ -21,8 +21,8 @@ function handleFleaMarket() {
     redrawFleaMarketPrices(itemIds);
     fetchMissingPrices(itemIds);
     itemIds.forEach(queuePriceCheck);
-    let priceUpdateListener = browser.runtime.connect({name: "priceUpdateListener"});
-    priceUpdateListener.onMessage.addListener(message => redrawFleaMarketPrices(message.itemIds));
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(message => redrawFleaMarketPrices(message.itemIds));
 }
 
 function redrawFleaMarketPrices(itemIds) {
@@ -35,7 +35,7 @@ function redrawFleaMarketPrices(itemIds) {
             itemNameNode.style.fontStyle = fontStyle;
 
             let priceNode = document.getElementById(`iprice${itemId}`);
-            if (isItemFlagsTradable(flags)) {
+            if (isTradableItemFlags(flags)) {
                 priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
             } else {
                 priceNode.innerHTML = "";

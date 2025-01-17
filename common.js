@@ -81,8 +81,8 @@ function addPriceToAdventureRewardItems() {
     redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: true}).then(() =>
         redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: false}));
 
-    let priceUpdateListener = browser.runtime.connect({name: "priceUpdateListener"});
-    priceUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds, {cachedOnly: true}));
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds, {cachedOnly: true}));
 }
 
 async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
@@ -96,7 +96,7 @@ async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
 
             let priceNodes = document.getElementsByClassName(`itemPrice${itemId}`);
             for (let priceNode of priceNodes) {
-                if (isItemFlagsTradable(flags)) {
+                if (isTradableItemFlags(flags)) {
                     priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
                 } else {
                     priceNode.innerHTML = "";
@@ -179,14 +179,13 @@ async function redrawPrices(itemIds, {cachedOnly}, redrawFunc, errorFunc) {
                 continue;
             }
 
-            let flags = await getCachedItemFlags(itemId);
-            if (!flags) {
-                flags = { notrade: priceData.untradable };
-            }
+            let itemData = await getItemData(itemId);
+            let flags = itemData?.flags;
+            if (!flags) flags = { notrade: priceData.untradable };
             let average = priceData.data?.average || 0;
             let volume = priceData.data?.volume || 0;
             let color = getPriceColor(average, volume, flags);
-            let fontStyle = (isItemFlagsTradable(flags) && flags.nodiscard) ? "italic" : "";
+            let fontStyle = (isTradableItemFlags(flags) && flags.nodiscard) ? "italic" : "";
 
             redrawFunc(itemId, flags, average, volume, color, fontStyle);
         }
@@ -242,13 +241,13 @@ async function getCachedPrice(itemId) {
     return cacheFetch[itemPriceKey];
 }
 
-async function getCachedItemFlags(itemId) {
-    let itemFlagsKey = getItemFlagsKey(itemId);
-    let cacheFetch = await browser.storage.local.get(itemFlagsKey);
-    return cacheFetch[itemFlagsKey];
+async function getItemData(itemId) {
+    let itemDataKey = getItemDataKey(itemId);
+    let cacheFetch = await browser.storage.local.get(itemDataKey);
+    return cacheFetch[itemDataKey];
 }
 
-function isItemFlagsTradable(itemFlags) {
+function isTradableItemFlags(itemFlags) {
     let untradable = itemFlags.notrade || itemFlags.gift || itemFlags.quest || itemFlags.oneday;
     return !untradable;
 }
@@ -257,14 +256,14 @@ function getItemPriceKey(itemId) {
     return `item_price_${itemId}`;
 }
 
-function getItemFlagsKey(itemId) {
-    return `item_flags_${itemId}`;
+function getItemDataKey(itemId) {
+    return `item_data_${itemId}`;
 }
 
 function getPriceColor(price, volume, itemFlags = {}) {
     if (itemFlags.quest) {
         return "maroon";
-    } else if (!isItemFlagsTradable(itemFlags)) {
+    } else if (!isTradableItemFlags(itemFlags)) {
         return "darkblue";
     }
 
@@ -378,4 +377,18 @@ async function sendCommand(command) {
 
 function randomId() {
     return Math.floor(Math.random() * 1_000_000_000);
+}
+
+function evaluateToNodesArray(xpath, options = {}) {
+    let doc = options.document || document;
+    let contextNode = options.contextNode || doc;
+
+    let nodes = [];
+    let result = doc.evaluate(xpath, contextNode);
+    let node = result.iterateNext();
+    while (node) {
+        nodes.push(node);
+        node = result.iterateNext();
+    }
+    return nodes;
 }
