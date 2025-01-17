@@ -9,7 +9,8 @@ async function selectCache(keyMatcher, valMatcher) {
             }
         }
     }
-    console.log("Matched entries", keyVals);
+    let count = Object.keys(keyVals).length;
+    console.log(`Matched ${count} entries`, keyVals);
     return keyVals;
 }
 
