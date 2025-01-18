@@ -32,9 +32,11 @@ async function addAdventureChoiceNotes() {
         let note = choice?.note;
         let tag = choice?.tag;
 
-        if (note) {
+        if (note || tag) {
             let noteNode = document.createElement("div");
-            noteNode.innerHTML = `[${note}]`;
+            if (note) {
+                noteNode.innerHTML = `[${note}]`;
+            }
             if (tag) {
                 let color;
                 if (tag == "quest") color = "darkviolet";

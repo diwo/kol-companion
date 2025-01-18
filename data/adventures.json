@@ -12,20 +12,21 @@
         "zone": "The Haunted Gallery",
         "variants": [
             {
+                "name": "Relativity",
                 "pageContent": { "imageTitle": "Crazy Stairs!" },
                 "optionNum": {
-                    "1": { "note": "choose any" },
-                    "2": { "note": "choose any" },
-                    "3": { "note": "choose any" }
+                    "1": { "note": "Choose any" },
+                    "2": { "note": "Choose any" },
+                    "3": { "note": "Choose any" }
                 }
             },
             {
                 "name": "Nighthawks",
                 "pageContent": { "imageFilename": "gphawks" },
                 "optionNum": {
-                    "1": { "note": "Spell +50% / 30 turns", "tag": "exit" },
-                    "2": { "note": "The Persistence of Memory", "tag": "loop" },
-                    "3": { "note": "Sunday Afternoon" }
+                    "1": { "note": "Spell +50% / 30 turns" },
+                    "2": { "note": "Loop buffs", "to": "The Persistence of Memory" },
+                    "3": { "note": "Loop stats", "to": "Sunday Afternoon" }
                 }
             },
             {
@@ -33,71 +34,71 @@
                 "pageContent": { "imageFilename": "gpclocks" },
                 "optionNum": {
                     "1": { "note": "Shoes or +20% Item / 30 turns", "tag": "quest" },
-                    "2": { "note": "The Birth of Venus", "tag": "loop" },
-                    "3": { "note": "Piet Mondrian" }
+                    "2": { "note": "Loop buffs", "to": "The Birth of Venus" },
+                    "3": { "note": "Loop stats", "to": "Piet Mondrian" }
                 }
             },
             {
                 "name": "The Birth of Venus",
                 "pageContent": { "imageFilename": "gpvenus" },
                 "optionNum": {
-                    "1": { "note": "Weapon 50% / 30 turns", "tag": "exit" },
-                    "2": { "note": "Nighthawks", "tag": "loop" },
-                    "3": { "note": "The Creation of Adam" }
+                    "1": { "note": "Weapon 50% / 30 turns" },
+                    "2": { "note": "Loop buffs", "to": "Nighthawks" },
+                    "3": { "note": "Loop stats", "to": "The Creation of Adam" }
                 }
             },
             {
                 "name": "Sunday Afternoon on the Island of La Grande Jatte",
                 "pageContent": { "imageFilename": "gpboating" },
                 "optionNum": {
-                    "1": { "note": "The Last Supper" },
-                    "2": { "note": "X-200 Myst substats", "tag": "exit" },
-                    "3": { "note": "Piet Mondrian", "tag": "loop" }
+                    "1": { "note": "To booze", "to": "The Last Supper" },
+                    "2": { "note": "X-200 Myst substats" },
+                    "3": { "note": "Loop stats", "to": "Piet Mondrian" }
                 }
             },
             {
                 "name": "Piet Mondrian",
                 "pageContent": { "imageFilename": "gpmond" },
                 "optionNum": {
-                    "1": { "note": "The Scream" },
-                    "2": { "note": "X-200 Moxie substats", "tag": "exit" },
-                    "3": { "note": "The Creation of Adam", "tag": "loop" }
+                    "1": { "note": "To food", "to": "The Scream" },
+                    "2": { "note": "X-200 Moxie substats" },
+                    "3": { "note": "Loop stats", "to": "The Creation of Adam" }
                 }
             },
             {
                 "name": "The Creation of Adam",
                 "pageContent": { "imageFilename": "gpadam" },
                 "optionNum": {
-                    "1": { "note": "The Death of Socrates" },
-                    "2": { "note": "X-200 Muscle substats", "tag": "exit" },
-                    "3": { "note": "Sunday Afternoon", "tag": "loop" }
+                    "1": { "note": "To potion", "to": "The Death of Socrates" },
+                    "2": { "note": "X-200 Muscle substats" },
+                    "3": { "note": "Loop stats", "to": "Sunday Afternoon" }
                 }
             },
             {
                 "name": "The Last Supper",
                 "pageContent": { "imageFilename": "gpsupper" },
                 "optionNum": {
-                    "1": { "note": "Relativity" },
-                    "2": { "note": "The Persistence of Memory" },
-                    "3": { "note": "good booze 2 potency", "tag": "exit" }
+                    "1": { "note": "Entrance", "to": "Relativity" },
+                    "2": { "note": "Loop buffs", "to": "The Persistence of Memory" },
+                    "3": { "note": "Good booze 2 potency" }
                 }
             },
             {
                 "name": "The Scream",
                 "pageContent": { "imageFilename": "gpscream" },
                 "optionNum": {
-                    "1": { "note": "Relativity" },
-                    "2": { "note": "The Birth of Venus" },
-                    "3": { "note": "good food 2 fullness", "tag": "exit" }
+                    "1": { "note": "Entrance", "to": "Relativity" },
+                    "2": { "note": "Loop buffs", "to": "The Birth of Venus" },
+                    "3": { "note": "Good food 2 fullness" }
                 }
             },
             {
                 "name": "The Death of Socrates",
                 "pageContent": { "imageFilename": "gpsocrates" },
                 "optionNum": {
-                    "1": { "note": "Relativity" },
-                    "2": { "note": "Nighthawks" },
-                    "3": { "note": "potion restore 100 HP/MP", "tag": "exit" }
+                    "1": { "note": "Entrance", "to": "Relativity" },
+                    "2": { "note": "Loop buffs", "to": "Nighthawks" },
+                    "3": { "note": "Potion restore 100 HP/MP" }
                 }
             }
         ]
@@ -105,9 +106,9 @@
     "One Mahogany Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
-            "Check the top drawer":      { "note": "half of a memo or old coin purse" },
+            "Check the top drawer":      { "note": "Half of a memo or old coin purse" },
             "Check the bottom drawer":   { "note": "Lose HP" },
-            "Look under the nightstand": { "note": "Spookyraven Manor Quest Item" },
+            "Look under the nightstand": { "note": "Spookyraven skill item", "tag": "quest" },
             "Use a ghost key":           { "note": "Gain meat" }
         }
     },
@@ -116,8 +117,8 @@
         "choiceText": {
             "Open the top drawer":        { "note": "400-600 Meat" },
             "Open the bottom drawer":     { "note": "X-200 Myst substats" },
-            "Look behind the nightstand": { "note": "Lord Spookyraven's spectacles" },
-            "Look under the nightstand":  { "note": "disposable instant camera" },
+            "Look behind the nightstand": { "note": "Lord Spookyraven's spectacles", "tag": "quest" },
+            "Look under the nightstand":  { "note": "Disposable instant camera", "tag": "quest" },
             "Use a ghost key":            { "note": "200 Mysteriousness" }
         }
     },
@@ -125,7 +126,7 @@
         "zone": "The Haunted Bedroom",
         "choiceText": {
             "Check the top drawer":       { "note": "X-200 Moxie substats" },
-            "Check the bottom drawer":    { "note": "grouchy restless spirit or nothing" },
+            "Check the bottom drawer":    { "note": "Grouchy restless spirit or nothing" },
             "Investigate the jewelry":    { "note": "Fight for hand mirror / accessories" },
             "Use a ghost key":            { "note": "200 Moxie substats" },
             "Check under the nightstand": { "note": "Engorged Sausages and You", "tag": "rare" }
@@ -134,17 +135,104 @@
     "One Elegant Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
-            "Open the single drawer":  { "note": "Lady Spookyraven's finest gown" },
-            "Break a leg (off of the nightstand)": { "note": "elegant nightstick" },
+            "Open the single drawer":  { "note": "Lady Spookyraven's finest gown", "tag": "quest" },
+            "Break a leg (off of the nightstand)": { "note": "Elegant nightstick" },
             "Use a ghost key":         { "note": "100 of each substat" }
         }
     },
     "One Simple Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
-            "Look in the top drawer":    { "note": "old leather wallet" },
+            "Look in the top drawer":    { "note": "Old leather wallet" },
             "Look in the bottom drawer": { "note": "X-200 Muscle substats" },
             "Use a ghost key":           { "note": "200 Muscle substats" }
         }
+    },
+    "Curtains": {
+        "zone": "The Haunted Ballroom",
+        "choiceText": {
+            "Investigate the organ": { "note": "DB/AT Spookyraven skill" },
+            "Watch the dancers":     { "note": "X-150 Moxie substats" },
+            "Pay no attention to the stuff in front of the curtain": { "note": "Free runaway" }
+        }
+    },
+    "We'll All Be Flat": {
+        "zone": "The Haunted Ballroom",
+        "choiceText": { "Play the music": { "tag": "quest" } }
+    },
+    "Fitting In": {
+        "zone": "The Hidden Temple",
+        "choiceText": {
+            "Explore the higher levels":    { "note": "Get Nostril" },
+            "Poke around the ground floor": { "note": "Go through door" }
+        }
+    },
+    "Such Great Heights": {
+        "zone": "The Hidden Temple",
+        "choiceText": {
+            "Sidle along the ledge":   { "note": "X Myst substats" },
+            "Climb down some vines":   { "note": "The Nostril of the Serpent", "tag": "quest" },
+            "Head towards the top of the temple": { "note": "Gain 3 Adventures, once per ascension" }
+        }
+    },
+    "The Hidden Heart of the Hidden Temple": {
+        "zone": "The Hidden Temple",
+        "variants": [
+            {
+                "name": "Stone",
+                "pageContent": { "imageFilename": "door_stone" },
+                "choiceText": {
+                    "Go through the door":      { "note": "X Muscle substats" },
+                    "Go down the stairs":       { "note": "Buttons", "tag": "quest" },
+                    "Go back the way you came": { "note": "X Moxie substats, poison debuff" }
+                }
+            },
+            {
+                "name": "Pikachutlotal",
+                "pageContent": { "imageFilename": "door_pikachu" },
+                "choiceText": { "Go through the door (3 Adventures)": { "tag": "quest" } }
+            }
+        ]
+    },
+    "At Least It's Not Full Of Trash": {
+        "zone": "The Hidden Temple",
+        "choiceText": { "Raise your hands up toward the heavens": { "tag": "quest" } }
+    },
+    "No Visible Means of Support": {
+        "zone": "The Hidden Temple",
+        "choiceText": { "Do nothing": { "tag": "quest" } }
+    },
+    "Where Does The Lone Ranger Take His Garbagester?": {
+        "zone": "The Hidden Park",
+        "choiceText": {
+            "Dig through the dumpster": { "note": "Hidden city items", "tag": "quest" },
+            "Knock over the dumpster":  { "note": "Banish janitors" }
+        }
+    },
+    "Action Elevator": {
+        "zone": "The Hidden Apartment Building",
+        "choiceText": {
+            "Go to the Thrice-Cursed Penthouse": { "note": "Boss", "tag": "quest" },
+            "Go to the mezannine":               { "note": "Get cursed +1", "tag": "quest" }
+        }
+    },
+    "Working Holiday": {
+        "zone": "The Hidden Office Building",
+        "choiceText": {
+            "Knock on the boss's office door": { "note": "Boss", "tag": "quest" },
+            "Raid the supply cabinet":         { "note": "Boring binder clip", "tag": "quest" }
+        }
+    },
+    "You, M. D.": {
+        "zone": "The Hidden Hospital",
+        "choiceText": { "Enter the Operating Theater": { "note": "Boss", "tag": "quest" } }
+    },
+    "Life is Like a Cherry of Bowls": {
+        "zone": "The Hidden Bowling Alley",
+        "choiceText": { "Let's roll": { "tag": "quest" } }
+    },
+    "Behind the 'Stache": {
+        "zone": "The Copperhead Club",
+        "choiceText": { "Set the lanterns on fire": { "note": "Generate Flamin' Whatshisname" } }
     }
 }
