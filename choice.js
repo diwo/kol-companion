@@ -34,8 +34,14 @@ async function addAdventureChoiceNotes() {
 
         if (note) {
             let noteNode = document.createElement("div");
-            noteNode.innerText = `[${note}]`;
-            if (tag) noteNode.innerText += ` (${tag})`;
+            noteNode.innerHTML = `[${note}]`;
+            if (tag) {
+                let color;
+                if (tag == "quest") color = "darkviolet";
+                if (tag == "rare") color = "orange";
+                let style = color ? `style="color: ${color}"` : "";
+                noteNode.innerHTML += ` <b ${style}>(${tag})</b>`;
+            }
             noteNode.style.display = "inline";
             noteNode.style.position = "absolute";
             noteNode.style.margin = "2px 4px";
