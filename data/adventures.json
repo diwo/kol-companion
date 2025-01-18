@@ -1,0 +1,150 @@
+{
+    "Out in the Garden": {
+        "zone": "The Haunted Gallery",
+        "choiceText": {
+            "The first knight":  { "note": "Fight or Seal Clubber skill" },
+            "The second knight": { "note": "Fight or Turtle Tamer skill" },
+            "The two maidens":   { "note": "+10 Myst / -3 MP / 10 turns" },
+            "None of the above": { "note": "Free runaway" }
+        }
+    },
+    "Louvre It or Leave It": {
+        "zone": "The Haunted Gallery",
+        "variants": [
+            {
+                "pageContent": { "imageTitle": "Crazy Stairs!" },
+                "optionNum": {
+                    "1": { "note": "choose any" },
+                    "2": { "note": "choose any" },
+                    "3": { "note": "choose any" }
+                }
+            },
+            {
+                "name": "Nighthawks",
+                "pageContent": { "imageFilename": "gphawks" },
+                "optionNum": {
+                    "1": { "note": "Spell +50% / 30 turns", "tag": "exit" },
+                    "2": { "note": "The Persistence of Memory", "tag": "loop" },
+                    "3": { "note": "Sunday Afternoon" }
+                }
+            },
+            {
+                "name": "The Persistence of Memory",
+                "pageContent": { "imageFilename": "gpclocks" },
+                "optionNum": {
+                    "1": { "note": "Shoes or +20% Item / 30 turns", "tag": "quest" },
+                    "2": { "note": "The Birth of Venus", "tag": "loop" },
+                    "3": { "note": "Piet Mondrian" }
+                }
+            },
+            {
+                "name": "The Birth of Venus",
+                "pageContent": { "imageFilename": "gpvenus" },
+                "optionNum": {
+                    "1": { "note": "Weapon 50% / 30 turns", "tag": "exit" },
+                    "2": { "note": "Nighthawks", "tag": "loop" },
+                    "3": { "note": "The Creation of Adam" }
+                }
+            },
+            {
+                "name": "Sunday Afternoon on the Island of La Grande Jatte",
+                "pageContent": { "imageFilename": "gpboating" },
+                "optionNum": {
+                    "1": { "note": "The Last Supper" },
+                    "2": { "note": "X-200 Myst substats", "tag": "exit" },
+                    "3": { "note": "Piet Mondrian", "tag": "loop" }
+                }
+            },
+            {
+                "name": "Piet Mondrian",
+                "pageContent": { "imageFilename": "gpmond" },
+                "optionNum": {
+                    "1": { "note": "The Scream" },
+                    "2": { "note": "X-200 Moxie substats", "tag": "exit" },
+                    "3": { "note": "The Creation of Adam", "tag": "loop" }
+                }
+            },
+            {
+                "name": "The Creation of Adam",
+                "pageContent": { "imageFilename": "gpadam" },
+                "optionNum": {
+                    "1": { "note": "The Death of Socrates" },
+                    "2": { "note": "X-200 Muscle substats", "tag": "exit" },
+                    "3": { "note": "Sunday Afternoon", "tag": "loop" }
+                }
+            },
+            {
+                "name": "The Last Supper",
+                "pageContent": { "imageFilename": "gpsupper" },
+                "optionNum": {
+                    "1": { "note": "Relativity" },
+                    "2": { "note": "The Persistence of Memory" },
+                    "3": { "note": "good booze 2 potency", "tag": "exit" }
+                }
+            },
+            {
+                "name": "The Scream",
+                "pageContent": { "imageFilename": "gpscream" },
+                "optionNum": {
+                    "1": { "note": "Relativity" },
+                    "2": { "note": "The Birth of Venus" },
+                    "3": { "note": "good food 2 fullness", "tag": "exit" }
+                }
+            },
+            {
+                "name": "The Death of Socrates",
+                "pageContent": { "imageFilename": "gpsocrates" },
+                "optionNum": {
+                    "1": { "note": "Relativity" },
+                    "2": { "note": "Nighthawks" },
+                    "3": { "note": "potion restore 100 HP/MP", "tag": "exit" }
+                }
+            }
+        ]
+    },
+    "One Mahogany Nightstand": {
+        "zone": "The Haunted Bedroom",
+        "choiceText": {
+            "Check the top drawer":      { "note": "half of a memo or old coin purse" },
+            "Check the bottom drawer":   { "note": "Lose HP" },
+            "Look under the nightstand": { "note": "Spookyraven Manor Quest Item" },
+            "Use a ghost key":           { "note": "Gain meat" }
+        }
+    },
+    "One Ornate Nightstand": {
+        "zone": "The Haunted Bedroom",
+        "choiceText": {
+            "Open the top drawer":        { "note": "400-600 Meat" },
+            "Open the bottom drawer":     { "note": "X-200 Myst substats" },
+            "Look behind the nightstand": { "note": "Lord Spookyraven's spectacles" },
+            "Look under the nightstand":  { "note": "disposable instant camera" },
+            "Use a ghost key":            { "note": "200 Mysteriousness" }
+        }
+    },
+    "One Rustic Nightstand": {
+        "zone": "The Haunted Bedroom",
+        "choiceText": {
+            "Check the top drawer":       { "note": "X-200 Moxie substats" },
+            "Check the bottom drawer":    { "note": "grouchy restless spirit or nothing" },
+            "Investigate the jewelry":    { "note": "Fight for hand mirror / accessories" },
+            "Use a ghost key":            { "note": "200 Moxie substats" },
+            "Check under the nightstand": { "note": "Engorged Sausages and You", "tag": "rare" }
+        }
+    },
+    "One Elegant Nightstand": {
+        "zone": "The Haunted Bedroom",
+        "choiceText": {
+            "Open the single drawer":  { "note": "Lady Spookyraven's finest gown" },
+            "Break a leg (off of the nightstand)": { "note": "elegant nightstick" },
+            "Use a ghost key":         { "note": "100 of each substat" }
+        }
+    },
+    "One Simple Nightstand": {
+        "zone": "The Haunted Bedroom",
+        "choiceText": {
+            "Look in the top drawer":    { "note": "old leather wallet" },
+            "Look in the bottom drawer": { "note": "X-200 Muscle substats" },
+            "Use a ghost key":           { "note": "200 Muscle substats" }
+        }
+    }
+}

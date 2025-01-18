@@ -61,9 +61,9 @@ async function exportStorageToClipboard(keyMatcher) {
 }
 
 async function importCacheFromBackup() {
-    await importDataFile("data/item_price.json", "item price", kv => Object.keys(kv).length);
-    await importDataFile("data/item_data.json", "item data", kv => Object.keys(kv).length);
-    await importDataFile("data/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
+    await importDataFile("data/local/item_price.json", "item price", kv => Object.keys(kv).length);
+    await importDataFile("data/local/item_data.json", "item data", kv => Object.keys(kv).length);
+    await importDataFile("data/local/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
 }
 
 async function importDataFile(path, type, countEntries) {

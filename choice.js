@@ -1,6 +1,75 @@
 function handleChoice() {
+    addAdventureChoiceNotes();
     drawCombBeachGrid();
     addPriceToAdventureRewardItems();
+}
+
+async function addAdventureChoiceNotes() {
+    let buttons = evaluateToNodesArray("//form[@action='choice.php']/input[@type='submit']");
+    if (!buttons.length) {
+        return;
+    }
+
+    let fetchResponse = await fetch(browser.runtime.getURL("data/adventures.json"));
+    let adventuresData = await fetchResponse.json();
+
+    for (let button of buttons) {
+        let adventureName = document.evaluate(
+            "./ancestor::table/tbody/tr[1]/td[1][@align='center']/b",
+            button).iterateNext()?.innerText;
+        let choiceText = button.value;
+        let optionNum = parseInt(document.evaluate(
+            "./input[@name='option']",
+            button.parentElement).iterateNext()?.value || 0);
+
+        let adventure = adventuresData?.[adventureName];
+        if (adventure?.variants) {
+            let variant = adventure.variants.find(isMatchAdventureVariant);
+            if (variant) adventure = variant;
+        }
+
+        let choice = matchAdventureChoice(adventure, choiceText, optionNum);
+        let note = choice?.note;
+        let tag = choice?.tag;
+
+        if (note) {
+            let noteNode = document.createElement("div");
+            noteNode.innerText = `[${note}]`;
+            if (tag) noteNode.innerText += ` (${tag})`;
+            noteNode.style.display = "inline";
+            noteNode.style.position = "absolute";
+            noteNode.style.margin = "2px 4px";
+            noteNode.style.fontSize = "0.8em";
+            button.parentElement.appendChild(noteNode);
+        }
+    }
+}
+
+function isMatchAdventureVariant(variant) {
+    let pageContentCond = variant?.pageContent;
+    if (pageContentCond) {
+        let imageTitleCond = variant.pageContent?.imageTitle;
+        if (imageTitleCond) {
+            let found = document.evaluate(`//img[@title="${imageTitleCond}"]`, document).iterateNext();
+            if (!found) return false;
+        }
+        let imageFilenameCond = variant.pageContent?.imageFilename;
+        if (imageFilenameCond) {
+            let found = document.evaluate(`//img[contains(@src, "/${imageFilenameCond}.gif")]`, document).iterateNext();
+            if (!found) return false;
+        }
+    }
+    return true;
+}
+
+function matchAdventureChoice(adventure, choiceText, optionNum) {
+    let choiceTextMatch = adventure?.choiceText?.[choiceText];
+    if (choiceTextMatch) return choiceTextMatch;
+
+    let optionNumMatch = adventure?.optionNum?.[optionNum];
+    if (optionNumMatch) return optionNumMatch;
+
+    return null;
 }
 
 function drawCombBeachGrid() {
