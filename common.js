@@ -171,24 +171,28 @@ function select(selectName, optionTextPattern) {
 
 async function redrawPrices(itemIds, {cachedOnly}, redrawFunc, errorFunc) {
     for (let itemId of itemIds) {
-        let priceData = await getPrice(itemId, {cachedOnly});
-        if (priceData) {
-            let error = !!priceData.data?.error;
-            if (error) {
-                if (errorFunc) errorFunc(itemId);
-                continue;
-            }
+        let [itemData, priceData] = await Promise.all([
+            getItemData(itemId),
+            getPrice(itemId, {cachedOnly})
+        ]);
 
-            let itemData = await getItemData(itemId);
-            let flags = itemData?.flags;
-            if (!flags) flags = { notrade: priceData.untradable };
-            let average = priceData.data?.average || 0;
-            let volume = priceData.data?.volume || 0;
-            let color = getPriceColor(average, volume, flags);
-            let fontStyle = (isTradableItemFlags(flags) && flags.nodiscard) ? "italic" : "";
-
-            redrawFunc(itemId, flags, average, volume, color, fontStyle);
+        let flags = itemData?.flags || {};
+        if (!itemData?.flags && priceData?.untradable) {
+            flags.notrade = true;
         }
+
+        let tradable = isTradableItemFlags(flags);
+        if (tradable && priceData?.data?.error) {
+            if (errorFunc) errorFunc(itemId);
+            continue;
+        }
+
+        let average = priceData?.data?.average || 0;
+        let volume = priceData?.data?.volume || 0;
+        let color = getPriceColor(average, volume, flags);
+        let fontStyle = (tradable && flags.nodiscard) ? "italic" : "";
+
+        redrawFunc(itemId, flags, average, volume, color, fontStyle);
     }
 }
 
@@ -252,7 +256,8 @@ async function getItemData(itemId) {
 }
 
 function isTradableItemFlags(itemFlags) {
-    let untradable = itemFlags.notrade || itemFlags.gift || itemFlags.quest || itemFlags.oneday;
+    let flags = itemFlags || {};
+    let untradable = flags.notrade || flags.gift || flags.quest || flags.oneday;
     return !untradable;
 }
 
