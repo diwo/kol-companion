@@ -5,7 +5,7 @@ function handleChoice() {
 }
 
 async function addAdventureChoiceNotes() {
-    let buttons = evaluateToNodesArray("//form[@action='choice.php']/input[@type='submit']");
+    let buttons = evaluateToNodesArray("//form[@action='choice.php']//input[@type='submit']");
     if (!buttons.length) {
         return;
     }

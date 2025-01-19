@@ -1,9 +1,143 @@
 {
+    "Aww, Craps": {
+        "zone": "The Sleazy Back Alley",
+        "choiceText": {"Walk away": { "note": "Free runaway" } }
+    },
+    "Dumpster Diving": {
+        "zone": "The Sleazy Back Alley",
+        "choiceText": {
+            "Punch the hobo": { "note": "Fight" },
+            "Look under the hobo": { "note": "Mad train wine" }
+        }
+    },
+    "The Entertainer": {
+        "zone": "The Sleazy Back Alley",
+        "choiceText": { "Introduce them to avant-garde": { "note": "Free runaway" } }
+    },
+    "Please, Hammer": {
+        "zone": "The Sleazy Back Alley",
+        "choiceText": {
+            "Sure, I'll help.": { "note": "Does not use adventure" },
+            "Sorry, no time.":  { "note": "Free runaway" }
+        }
+    },
+    "": {
+        "zone": "The Sleazy Back Alley",
+        "choiceText": {
+            "Yes! I'm trapped in the wrong body! (500 Meat)": { "note": "Switch gender" },
+            "No thanks!": { "note": "Free runaway" }
+        }
+    },
+    "Arboreal Respite": {
+        "zone": "The Spooky Forest",
+        "choiceText": {
+            "Follow the old road":    { "note": "Spooky sapling", "to": "The Road Less Traveled" },
+            "Explore the stream":     { "note": "Mosquito larva, (1)Tree-holed coin", "to": "Consciousness of a Stream" },
+            "Brave the dark thicket": { "note": "(2)Spooky temple map, Spooky-Gro fertilizer", "to": "Through Thicket and Thinnet" }
+        }
+    },
+    "The Road Less Traveled": {
+        "zone": "The Spooky Forest",
+        "choiceText": {
+            "Talk to the hunter": { "note": "Spooky sapling", "to": "Tree's Last Stand" }
+        }
+    },
+    "Tree's Last Stand": {
+        "zone": "The Spooky Forest",
+        "choiceText": { "Buy a tree for 100 Meat": { "note": "Spooky sapling", "tag": "quest" } }
+    },
+    "Consciousness of a Stream": {
+        "zone": "The Spooky Forest",
+        "choiceText": {
+            "March to the marsh":    { "note": "mosquito larva", "tag": "quest" },
+            "Squeeze into the cave": { "note": "(1)Tree-holed coin", "tag": "quest" }
+        }
+    },
+    "Through Thicket and Thinnet": {
+        "zone": "The Spooky Forest",
+        "choiceText": {
+            "Follow the even darker path":   { "note": "Spices", "to": "A Three-Tined Fork" },
+            "Investigate the dense foliage": { "note": "Spooky-Gro fertilizer", "tag": "quest" },
+            "Follow the coin":               { "note": "(2)Spooky temple map", "to": "O Lith, Mon" }
+        }
+    },
+    "A Three-Tined Fork": {
+        "zone": "The Spooky Forest",
+        "choiceText": { "Take the scorched path": { "note": "Spices", "to": "A Pair of Craters" } }
+    },
+    "A Pair of Craters": {
+        "zone": "The Spooky Forest",
+        "choiceText": { "Investigate the moist crater": { "note": "Spices" } }
+    },
+    "O Lith, Mon": {
+        "zone": "The Spooky Forest",
+        "choiceText": { "Insert coin to continue": { "note": "(2)Spooky Temple map", "tag": "quest" } }
+    },
+    "Knob Goblin BBQ": {
+        "zone": "Outskirts of Cobb's Knob",
+        "choiceText": { "Kick the chef": { "note": "Fight" } }
+    },
+    "Malice in Chains": {
+        "zone": "Outskirts of Cobb's Knob",
+        "choiceText": { "Plot a cunning escape": { "note": "Fight" } }
+    },
+    "Skull, Skull, Skull": {
+        "zone": "The Defiled Nook",
+        "choiceText": {
+            "Check the shiny object": { "note": "Debonair deboner", "tag": "rare" },
+            "Leave the skulls alone": { "note": "Free runaway" }
+        }
+    },
+    "Death Rattlin'": {
+        "zone": "The Defiled Cranny",
+        "choiceText": { "Open the rattling one": { "note": "Fight", "tag": "quest" } }
+    },
+    "Urning Your Keep": {
+        "zone": "The Defiled Niche",
+        "choiceText": { "Turn away": { "note": "Free runaway" } }
+    },
+    "Turn Your Head and Coffin": {
+        "zone": "The Defiled Alcove",
+        "choiceText": { "Leave them all be": { "note": "Free runaway" } }
+    },
+    "Welcome To Our ool Table": {
+        "zone": "The Haunted Billiards Room",
+        "choiceText": {
+            "Hustle the ghost": { "note": "Library key", "tag": "quest" },
+            "Hustle over to the other table and practice": { "note": "+1-4 Pool Skill" }
+        }
+    },
+    "A Shark's Chum": {
+        "zone": "The Haunted Billiards Room",
+        "choiceText": { "Rack 'em up": { "note": "+Pool Skill permanently" } }
+    },
+    "Take a Look, it's in a Book!": {
+        "zone": "The Haunted Library",
+        "choiceText": {
+            "Read \"Ancient Forbidden Unspeakable Evil, a Love Story\"": { "note": "PM/S skill", "to": "Naughty, Naughty..." },
+            "Read the dictionary":                     { "note": "Dictionary" },
+            "Reading is for losers":                   { "note": "Free runaway" },
+            "Reading is for losers.  I'm outta here.": { "note": "Free runaway" }
+        }
+    },
+    "Naughty, Naughty...": {
+        "zone": "The Haunted Library",
+        "choiceText": { "Read Chapter 3: Twisted, Curdled, Corrupt Energy and You": { "note": "PM/S skill" } }
+    },
+    "Melvil Dewey Would Be Ashamed": {
+        "zone": "The Haunted Library",
+        "choiceText": {
+            "Hork the gray-bound volume":    { "note": "Spells are Spooky" },
+            "Yoink the green-bound tome":    { "note": "Spells are Stinky" },
+            "Gaffle the purple-bound book":  { "note": "Spells are Sleazy" },
+            "Leave without taking anything": { "note": "Free runaway" }
+        }
+    },
     "Out in the Garden": {
         "zone": "The Haunted Gallery",
         "choiceText": {
-            "The first knight":  { "note": "Fight or Seal Clubber skill" },
-            "The second knight": { "note": "Fight or Turtle Tamer skill" },
+            "The first knight":  { "note": "SC skill" },
+            "The second knight": { "note": "TT skill" },
             "The two maidens":   { "note": "+10 Myst / -3 MP / 10 turns" },
             "None of the above": { "note": "Free runaway" }
         }
@@ -103,12 +237,29 @@
             }
         ]
     },
+    "Having a Medicine Ball": {
+        "zone": "The Haunted Bathroom",
+        "choiceText": {
+            "Gaze deeply into the mirror":   { "note": "X-300 Myst substats" },
+            "Open it and see what's inside": { "note": "Item or Free runaway", "to": "Bad Medicine is What You Need" },
+            "Say \"Guy made of bees.\"":     { "note": "Fight every 5th time" }
+        }
+    },
+    "Bad Medicine is What You Need": {
+        "zone": "The Haunted Bathroom",
+        "choiceText": {
+            "Take the cough syrup": { "note": "Spleen item Mys +10%" },
+            "Take the hair oil":    { "note": "Spleen item Mox +10%" },
+            "Take the vitamins":    { "note": "Spleen item Mus +10%" },
+            "Take off":             { "note": "Free runaway" }
+        }
+    },
     "One Mahogany Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
             "Check the top drawer":      { "note": "Half of a memo or old coin purse" },
             "Check the bottom drawer":   { "note": "Lose HP" },
-            "Look under the nightstand": { "note": "Spookyraven skill item", "tag": "quest" },
+            "Look under the nightstand": { "note": "Spookyraven skill item" },
             "Use a ghost key":           { "note": "Gain meat" }
         }
     },
@@ -119,15 +270,15 @@
             "Open the bottom drawer":     { "note": "X-200 Myst substats" },
             "Look behind the nightstand": { "note": "Lord Spookyraven's spectacles", "tag": "quest" },
             "Look under the nightstand":  { "note": "Disposable instant camera", "tag": "quest" },
-            "Use a ghost key":            { "note": "200 Mysteriousness" }
+            "Use a ghost key":            { "note": "200 Myst substats" }
         }
     },
     "One Rustic Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
             "Check the top drawer":       { "note": "X-200 Moxie substats" },
-            "Check the bottom drawer":    { "note": "Grouchy restless spirit or nothing" },
-            "Investigate the jewelry":    { "note": "Fight for hand mirror / accessories" },
+            "Check the bottom drawer":    { "note": "Spooky damage combat item or nothing" },
+            "Investigate the jewelry":    { "note": "Fight for hand mirror / class accessories" },
             "Use a ghost key":            { "note": "200 Moxie substats" },
             "Check under the nightstand": { "note": "Engorged Sausages and You", "tag": "rare" }
         }
@@ -137,34 +288,230 @@
         "choiceText": {
             "Open the single drawer":  { "note": "Lady Spookyraven's finest gown", "tag": "quest" },
             "Break a leg (off of the nightstand)": { "note": "Elegant nightstick" },
-            "Use a ghost key":         { "note": "100 of each substat" }
+            "Use a ghost key":         { "note": "100 all substats" }
         }
     },
     "One Simple Nightstand": {
         "zone": "The Haunted Bedroom",
         "choiceText": {
-            "Look in the top drawer":    { "note": "Old leather wallet" },
-            "Look in the bottom drawer": { "note": "X-200 Muscle substats" },
-            "Use a ghost key":           { "note": "200 Muscle substats" }
+            "Check the top drawer":    { "note": "Old leather wallet" },
+            "Check the bottom drawer": { "note": "X-200 Muscle substats" },
+            "Use a ghost key":         { "note": "200 Muscle substats" }
         }
     },
     "Curtains": {
         "zone": "The Haunted Ballroom",
         "choiceText": {
-            "Investigate the organ": { "note": "DB/AT Spookyraven skill" },
+            "Investigate the organ": { "note": "DB/AT skill" },
             "Watch the dancers":     { "note": "X-150 Moxie substats" },
             "Pay no attention to the stuff in front of the curtain": { "note": "Free runaway" }
+        }
+    },
+    "Strung-Up Quartet": {
+        "zone": "The Haunted Ballroom",
+        "choiceText": {
+            "Play 'Provare Compasione Per El Sciocco'":  { "note": "+5 ML" },
+            "Play 'Sono Un Amanten Non Un Combattente'": { "note": "+5% Combat" },
+            "Play 'Le Mie Cose Favorite'":               { "note": "+5% Item" },
+            "Play nothing, please.":                     { "note": "Does not consume an adventure" }
         }
     },
     "We'll All Be Flat": {
         "zone": "The Haunted Ballroom",
         "choiceText": { "Play the music": { "tag": "quest" } }
     },
+    "100% Legal": {
+        "zone": "Itznotyerzitz Mine",
+        "choiceText": {
+            "Demand loot": { "note": "Helmet" },
+            "Ask for ore": { "note": "Pants" },
+            "Say you'll keep quiet for free": { "note": "Meat" }
+        }
+    },
+    "A Flat Miner": {
+        "zone": "Itznotyerzitz Mine",
+        "choiceText": {
+            "Loot the dwarf's belongings": { "note": "Pants" },
+            "Hijack the Meat vein":        { "note": "Pickaxe" },
+            "Help the dwarf":              { "note": "Meat" }
+        }
+    },
+    "See You Next Fall": {
+        "zone": "Itznotyerzitz Mine",
+        "choiceText": {
+            "Give 'im the stick":            { "note": "Helmet" },
+            "DOOOOON'T GIVE 'IM THE STICK!": { "note": "Pickaxe" },
+            "Negotiate for a reward":        { "note": "Meat" }
+        }
+    },
+    "More Locker Than Morlock": {
+        "zone": "Itznotyerzitz Mine",
+        "choiceText": {
+            "Open the locka'": { "note": "Mining gear" },
+            "Get to the choppa' (which is outside)": { "note": "Free runaway" }
+        }
+    },
+    "Duffel on the Double": {
+        "zone": "The eXtreme Slope",
+        "choiceText": {
+            "Open the bag": { "note": "Mittens, scarf, or pants" },
+            "Dig deeper":   { "note": "jar of frostigkraut", "tag": "rare" },
+            "Scram":        { "note": "Free runaway" },
+            "Look in the side pocket": { "note": "lucky-ish pill" }
+        }
+    },
+    "Generic Teen Comedy Snowboarding Adventure": {
+        "zone": "The eXtreme Slope",
+        "choiceText": {
+            "Give him a pep-talk":         { "note": "Mittens" },
+            "Give him some boarding tips": { "note": "Pants" },
+            "Offer to help him cheat":     { "note": "200 Meat" }
+        }
+    },
+    "Saint Beernard": {
+        "zone": "The eXtreme Slope",
+        "choiceText": {
+            "Help the heroic dog":      { "note": "Pants" },
+            "Flee in terror":           { "note": "Scarf" },
+            "Ask for some beer, first": { "note": "200 Meat" }
+        }
+    },
+    "Yeti Nother Hippy": {
+        "zone": "The eXtreme Slope",
+        "choiceText": {
+            "Help the hippy":            { "note": "Mittens" },
+            "Let irony take its course": { "note": "Scarf" },
+            "Negotiate his release":     { "note": "200 Meat" }
+        }
+    },
+    "Lost in the Great Overlook Lodge": {
+        "zone": "Twin Peak",
+        "choiceText": {
+            "Investigate Room 237":            { "note": "4+ Stench Res" },
+            "Search the pantry":               { "note": "50%+ Item/Food" },
+            "Follow the faint sound of music": { "note": "jar of oil" },
+            "Wait -- who's that?":             { "note": "+40% Init" },
+            "Leave the hotel":                 { "note": "Free runaway" }
+        }
+    },
+    "Random Lack of an Encounter": {
+        "zone": "The Penultimate Fantasy Airship",
+        "choiceText": {
+            "Investigate the crew quarters": { "note": "Fight" },
+            "Check the cargo hold":          { "note": "Chest" },
+            "Head down to the galley":       { "note": "18-39 all substats, lose 40-50 HP" },
+            "Gallivant down to the head":    { "note": "Model airship", "tag": "quest" }
+        }
+    },
+    "The Fast and the Furry-ous": {
+        "zone": "The Castle in the Clouds in the Sky (Basement)",
+        "choiceText": {
+            "Crawl Through the Heating Duct":            { "note": "Unlock with umbrella, or to neckbeard NC", "tag": "quest", "to": "Out in the Open Source" },
+            "Check out the Furry's Figurine Collection": { "note": "X Moxie substats" },
+            "Leave Through a Mousehole":                 { "note": "Free runaway with return" }
+        }
+    },
+    "Out in the Open Source": {
+        "zone": "The Castle in the Clouds in the Sky (Basement)",
+        "choiceText": {
+            "Check out the Dumbwaiter":                 { "note": "Unlock with dumbbell", "tag": "quest" },
+            "Mess with the Computer Equipment":         { "note": "X Myst substats" },
+            "Check the Neckbeard's Giant Cargo Shorts": { "note": "Myst stat gain potion and good booze" },
+            "Crawl through the Heating Vent":           { "note": "To fitness NC", "to": "You Don't Mess Around with Gym" }
+        }
+    },
+    "You Don't Mess Around with Gym": {
+        "zone": "The Castle in the Clouds in the Sky (Basement)",
+        "choiceText": {
+            "Grab a Dumbbell":      { "note": "Get dumbbell" },
+            "Work Out":             { "note": "X Muscle substats" },
+            "Rifle the Gym Bag":    { "note": "2 pec oil, Muscle stat gain potion, 3-4 good food 1 fullness" },
+            "Check out the Mirror": { "note": "Unlock with amulet", "tag": "quest" },
+            "Leave through the Basement Window": { "note": "Free runaway with return" }
+        }
+    },
+    "There's No Ability Like Possibility": {
+        "zone": "The Castle in the Clouds in the Sky (Ground Floor)",
+        "choiceText": {
+            "Rifle the Wallet-Purse-Leprechaun": { "note": "3 castle items" },
+            "Read the Magazine-Orangutan-lamp":  { "note": "Spell +100% / 30 turns" },
+            "Go out the Way You Came In":        { "note": "Free runaway" }
+        }
+    },
+    "Putting Off Is Off-Putting": {
+        "zone": "The Castle in the Clouds in the Sky (Ground Floor)",
+        "choiceText": {
+            "Look Under a Pile of Junk": { "note": "50-75 all substats book" },
+            "Roll in a Pile of Junk":    { "note": "DR +10 / 30 turns" },
+            "Get out of this Junk":      { "note": "Free runaway" }
+        }
+    },
+    "Huzzah!": {
+        "zone": "The Castle in the Clouds in the Sky (Ground Floor)",
+        "choiceText": {
+            "Exploreth the Writing Desk":     { "note": "2h sword with HP/MP regen" },
+            "Turn on Ye Olde Television Set": { "note": "Weapon +100% / 30 turns" },
+            "Seek the Egress Anon":           { "note": "Free runaway" }
+        }
+    },
+    "Home on the Free Range": {
+        "zone": "The Castle in the Clouds in the Sky (Ground Floor)",
+        "choiceText": {
+            "Look under the bed":           { "note": "3-4 random candies" },
+            "Investigate the noisy drawer": { "note": "electric boning knife", "tag": "quest" },
+            "Leave through a vent":         { "note": "Free runaway" }
+        }
+    },
+    "Copper Feel": {
+        "zone": "The Castle in the Clouds in the Sky (Top Floor)",
+        "choiceText": {
+            "Harrumph in Disdain":  { "note": "Unlock with model airship", "tag": "quest" },
+            "Investigate the Whirligigs and Gimcrackery": { "note": "Steam-powered model rocketship", "tag": "quest" },
+            "Grab a Gear":          { "note": "Brass gear" },
+            "Go through the Crack": { "note": "To Melon Collie", "to": "Melon Collie and the Infinite Lameness" }
+        }
+    },
+    "Melon Collie and the Infinite Lameness": {
+        "zone": "The Castle in the Clouds in the Sky (Top Floor)",
+        "choiceText": {
+            "End His Suffering":   { "note": "Fight" },
+            "Change up the Music": { "note": "Unlock with DnB record", "tag": "quest" },
+            "Snag some Candles":   { "note": "3 thin black candles" },
+            "Gimme Steam":         { "note": "To Copper Feel", "to": "Copper Feel" }
+        }
+    },
+    "Yeah, You're for Me, Punk Rock Giant": {
+        "zone": "The Castle in the Clouds in the Sky (Top Floor)",
+        "choiceText": {
+            "Get the Punk's Attention":   { "note": "Unlock with mohawk", "tag": "quest" },
+            "Dig Through His Drawers":    { "note": "450-550  Meat" },
+            "Check behind the trash can": { "note": "To Copper Feel", "to": "Copper Feel" },
+            "Look Behind the Poster":     { "note": "To Flavor of a Raver", "to": "Flavor of a Raver" }
+        }
+    },
+    "Flavor of a Raver": {
+        "zone": "The Castle in the Clouds in the Sky (Top Floor)",
+        "choiceText": {
+            "Pick a Fight":   { "note": "Fight" },
+            "Breathe Deeply": { "note": "Restore 1000 HP/MP" },
+            "Raid the Crate": { "note": "DnB record" },
+            "Check Behind the Giant Poster": { "note": "To Punk Rock", "to": "Yeah, You're for Me, Punk Rock Giant" }
+        }
+    },
+    "Welcome to The Shore, Inc.": {
+        "zone": "Desert Beach",
+        "choiceText": {
+            "Distant Lands Dude Ranch Adventure": { "note": "Muscle" },
+            "Tropical Paradise Island Getaway":   { "note": "Mysticality" },
+            "Large Donkey Mountain Ski Resort":   { "note": "Moxie" }
+        }
+    },
     "Fitting In": {
         "zone": "The Hidden Temple",
         "choiceText": {
-            "Explore the higher levels":    { "note": "Get Nostril" },
-            "Poke around the ground floor": { "note": "Go through door" }
+            "Explore the higher levels":    { "note": "To Such Great Heights (nostril)", "to": "Such Great Heights" },
+            "Poke around the ground floor": { "note": "To Hidden Heart (door)", "to": "The Hidden Heart of the Hidden Temple" },
+            "Head downwards":               { "note": "To Such Great Depths", "to": "Such Great Depths" }
         }
     },
     "Such Great Heights": {
@@ -175,6 +522,14 @@
             "Head towards the top of the temple": { "note": "Gain 3 Adventures, once per ascension" }
         }
     },
+    "Such Great Depths": {
+        "zone": "The Hidden Temple",
+        "choiceText": {
+            "The glowing":   { "note": "Good food 3 fullness" },
+            "The glowering": { "note": "15 all stats / 5 turns" },
+            "The growling":  { "note": "Fight, scaling with 5x +ML" }
+        }
+    },
     "The Hidden Heart of the Hidden Temple": {
         "zone": "The Hidden Temple",
         "variants": [
@@ -183,14 +538,36 @@
                 "pageContent": { "imageFilename": "door_stone" },
                 "choiceText": {
                     "Go through the door":      { "note": "X Muscle substats" },
-                    "Go down the stairs":       { "note": "Buttons", "tag": "quest" },
+                    "Go down the stairs":       { "note": "Confusing Buttons", "tag": "quest" },
+                    "Go back the way you came": { "note": "X Moxie substats, poison debuff" }
+                }
+            },
+            {
+                "name": "Sun",
+                "pageContent": { "imageFilename": "door_sun" },
+                "choiceText": {
+                    "Go through the door":      { "note": "ancient calendar fragment" },
+                    "Go down the stairs":       { "note": "Confusing Buttons", "tag": "quest" },
+                    "Go back the way you came": { "note": "X Moxie substats, poison debuff" }
+                }
+            },
+            {
+                "name": "Gargoyle",
+                "pageContent": { "imageFilename": "door_gargoyle" },
+                "choiceText": {
+                    "Go through the door":      { "note": "Restore X MP" },
+                    "Go down the stairs":       { "note": "Confusing Buttons", "tag": "quest" },
                     "Go back the way you came": { "note": "X Moxie substats, poison debuff" }
                 }
             },
             {
                 "name": "Pikachutlotal",
                 "pageContent": { "imageFilename": "door_pikachu" },
-                "choiceText": { "Go through the door (3 Adventures)": { "tag": "quest" } }
+                "choiceText": {
+                    "Go through the door (3 Adventures)": { "tag": "quest" },
+                    "Go down the stairs":                 { "note": "Confusing Buttons" },
+                    "Go back the way you came":           { "note": "X Moxie substats, poison debuff" }
+                }
             }
         ]
     },
@@ -234,5 +611,101 @@
     "Behind the 'Stache": {
         "zone": "The Copperhead Club",
         "choiceText": { "Set the lanterns on fire": { "note": "Generate Flamin' Whatshisname" } }
+    },
+    "Bench Warrant": {
+        "zone": "A Mob of Zeppelin Protesters",
+        "choiceText": {
+            "Eye the protesters with bad intent": { "note": "3+ protesters by sleaze damage" },
+            "Start away uneasy": { "note": "Free runaway" }
+        }
+    },
+    "Fire Up Above": {
+        "zone": "A Mob of Zeppelin Protesters",
+        "choiceText": {
+            "Join in": { "note": "3+ protesters, use Flamin' Whatshisname" },
+            "Slip into darkness, slip out of sight": { "note": "Free runaway" }
+        }
+    },
+    "This Looks Like a Good Bush for an Ambush": {
+        "zone": "A Mob of Zeppelin Protesters",
+        "choiceText": {
+            "Hide in the bushes": { "note": "3+ protestors by lynyrd equip" },
+            "Ignore the bustle in the hedgerow": { "note": "Free runaway" }
+        }
+    },
+    "Catching Some Zetas": {
+        "zone": "Orcish Frat House",
+        "choiceText": { "Wake up the pledge and throw down": { "note": "Fight" } }
+    },
+    "Fratacombs": {
+        "zone": "Orcish Frat House",
+        "choiceText": {
+            "Wander this way":              { "note": "50 Mus substats" },
+            "Wander that way":              { "note": "Items" },
+            "Wander the other way":         { "note": "Nothing, uses adventure" },
+            "Screw this, head to the roof": { "note": "Start the war", "tag": "quest" }
+        }
+    },
+    "One Less Room Than In That Movie": {
+        "zone": "Orcish Frat House",
+        "choiceText": { "Officer's Lounge": { "note": "Fight" } }
+    },
+    "Bait and Switch": {
+        "zone": "The Hippy Camp",
+        "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } }
+    },
+    "Blockin' Out the Scenery": {
+        "zone": "The Hippy Camp",
+        "choiceText": {
+            "The Chill-Out Yurt": { "note": "50 Myst substats" },
+            "The Rations Yurt":   { "note": "Items" },
+            "The H.A.S.H. Yurt":  { "note": "Nothing, uses adventure" },
+            "The Lookout Tower":  { "note": "Start the war", "tag": "quest" }
+        }
+    },
+    "The Thin Tie-Dyed Line": {
+        "zone": "The Hippy Camp",
+        "choiceText": { "The Barracks Yurt": { "note": "Fight" } }
+    },
+    "It Hasn't Ended, It's Just Paused": {
+        "zone": "The Neverending Party",
+        "choiceText": {
+            "Head upstairs":            { "note": "20 Megawoots, 30% Guests, ~1000 Meat", "to": "A Room With a View... Of a Bed" },
+            "Check out the kitchen":    { "note": "Food quest, 25% Trash", "to": "Gone Kitchin'" },
+            "Go to the back yard":      { "note": "Booze quest, 20% Guests", "to": "Forward to the Back" },
+            "Investigate the basement": { "note": "30 Megawoots, Chainsaw", "to": "Basement Urges" },
+            "Pick a fight":             { "note": "Fight" }
+        }
+    },
+    "A Room With a View... Of a Bed": {
+        "zone": "The Neverending Party",
+        "choiceText": {
+            "Toss the red dress on the lamp": { "note": "20 Megawoots" },
+            "Pop a bootleg in the stereo":    { "note": "30% Guests" },
+            "Crack the safe":                 { "note": "~1000 Meat" }
+        }
+    },
+    "Gone Kitchin'": {
+        "zone": "The Neverending Party",
+        "choiceText": {
+            "Talk to the woman":         { "tag": "quest" },
+            "Give Geraldine the snacks": { "tag": "quest" },
+            "Burn some trash":           { "note": "25% Trash" }
+        }
+    },
+    "Forward to the Back": {
+        "zone": "The Neverending Party",
+        "choiceText": {
+            "Pour Purple Beast into the pool": { "note": "20% Guests" },
+            "Find Gerald":                     { "tag": "quest" },
+            "Give Gerald the booze":           { "tag": "quest" }
+        }
+    },
+    "Basement Urges": {
+        "zone": "The Neverending Party",
+        "choiceText": {
+            "Grab the chainsaw":             { "note": "Chainsaw" },
+            "Modify the living room lights": { "note": "30 Megawoots" }
+        }
     }
 }
