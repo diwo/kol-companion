@@ -194,7 +194,8 @@ async function fetchPrice(itemId) {
     const lifetimeTimespan = 4;
 
     let cacheVal = await getCachedPrice(itemId);
-    if (cacheVal && (cacheVal.untradable || Date.now() - cacheVal.timestamp < 6*60*60*1000)) {
+    let cacheAge = Date.now() - cacheVal?.timestamp;
+    if (cacheVal && (cacheVal.untradable || cacheAge < 6*60*60*1000)) {
         return cacheVal;
     }
 
@@ -206,7 +207,8 @@ async function fetchPrice(itemId) {
     }
     fetchingItemIds.add(itemId);
 
-    console.log(`Fetching price for itemId=${itemId}`);
+    console.log(`Fetching price for itemId=${itemId}, cacheAge=${Math.floor(cacheAge/1000/60/60)}h`);
+
     let fetched = await fetchPriceNoCache(getPriceCheckLink(itemId, oneWeekTimespan));
     if (!fetched.data?.error && !fetched.data?.average) {
         let fetchedLifetime = await fetchPriceNoCache(getPriceCheckLink(itemId, lifetimeTimespan));
