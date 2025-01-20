@@ -98,6 +98,11 @@ browser.runtime.onMessage.addListener(message => {
                 priceCheckQueue[message.itemId] = true;
             }
             return Promise.resolve();
+        case "fetchItemData":
+            if (message.itemId && message.itemDescId) {
+                return fetchItemData(message.itemId, message.itemDescId);
+            }
+            return Promise.resolve();
         case "queueItemDescriptionFetch":
             if (message.itemId && message.itemDescId) {
                 itemDescFetchQueue[message.itemId] = message.itemDescId;
@@ -171,7 +176,7 @@ browser.alarms.onAlarm.addListener(async alarm => {
                     delayInMinutes = 0;
                 } else {
                     let itemDescId = itemDescFetchQueue[itemId];
-                    await fetchItemDescription(itemId, itemDescId);
+                    await fetchItemData(itemId, itemDescId);
                 }
                 delete itemDescFetchQueue[itemId];
             } catch (e) {
@@ -260,11 +265,13 @@ function parsePrice(page) {
     }
 }
 
-async function fetchItemDescription(itemId, itemDescId) {
+async function fetchItemData(itemId, itemDescId) {
+    let existing = await getItemData(itemId);
+    if (existing) return existing;
+
     console.log(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
 
     let page = await fetchUrl(`https://www.kingdomofloathing.com/desc_item.php?whichitem=${itemDescId}`);
-
     if (page.match(/This script is not available unless you're logged in/)) {
         throw Error("not logged in");
     }
@@ -277,7 +284,7 @@ async function fetchItemDescription(itemId, itemDescId) {
     let description = document.evaluate(".//blockquote", div).iterateNext()?.innerText;
     div.remove();
 
-    await setItemData(itemId, name, description);
+    return setItemData(itemId, name, description);
 }
 
 async function setItemData(itemId, name, description) {
@@ -296,6 +303,8 @@ async function setItemData(itemId, name, description) {
     }
 
     notifyItemUpdated([itemId]);
+
+    return itemData;
 }
 
 function notifyItemUpdated(itemIds) {

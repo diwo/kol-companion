@@ -44,25 +44,17 @@ function getEnemyName() {
 }
 
 function addPriceToAdventureRewardItems() {
-    let itemContainers = [];
-    let itemIds = new Set();
-
-    const getItemIdFromContainer = itemContainer => new URLSearchParams(itemContainer.getAttribute("rel")).get("id");
     const getItemNameClass = itemId => `itemName${itemId}`;
     const getItemPriceClass = itemId => `itemPrice${itemId}`;
 
-    let evaluateResult = document.evaluate('//table[@class="item"]', document);
-    let itemContainer = evaluateResult.iterateNext();
-    while (itemContainer) {
-        itemIds.add(getItemIdFromContainer(itemContainer));
-        itemContainers.push(itemContainer);
-        itemContainer = evaluateResult.iterateNext();
-    }
+    let itemIdToDescId = {};
+    let itemNodes = evaluateToNodesArray("//table[@class='item']");
+    for (let itemNode of itemNodes) {
+        let itemId = getItemIdFromItemNode(itemNode);
+        let itemDescId = getItemDescIdFromItemNode(itemNode);
+        itemIdToDescId[itemId] = itemDescId;
 
-    for (let itemContainer of itemContainers) {
-        let itemId = getItemIdFromContainer(itemContainer);
-        let textNode = document.evaluate('.//td[@class="effect"]', itemContainer).iterateNext();
-
+        let textNode = document.evaluate('.//td[@class="effect"]', itemNode).iterateNext();
         let nameNode = document.evaluate('./b', textNode).iterateNext();
         nameNode.classList.add(getItemNameClass(itemId));
 
@@ -78,11 +70,24 @@ function addPriceToAdventureRewardItems() {
         }
     }
 
-    redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: true}).then(() =>
-        redrawAdventureRewardPrices(itemIds.keys(), {cachedOnly: false}));
+    redrawAdventureRewardPrices(Object.keys(itemIdToDescId), {cachedOnly: true}).then(() =>
+        redrawAdventureRewardPrices(Object.keys(itemIdToDescId), {cachedOnly: false}));
 
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds, {cachedOnly: true}));
+
+    for (let itemId of Object.keys(itemIdToDescId)) {
+        fetchItemDataFromBackground(itemId, itemIdToDescId[itemId]);
+    }
+}
+
+function getItemIdFromItemNode(itemNode) {
+    return parseInt(new URLSearchParams(itemNode.getAttribute("rel")).get("id"));
+}
+
+function getItemDescIdFromItemNode(itemNode) {
+    let imgElem = document.evaluate(".//img[starts-with(@onclick, 'descitem(')]", itemNode).iterateNext();
+    return parseInt(imgElem.getAttribute("onclick").match(/descitem\((\d+)\b/)[1]);
 }
 
 async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
@@ -237,6 +242,10 @@ async function getPrice(itemId, {cachedOnly} = {}) {
 
 async function queuePriceCheck(itemId) {
     return browser.runtime.sendMessage({operation: "queuePriceCheck", itemId});
+}
+
+async function fetchItemDataFromBackground(itemId, itemDescId) {
+    return browser.runtime.sendMessage({operation: "fetchItemData", itemId, itemDescId});
 }
 
 async function queueItemDescriptionFetch(itemId, itemDescId) {

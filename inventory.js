@@ -26,11 +26,13 @@ async function handleInventoryPage() {
 
     await sortInventory();
     redrawInventoryPrices(itemIds);
+
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
+
     fetchMissingPrices(itemIds);
     itemIds.forEach(queuePriceCheck);
     queueAllInventoryItemDescriptionFetch();
-    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
-    itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
 
     let observer = new MutationObserver(() => scanToolTips());
     observer.observe(document.body, {childList: true, subtree: true});
@@ -70,8 +72,7 @@ async function fetchMissingPrices(itemIds) {
 function queueAllInventoryItemDescriptionFetch() {
     for (let node of iterateInventoryNodeTree()) {
         let itemId = node.itemId;
-        let imgElem = document.evaluate(".//img[@onclick]", node.element).iterateNext();
-        let itemDescId = parseInt(imgElem.getAttribute("onclick").match(/descitem\((\d+),.*/)?.[1]);
+        let itemDescId = getItemDescIdFromItemNode(node.element);
         queueItemDescriptionFetch(itemId, itemDescId);
     }
 }
@@ -95,42 +96,23 @@ async function sortInventory() {
     if (path != "/inventory.php" && path != "/closet.php") {
         return;
     }
-    let sections = [];
-    let eval = mainDoc.evaluate("//table[@class='guts']", mainDoc);
-    let section = eval.iterateNext();
-    while (section) {
-        sections.push(section);
-        section = eval.iterateNext();
-    }
-    await Promise.all(sections.map(sortInventorySection));
+    await Promise.all(getInventoryNodeTree().map(sortStuffbox));
 }
 
-async function sortInventorySection(section) {
-    let row = section.firstChild.firstChild;
-    let items = [];
-    while (row) {
-        let item = row.firstChild;
-        while (item) {
-            items.push(item);
-            item = item.nextSibling;
-        }
-        row = row.nextSibling;
-    }
-
-    let itemIds = items.map(getItemIdFromInventoryNode);
+async function sortStuffbox(stuffbox) {
+    let nodes = Array.from(iterateStuffboxNodes(stuffbox));
+    let itemIds = nodes.map(node => node.itemId);
     let allItemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
     let allItemData = await Promise.all(itemIds.map(getItemData));
     let itemPriceMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemPrices[i]]));
     let itemDataMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
 
     // Reversed display order, items are popped as a stack
-    items.sort((a, b) => {
-        let itemIdA = getItemIdFromInventoryNode(a);
-        let itemIdB = getItemIdFromInventoryNode(b);
-        let priceA = itemPriceMap[itemIdA];
-        let priceB = itemPriceMap[itemIdB];
-        let flagsA = itemDataMap[itemIdA]?.flags;
-        let flagsB = itemDataMap[itemIdB]?.flags;
+    nodes.sort((a, b) => {
+        let priceA = itemPriceMap[a.itemId];
+        let priceB = itemPriceMap[b.itemId];
+        let flagsA = itemDataMap[a.itemId]?.flags;
+        let flagsB = itemDataMap[b.itemId]?.flags;
 
         if (!priceA?.untradable && !priceB?.untradable) {
             return (priceA?.data?.average ?? 0) - (priceB?.data?.average ?? 0);
@@ -145,13 +127,15 @@ async function sortInventorySection(section) {
         return 0;
     });
 
-    items.forEach(item => item.parentElement.removeChild(item));
+    nodes.forEach(node => node.element.parentElement.removeChild(node.element));
 
-    row = section.firstChild.firstChild;
-    while (items.length) {
-        row.appendChild(items.pop());
-        if (row.childNodes.length >= 3) {
-            row = row.nextSibling;
+    if (stuffbox.rows.length) {
+        let row = stuffbox.rows[0].element;
+        while (nodes.length) {
+            row.appendChild(nodes.pop().element);
+            if (row.childNodes.length >= 3) {
+                row = row.nextSibling;
+            }
         }
     }
 }
@@ -231,7 +215,7 @@ function getInventoryNodeTree() {
         let rows = rowNodes.map(rowNode => {
             let colNodes = evaluateToNodesArray("./td", {contextNode: rowNode});
             let columns = colNodes.map(colNode => {
-                let itemId = getItemIdFromInventoryNode(colNode);
+                let itemId = getItemIdFromItemNode(colNode.firstChild);
                 let itemName = document.evaluate(".//b[@rel]", colNode).iterateNext()?.textContent;
                 return { element: colNode, itemId, itemName };
             });
@@ -244,15 +228,15 @@ function getInventoryNodeTree() {
 
 function* iterateInventoryNodeTree(tree) {
     if (!tree) tree = getInventoryNodeTree();
-    for (let box of tree) {
-        for (let row of box.rows) {
-            for (let col of row.columns) {
-                yield col;
-            }
-        }
+    for (let stuffbox of tree) {
+        yield* iterateStuffboxNodes(stuffbox);
     }
 }
 
-function getItemIdFromInventoryNode(itemNode) {
-    return parseInt(new URLSearchParams(itemNode.firstChild.getAttribute("rel")).get("id"));
+function* iterateStuffboxNodes(stuffbox) {
+    for (let row of stuffbox.rows) {
+        for (let col of row.columns) {
+            yield col;
+        }
+    }
 }
