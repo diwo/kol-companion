@@ -41,13 +41,22 @@ async function addAdventureChoiceNotes() {
                 let color;
                 if (tag == "quest") color = "darkviolet";
                 if (tag == "rare") color = "orange";
-                let style = color ? `style="color: ${color}"` : "";
-                noteNode.innerHTML += ` <b ${style}>(${tag})</b>`;
+                let bNode = document.createElement("b");
+                if (color) bNode.style.color = color;
+                bNode.style.marginLeft = "2px";
+                bNode.innerText = `(${tag})`;
+                noteNode.append(bNode);
             }
+            noteNode.setAttribute("valign", "center");
             noteNode.style.display = "inline";
-            noteNode.style.position = "absolute";
-            noteNode.style.margin = "2px 4px";
             noteNode.style.fontSize = "0.8em";
+            if (button.parentElement.tagName == "TD") {
+                // button has existing adjacent node
+                noteNode.style.marginLeft = "4px";
+            } else {
+                noteNode.style.position = "absolute";
+                noteNode.style.margin = "2px 4px";
+            }
             button.parentElement.appendChild(noteNode);
         }
     }
