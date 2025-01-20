@@ -10,8 +10,7 @@ async function addAdventureChoiceNotes() {
         return;
     }
 
-    let fetchResponse = await fetch(browser.runtime.getURL("data/adventures.json"));
-    let adventuresData = await fetchResponse.json();
+    let adventureData = await getAdventureData();
 
     for (let button of buttons) {
         let adventureName = document.evaluate(
@@ -22,7 +21,7 @@ async function addAdventureChoiceNotes() {
             "./input[@name='option']",
             button.parentElement).iterateNext()?.value || 0);
 
-        let adventure = adventuresData?.[adventureName];
+        let adventure = adventureData[adventureName];
         if (adventure?.variants) {
             let variant = adventure.variants.find(isMatchAdventureVariant);
             if (variant) adventure = variant;
@@ -59,6 +58,17 @@ async function addAdventureChoiceNotes() {
             }
             button.parentElement.appendChild(noteNode);
         }
+    }
+}
+
+async function getAdventureData() {
+    try {
+        let fetchResponse = await fetch(browser.runtime.getURL("data/adventures.json"));
+        let json = await fetchResponse.json();
+        return Object.fromEntries(json.map(zoneAdventures => Object.entries(zoneAdventures.adventures)).flat());
+    } catch (e) {
+        console.error(e);
+        return {};
     }
 }
 
