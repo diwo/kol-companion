@@ -21,7 +21,7 @@
             "Sorry, no time.":  { "note": "Free runaway" }
         }
     },
-    "": {
+    "Under the Knife": {
         "zone": "The Sleazy Back Alley",
         "choiceText": {
             "Yes! I'm trapped in the wrong body! (500 Meat)": { "note": "Switch gender" },
@@ -681,7 +681,7 @@
         "zone": "The Neverending Party",
         "choiceText": {
             "Toss the red dress on the lamp": { "note": "20 Megawoots" },
-            "Pop a bootleg in the stereo":    { "note": "30% Guests" },
+            "Pop the bootleg in the stereo":  { "note": "30% Guests" },
             "Crack the safe":                 { "note": "~1000 Meat" }
         }
     },
@@ -696,9 +696,9 @@
     "Forward to the Back": {
         "zone": "The Neverending Party",
         "choiceText": {
-            "Pour Purple Beast into the pool": { "note": "20% Guests" },
-            "Find Gerald":                     { "tag": "quest" },
-            "Give Gerald the booze":           { "tag": "quest" }
+            "Pour a Purple Beast into the pool": { "note": "20% Guests" },
+            "Find Gerald":                       { "tag": "quest" },
+            "Give Gerald the booze":             { "tag": "quest" }
         }
     },
     "Basement Urges": {
