@@ -207,7 +207,7 @@ function openUrl(url) {
 
 function openWiki(searchTerm) {
     const wikiSearchPrefix = "https://kol.coldfront.net/thekolwiki/index.php?search=";
-    let url = wikiSearchPrefix + encodeURI(searchTerm);
+    let url = wikiSearchPrefix + encodeURIComponent(searchTerm);
     open(url);
 }
 
