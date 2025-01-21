@@ -43,6 +43,60 @@ function getEnemyName() {
     return monnameNode.innerText.replace(/^(a|an|the) /, "");
 }
 
+async function highlightText() {
+    const alphabet = Array.from(Array(26).keys()).map(n => String.fromCharCode("A".charCodeAt() + n)).join("");
+    const xpathToLowercase = n => `translate(${n}, '${alphabet}', '${alphabet.toLowerCase()}')`;
+
+    let fetchResponse = await fetch(browser.runtime.getURL("data/highlights.json"));
+    let json = await fetchResponse.json();
+
+    for (let rule of json) {
+        let conditionsMatched = true;
+        if (rule.conditions) {
+            for (let condition of rule.conditions) {
+                if (condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
+            }
+        }
+        if (!conditionsMatched) continue;
+
+        for (let highlight of (rule.highlights || [])) {
+            if (!highlight.text) continue;
+
+            let css = highlight?.style?.css;
+            if (!css) {
+                let style = highlight?.style || { bold: true, box: true };
+                let elem = document.createElement("span");
+                if (style.bold) elem.style.fontWeight = "bold";
+                if (style.underline) elem.style.textDecoration = "underline";
+                if (style.color) elem.style.color = style.color;
+                if (style.box) {
+                    let boxColor = typeof style.box == "string" ? style.box : "black";
+                    elem.style.border = `3px solid ${boxColor}`;
+                    elem.style.padding = "1px";
+                }
+                css = elem.getAttribute("style");
+            }
+
+            let matches = evaluateToNodesArray(
+                `.//*[text()[contains(${xpathToLowercase(".")}, ${xpathToLowercase(`"${highlight.text}"`)})]]`,
+                {contextNode: document.body});
+            for (let match of matches) {
+                if (match.tagName == "SCRIPT" || match.tagName == "STYLE") continue;
+                for (let node of match.childNodes) {
+                    if (node.nodeType == Node.TEXT_NODE) {
+                        let replacement = document.createElement("span");
+                        replacement.innerText = node.textContent;
+                        replacement.innerHTML = replacement.innerHTML.replaceAll(
+                            RegExp(`(${highlight.text})`, "ig"), `<span style="${css}">$1</span>`);
+                        node.parentNode.insertBefore(replacement, node);
+                        node.remove();
+                    }
+                }
+            }
+        }
+    }
+}
+
 function addPriceToAdventureRewardItems() {
     const getItemNameClass = itemId => `itemName${itemId}`;
     const getItemPriceClass = itemId => `itemPrice${itemId}`;

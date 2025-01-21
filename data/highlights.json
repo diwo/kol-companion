@@ -1,0 +1,6 @@
+[
+    { "conditions": [{ "pageText": "fighting a batwinged gremlin" }], "highlights": [{ "text": "hammer" }] },
+    { "conditions": [{ "pageText": "fighting an erudite gremlin" }],  "highlights": [{ "text": "wrench" }] },
+    { "conditions": [{ "pageText": "fighting a spider gremlin" }],    "highlights": [{ "text": "pliers" }] },
+    { "conditions": [{ "pageText": "fighting a vegetable gremlin" }], "highlights": [{ "text": "screwdriver" }] }
+]
