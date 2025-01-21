@@ -587,6 +587,7 @@
                     }
                 ]
             },
+            "Unconfusing Buttons":             { "choiceText": { "The one with the cute little lightning-tailed guy on it": { "tag": "quest" } } },
             "At Least It's Not Full Of Trash": { "choiceText": { "Raise your hands up toward the heavens": { "tag": "quest" } } },
             "No Visible Means of Support":     { "choiceText": { "Do nothing": { "tag": "quest" } } }
         }
@@ -596,7 +597,7 @@
         "adventures": {
             "Where Does The Lone Ranger Take His Garbagester?": {
                 "choiceText": {
-                    "Dig through the dumpster": { "note": "Hidden city items", "tag": "quest" },
+                    "Dig through the dumpster": { "note": "Hidden city items" },
                     "Knock over the dumpster":  { "note": "Banish janitors" }
                 }
             }
