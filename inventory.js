@@ -206,6 +206,23 @@ async function bindInventoryFilterEvents() {
             showBox ? show(stuffbox.element) : hide(stuffbox.element);
         }
     });
+
+    ftextNode.style.minWidth = ftextNode.style.width;
+    ftextNode.style.width = null;
+    const resizeFtextNode = () => {
+        let hidden = document.createElement("span");
+        hidden.style.position = "absolute";
+        hidden.style.height = 0;
+        hidden.style.overflow = "hidden";
+        hidden.style.font = getComputedStyle(ftextNode).font;
+        hidden.textContent = ftextNode.value;
+
+        ftextNode.parentNode.insertBefore(hidden, ftextNode);
+        ftextNode.style.width = (hidden.offsetWidth + 10) + "px";
+        hidden.remove();
+    };
+    resizeFtextNode();
+    filterNode.addEventListener("ftext-change", resizeFtextNode);
 }
 
 function getInventoryNodeTree() {
