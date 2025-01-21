@@ -5,7 +5,7 @@ function handleChoice() {
 }
 
 async function addAdventureChoiceNotes() {
-    let buttons = evaluateToNodesArray("//form[@action='choice.php']//input[@type='submit']");
+    let buttons = evaluateToNodesArray("//form//input[@type='submit']");
     if (!buttons.length) {
         return;
     }
@@ -19,13 +19,10 @@ async function addAdventureChoiceNotes() {
         let choiceText = button.value;
         let optionNum = parseInt(document.evaluate(
             "./input[@name='option']",
-            button.parentElement).iterateNext()?.value || 0);
+            button.parentElement).iterateNext()?.value || 0); // TODO: search from form ancestor element
 
         let adventure = adventureData[adventureName];
-        if (adventure?.variants) {
-            let variant = adventure.variants.find(isMatchAdventureVariant);
-            if (variant) adventure = variant;
-        }
+        if (!adventure) adventure = adventureData["*"];
 
         let choice = matchAdventureChoice(adventure, choiceText, optionNum);
         let note = choice?.note;
@@ -63,24 +60,48 @@ async function addAdventureChoiceNotes() {
 
 async function getAdventureData() {
     try {
-        let fetchResponse = await fetch(browser.runtime.getURL("data/adventures.json"));
+        let fetchResponse = await fetch(browser.runtime.getURL("data/choices.json"));
         let json = await fetchResponse.json();
-        return Object.fromEntries(json.map(zoneAdventures => Object.entries(zoneAdventures.adventures)).flat());
+
+        let pathname = new URL(document.URL).pathname;
+        let activeElems = json.filter(elem => !elem.url || elem.url == pathname);
+
+        let adventureEntries = activeElems.map(elem => Object.entries(elem.adventures)).flat();
+        adventureEntries = adventureEntries.map(entry => {
+            let [name, adv] = entry;
+            if (adv.variants) return adv.variants.map(v => [name, v]);
+            return [entry];
+        }).flat();
+        adventureEntries = adventureEntries.filter(([_, adv]) => isAdventureConditionMatch(adv));
+
+        return adventureEntries.reduce((acc, [name, adventure2]) => {
+            let adventure1 = acc[name];
+            let mergedAdventure;
+            if (adventure1) {
+                let choiceText1 = adventure1.choiceText || {};
+                let choiceText2 = adventure2.choiceText || {};
+                let mergedChoiceText = {...choiceText1, ...choiceText2};
+                mergedAdventure = {...adventure1, ...adventure2, choiceText: mergedChoiceText};
+            } else {
+                mergedAdventure = adventure2;
+            }
+            return {...acc, [name]: mergedAdventure};
+        }, {});
     } catch (e) {
         console.error(e);
         return {};
     }
 }
 
-function isMatchAdventureVariant(variant) {
-    let pageContentCond = variant?.pageContent;
+function isAdventureConditionMatch(adventure) {
+    let pageContentCond = adventure?.pageContent;
     if (pageContentCond) {
-        let imageTitleCond = variant.pageContent?.imageTitle;
+        let imageTitleCond = adventure.pageContent?.imageTitle;
         if (imageTitleCond) {
             let found = document.evaluate(`//img[@title="${imageTitleCond}"]`, document).iterateNext();
             if (!found) return false;
         }
-        let imageFilenameCond = variant.pageContent?.imageFilename;
+        let imageFilenameCond = adventure.pageContent?.imageFilename;
         if (imageFilenameCond) {
             let found = document.evaluate(`//img[contains(@src, "/${imageFilenameCond}.gif")]`, document).iterateNext();
             if (!found) return false;

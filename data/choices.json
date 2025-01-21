@@ -735,5 +735,19 @@
                 }
             }
         }
+    },
+    {
+        "zone": "Clan Rumpus Room",
+        "url": "/clan_rumpus.php",
+        "adventures": {
+            "*": {
+                "choiceText": {
+                    "Material Orc":                 { "note": "+10% Meat / 10 turns" },
+                    "It's Okay, Don't Stress Out":  { "note": "+3 Stats Gain / 10 turns" },
+                    "Boom Boom Boom Boomboom Boom": { "note": "+10% Item / 10 turns" },
+                    "Awrrashalla Hummboodaba":      { "note": "+20% Init / 10 turns" }
+                }
+            }
+        }
     }
 ]

@@ -43,4 +43,5 @@ switch (pathname) {
         addPriceToAdventureRewardItems();
 }
 
+addAdventureChoiceNotes();
 addWikiLinkToHeadings();
