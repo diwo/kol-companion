@@ -40,7 +40,7 @@ function addWikiLinkToHeadings() {
 
 function getEnemyName() {
     let monnameNode = getPane("mainpane", {id: "monname"});
-    return monnameNode.innerText.replace(/^(a|an) /, "");
+    return monnameNode.innerText.replace(/^(a|an|the) /, "");
 }
 
 function addPriceToAdventureRewardItems() {
