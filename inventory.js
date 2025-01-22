@@ -207,7 +207,7 @@ async function bindInventoryFilterEvents() {
         }
     });
 
-    ftextNode.style.minWidth = ftextNode.style.width;
+    ftextNode.style.minWidth = getComputedStyle(ftextNode).width;
     ftextNode.style.width = null;
     const resizeFtextNode = () => {
         let hidden = document.createElement("span");
