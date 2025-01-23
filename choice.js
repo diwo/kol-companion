@@ -1,5 +1,4 @@
 function handleChoice() {
-    addAdventureChoiceNotes();
     drawCombBeachGrid();
     addPriceToAdventureRewardItems();
 }
