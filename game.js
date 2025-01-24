@@ -110,7 +110,7 @@ async function mineGold() {
             }
 
             let mainDoc = getPane("mainpane").document;
-            let pathname = URL.parse(mainDoc.URL).pathname;
+            let pathname = getPathName(mainDoc);
             if (pathname == "/mining.php") {
                 resultElem.innerText = "Running";
                 mainDoc.dispatchEvent(new Event("mine-gold-auto"));

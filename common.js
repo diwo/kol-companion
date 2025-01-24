@@ -1,5 +1,5 @@
 function addWikiLinkToHeadings() {
-    let pathname = new URL(document.URL).pathname;
+    let pathname = getPathName();
     let evaluateResult = document.evaluate(
         "//table/tbody/tr[1]/td[1][@align='center']/node()[1]",document);
 
@@ -43,42 +43,39 @@ function getEnemyName() {
     return monnameNode.innerText.replace(/^(a|an|the|some) /, "");
 }
 
-async function highlightText() {
+async function editPageText() {
     const alphabet = Array.from(Array(26).keys()).map(n => String.fromCharCode("A".charCodeAt() + n)).join("");
     const xpathToLowercase = n => `translate(${n}, '${alphabet}', '${alphabet.toLowerCase()}')`;
 
-    let fetchResponse = await fetch(browser.runtime.getURL("data/highlights.json"));
+    let fetchResponse = await fetch(browser.runtime.getURL("data/textedit.json"));
     let json = await fetchResponse.json();
+    let pathname = getPathName();
 
     for (let rule of json) {
         let conditionsMatched = true;
         if (rule.conditions) {
             for (let condition of rule.conditions) {
                 if (condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
+                if (condition.url && condition.url != pathname) conditionsMatched = false;
             }
         }
         if (!conditionsMatched) continue;
 
-        for (let highlight of (rule.highlights || [])) {
-            if (!highlight.text) continue;
+        for (let edit of (rule.edits || [])) {
+            if (!edit.text) continue;
 
-            let css = highlight?.style?.css;
-            if (!css) {
-                let style = highlight?.style || { bold: true, box: true };
-                let elem = document.createElement("span");
-                if (style.bold) elem.style.fontWeight = "bold";
-                if (style.underline) elem.style.textDecoration = "underline";
-                if (style.color) elem.style.color = style.color;
-                if (style.box) {
-                    let boxColor = typeof style.box == "string" ? style.box : "black";
-                    elem.style.border = `3px solid ${boxColor}`;
-                    elem.style.padding = "1px";
-                }
-                css = elem.getAttribute("style");
+            let matchedString = "$1";
+            if (edit.highlight) {
+                let style = typeof edit.highlight == "object" ? edit.highlight : { bold: true, box: true };
+                matchedString = decorateTextWithStyle(matchedString, style);
             }
 
+            let insertBefore = decorateTextWithStyle(edit.insertBefore?.text || "", edit.insertBefore?.style);
+            let insertAfter = decorateTextWithStyle(edit.insertAfter?.text || "", edit.insertAfter?.style);
+            let replaceString = insertBefore + matchedString + insertAfter;
+
             let matches = evaluateToNodesArray(
-                `.//*[text()[contains(${xpathToLowercase(".")}, ${xpathToLowercase(`"${highlight.text}"`)})]]`,
+                `.//*[text()[contains(${xpathToLowercase(".")}, ${xpathToLowercase(`"${edit.text}"`)})]]`,
                 {contextNode: document.body});
             for (let match of matches) {
                 if (match.tagName == "SCRIPT" || match.tagName == "STYLE") continue;
@@ -87,7 +84,7 @@ async function highlightText() {
                         let replacement = document.createElement("span");
                         replacement.innerText = node.textContent;
                         replacement.innerHTML = replacement.innerHTML.replaceAll(
-                            RegExp(`(${highlight.text})`, "ig"), `<span style="${css}">$1</span>`);
+                            RegExp(`(${edit.text})`, "ig"), replaceString);
                         node.parentNode.insertBefore(replacement, node);
                         node.remove();
                     }
@@ -95,6 +92,36 @@ async function highlightText() {
             }
         }
     }
+}
+
+function decorateTextWithStyle(text, style) {
+    if (!style) return text;
+
+    let css = style.css;
+    if (!css) {
+        let elem = document.createElement("span");
+        if (style.bold) elem.style.fontWeight = "bold";
+        if (style.underline) elem.style.textDecoration = "underline";
+        if (style.color) elem.style.color = style.color;
+        if (style.box) {
+            let boxColor = typeof style.box == "string" ? style.box : "black";
+            elem.style.border = `3px solid ${boxColor}`;
+            elem.style.padding = "1px";
+        }
+
+        const parseValue = (val, unit) => {
+            if (typeof val == "string") return val;
+            if (typeof val == "number") return `${val}${unit}`;
+            return null;
+        };
+        elem.style.marginLeft = parseValue(style.marginLeft, "px");
+        elem.style.marginRight = parseValue(style.marginRight, "px");
+        elem.style.fontSize = parseValue(style.fontSize, "em");
+
+        css = elem.getAttribute("style");
+    }
+
+    return `<span style="${css}">${text}</span>`;
 }
 
 function addPriceToAdventureRewardItems() {
@@ -353,6 +380,10 @@ function getPriceColor(price, volume, itemFlags = {}) {
 
 function parseFormattedInt(str) {
     return parseInt(str.replace(/,/g, ""));
+}
+
+function getPathName(doc = document) {
+    return new URL(doc.URL).pathname;
 }
 
 function setWindowId(windowId, options = {}) {

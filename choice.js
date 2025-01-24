@@ -62,7 +62,7 @@ async function getAdventureData() {
         let fetchResponse = await fetch(browser.runtime.getURL("data/choices.json"));
         let json = await fetchResponse.json();
 
-        let pathname = new URL(document.URL).pathname;
+        let pathname = getPathName();
         let activeElems = json.filter(elem => !elem.url || elem.url == pathname);
 
         let adventureEntries = activeElems.map(elem => Object.entries(elem.adventures)).flat();

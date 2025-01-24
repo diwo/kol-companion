@@ -1,4 +1,4 @@
-let pathname = URL.parse(document.URL).pathname;
+let pathname = getPathName();
 switch (pathname) {
     case "/game.php":
         handleGamePage();
@@ -43,6 +43,6 @@ switch (pathname) {
         addPriceToAdventureRewardItems();
 }
 
-highlightText();
+editPageText();
 addAdventureChoiceNotes();
 addWikiLinkToHeadings();

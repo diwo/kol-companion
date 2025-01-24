@@ -6,7 +6,7 @@ async function handleDescriptionPage() {
 
     let thingNameNode = getDescriptionNameNode();
     let thingName = thingNameNode.innerText;
-    let pathname = new URL(document.URL).pathname;
+    let pathname = getPathName();
     if (pathname == "/desc_guardian.php") {
         thingName = thingNameNode.parentNode.innerText.match(/level \d+ (.*)/)[1];
     }

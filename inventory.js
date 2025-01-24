@@ -92,7 +92,7 @@ async function scanToolTips() {
 
 async function sortInventory() {
     let mainDoc = getPane("mainpane").document;
-    let path = URL.parse(mainDoc.URL).pathname;
+    let path = getPathName(mainDoc);
     if (path != "/inventory.php" && path != "/closet.php") {
         return;
     }

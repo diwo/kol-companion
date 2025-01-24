@@ -1,0 +1,87 @@
+[
+    { "conditions": [{ "pageText": "fighting a batwinged gremlin" }], "edits": [{ "text": "hammer", "highlight": true }] },
+    { "conditions": [{ "pageText": "fighting an erudite gremlin" }],  "edits": [{ "text": "wrench", "highlight": true }] },
+    { "conditions": [{ "pageText": "fighting a spider gremlin" }],    "edits": [{ "text": "pliers", "highlight": true }] },
+    { "conditions": [{ "pageText": "fighting a vegetable gremlin" }], "edits": [{ "text": "screwdriver", "highlight": true }] },
+    {
+        "conditions": [{ "url": "/questlog.php" }],
+        "edits": [
+            {
+                "text": "Looking for a Larva in All the Wrong Places", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv2]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Ooh, I Think I Smell a Rat", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv3]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Ooh, I Think I Smell a Bat.", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv4]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "The Goblin Who Wouldn't Be King", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv5]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Trial By Friar", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv6]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Cyrptic Emanations", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv7]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Am I my Trapper's Keeper?", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv8]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "There Can Be Only One Topping", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv9]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "The Rain on the Plains is Mainly Garbage", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv10]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "and the Quest for the Holy MacGuffin", "highlight": { "color":"maroon" },
+                "insertAfter": { "text": "(Lv11)", "style": { "color":"maroon", "marginLeft": 2 } }
+            },
+            {
+                "text": "Black to the Future", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Gotta Worship Them All", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "In a Manor of Spooking", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Of Mice and Shen", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Merry-Go-Ron", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Never Odd Or Even", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Just Deserts", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Make War, Not... Oh, Wait", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv12]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "The Ultimate Final Epic Conflict of the Ages", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv13]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            }
+        ]
+    }
+]
