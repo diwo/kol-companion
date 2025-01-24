@@ -29,13 +29,13 @@
         "adventures": {
             "Arboreal Respite": {
                 "choiceText": {
-                    "Follow the old road":    { "note": "Spooky sapling", "to": "The Road Less Traveled" },
+                    "Follow the old road":    { "note": "(4)Spooky sapling", "to": "The Road Less Traveled" },
                     "Explore the stream":     { "note": "Mosquito larva, (1)Tree-holed coin", "to": "Consciousness of a Stream" },
-                    "Brave the dark thicket": { "note": "(2)Spooky temple map, Spooky-Gro fertilizer", "to": "Through Thicket and Thinnet" }
+                    "Brave the dark thicket": { "note": "(2)Spooky temple map, (3)Spooky-Gro fertilizer", "to": "Through Thicket and Thinnet" }
                 }
             },
-            "The Road Less Traveled": { "choiceText": { "Talk to the hunter":      { "note": "Spooky sapling", "to": "Tree's Last Stand" } } },
-            "Tree's Last Stand":      { "choiceText": { "Buy a tree for 100 Meat": { "note": "Spooky sapling", "tag": "quest" } } },
+            "The Road Less Traveled": { "choiceText": { "Talk to the hunter":      { "note": "(4)Spooky sapling", "to": "Tree's Last Stand" } } },
+            "Tree's Last Stand":      { "choiceText": { "Buy a tree for 100 Meat": { "note": "(4)Spooky sapling", "tag": "quest" } } },
             "Consciousness of a Stream": {
                 "choiceText": {
                     "March to the marsh":    { "note": "mosquito larva", "tag": "quest" },
@@ -45,7 +45,7 @@
             "Through Thicket and Thinnet": {
                 "choiceText": {
                     "Follow the even darker path":   { "note": "Spices", "to": "A Three-Tined Fork" },
-                    "Investigate the dense foliage": { "note": "Spooky-Gro fertilizer", "tag": "quest" },
+                    "Investigate the dense foliage": { "note": "(3)Spooky-Gro fertilizer", "tag": "quest" },
                     "Follow the coin":               { "note": "(2)Spooky temple map", "to": "O Lith, Mon" }
                 }
             },
@@ -277,7 +277,7 @@
                 "choiceText": {
                     "Check the top drawer":       { "note": "X-200 Moxie substats" },
                     "Check the bottom drawer":    { "note": "Spooky damage combat item or nothing" },
-                    "Investigate the jewelry":    { "note": "Fight for hand mirror / class accessories" },
+                    "Investigate the jewelry":    { "note": "Fight for hand mirror / class acc. (1 Adventure)" },
                     "Use a ghost key":            { "note": "200 Moxie substats" },
                     "Check under the nightstand": { "note": "Engorged Sausages and You", "tag": "rare" }
                 }
@@ -407,9 +407,11 @@
                     "Investigate the crew quarters": { "note": "Fight" },
                     "Check the cargo hold":          { "note": "Chest" },
                     "Head down to the galley":       { "note": "18-39 all substats, lose 40-50 HP" },
-                    "Gallivant down to the head":    { "note": "Model airship", "tag": "quest" }
+                    "Gallivant down to the head":    { "note": "Model airship", "tag": "quest" },
+                    "Flap over to something else":   { "note": "Immateria or SOCK", "tag": "quest" }
                 }
-            }
+            },
+            "Hammering the Armory": { "choiceText": { "Blow this popsicle stand": { "note": "Free runaway" } } }
         }
     },
     {
@@ -678,7 +680,7 @@
                 }
             },
             "Catching Some Zetas":              { "choiceText": { "Wake up the pledge and throw down": { "note": "Fight" } } },
-            "One Less Room Than In That Movie": { "choiceText": { "Officer's Lounge": { "note": "Fight" } } }
+            "One Less Room Than In That Movie": { "choiceText": { "Officers' Lounge": { "note": "Fight" } } }
         }
     },
     {
@@ -694,6 +696,40 @@
             },
             "Bait and Switch":        { "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } } },
             "The Thin Tie-Dyed Line": { "choiceText": { "The Barracks Yurt": { "note": "Fight" } } }
+        }
+    },
+    {
+        "zone": "Mer-kin Elementary School",
+        "adventures": {
+            "Woolly Scaly Bully": { "choiceText": { "Bully the Nerd":           { "tag": "quest" } } },
+            "Bored of Education": { "choiceText": { "Offer to Play Dry Willy":  { "tag": "quest" } } },
+            "A Mer-kin Graffiti": { "choiceText": { "Threaten To Turn Them In": { "tag": "quest" } } },
+            "The Case of the Closet": {
+                "choiceText": {
+                    "Stand (float?) and fight":       { "note": "Fight" },
+                    "Duck into the janitor's closet": { "note": "Sawdust" }
+                }
+            },
+            "No Rest for the Room": {
+                "choiceText": {
+                    "Stand and deliver":                { "note": "Fight" },
+                    "Lean on the Door to the Bathroom": { "note": "Cancerstick" }
+                }
+            },
+            "Raising Cane": {
+                "choiceText": {
+                    "Rage against the Mer-kin Punisher":   { "note": "Fight" },
+                    "Lounge against the Mer-kin Teachers": { "note": "Quiz, facecowl, waistrobe" }
+                }
+            },
+            "Halls Passing in the Night": {
+                "choiceText": {
+                    "Investigate the wailing from the basement": { "note": "Fight" },
+                    "Go to the janitor's closet":                { "note": "Sawdust" },
+                    "Head to the bathroom":                      { "note": "Cancerstick" },
+                    "Check out the teacher's lounge":            { "note": "Quiz, facecowl, waistrobe" }
+                }
+            }
         }
     },
     {
@@ -733,6 +769,18 @@
                 "choiceText": {
                     "Grab the chainsaw":             { "note": "Chainsaw" },
                     "Modify the living room lights": { "note": "30 Megawoots" }
+                }
+            }
+        }
+    },
+    {
+        "zone": "A Monorail Station",
+        "adventures": {
+            "On a Downtown Train": {
+                "choiceText": {
+                    "Order a blueberry muffin":      { "note": "+60% Meat" },
+                    "Order a bran muffin":           { "note": "+40% Item" },
+                    "Order a chocolate chip muffin": { "note": "+30% Meat, +20% Item" }
                 }
             }
         }
