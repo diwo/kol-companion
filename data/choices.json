@@ -10,8 +10,8 @@
             },
             "Please, Hammer": {
                 "choiceText": {
-                    "Sure, I'll help.": { "note": "Does not use adventure" },
-                    "Sorry, no time.":  { "note": "Free runaway" }
+                    "\"Sure, I'll help.\"": { "note": "Does not use adventure" },
+                    "\"Sorry, no time.\"":  { "note": "Free runaway" }
                 }
             },
             "Under the Knife": {
@@ -514,6 +514,12 @@
         }
     },
     {
+        "zone": "The Black Forest",
+        "adventures": {
+            "The Blackberry Cobbler": { "choiceText": { "Make me some galoshes": { "tag": "quest" } } }
+        }
+    },
+    {
         "zone": "Desert Beach",
         "adventures": {
             "Welcome to The Shore, Inc.": {
@@ -696,6 +702,39 @@
             },
             "Bait and Switch":        { "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } } },
             "The Thin Tie-Dyed Line": { "choiceText": { "The Barracks Yurt": { "note": "Fight" } } }
+        }
+    },
+    {
+        "zone": "The Mer-Kin Outpost",
+        "adventures": {
+            "Into the Outpost": {
+                "choiceText": {
+                    "Sneak into the camouflaged tent":          { "note": "Burglar" },
+                    "Infiltrate the skull-bedecked tent":       { "note": "Raider" },
+                    "Insinuate yourself into the glyphed tent": { "note": "Healer" }
+                }
+            },
+            "Sneaky Intent": {
+                "choiceText": {
+                    "Check the bedding": { "note": "Sneakmask" },
+                    "Open the trunk":    { "note": "Fastjuice" },
+                    "Look in the sack":  { "note": "Takebag" }
+                }
+            },
+            "Aggressive Intent": {
+                "choiceText": {
+                    "Scavenge the skulls":   { "note": "Roundshield" },
+                    "Check the chest":       { "note": "Breastplate" },
+                    "Rifle the weapon rack": { "note": "Hookspear" }
+                }
+            },
+            "Mysterious Intent": {
+                "choiceText": {
+                    "Examine the altar":     { "note": "Killscroll" },
+                    "Investigate the chest": { "note": "Healscroll" },
+                    "Check out the cot":     { "note": "Prayerbeads" }
+                }
+            }
         }
     },
     {

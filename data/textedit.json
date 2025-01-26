@@ -1,8 +1,8 @@
 [
-    { "conditions": [{ "pageText": "fighting a batwinged gremlin" }], "edits": [{ "text": "hammer", "highlight": true }] },
-    { "conditions": [{ "pageText": "fighting an erudite gremlin" }],  "edits": [{ "text": "wrench", "highlight": true }] },
-    { "conditions": [{ "pageText": "fighting a spider gremlin" }],    "edits": [{ "text": "pliers", "highlight": true }] },
-    { "conditions": [{ "pageText": "fighting a vegetable gremlin" }], "edits": [{ "text": "screwdriver", "highlight": true }] },
+    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a batwinged gremlin" }], "edits": [{ "text": "hammer", "highlight": true }] },
+    { "conditions": [{ "url": "/fight.php", "pageText": "fighting an erudite gremlin" }],  "edits": [{ "text": "wrench", "highlight": true }] },
+    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a spider gremlin" }],    "edits": [{ "text": "pliers", "highlight": true }] },
+    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a vegetable gremlin" }], "edits": [{ "text": "screwdriver", "highlight": true }] },
     {
         "conditions": [{ "url": "/questlog.php" }],
         "edits": [
