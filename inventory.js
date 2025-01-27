@@ -38,6 +38,7 @@ async function handleInventoryPage() {
     observer.observe(document.body, {childList: true, subtree: true});
 
     bindInventoryFilterEvents();
+    addInventoryFilterPresets();
 }
 
 function redrawInventoryPrices(itemIds) {
@@ -161,68 +162,77 @@ async function bindInventoryFilterEvents() {
 
     let filterNode = document.getElementById("filter");
     let ftextNode = document.getElementById("ftext");
+    let inventory = getInventoryNodeTree();
+    let itemDataMap = await getInventoryItemDataMap(inventory);
+
+    ftextNode.style.minWidth = getComputedStyle(ftextNode).width;
+    ftextNode.style.width = null;
+    resizeInventoryFtextNode();
+
+    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
+    itemUpdateListener.onMessage.addListener(async () => itemDataMap = await refreshItemDataMap());
 
     document.addEventListener("keypress", e => {
         if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}\[\]\\]$/i)) return;
         if (document.activeElement.tagName != "INPUT" || document.activeElement.type != "text") {
             ftextNode.value += e.key;
-            filterNode.dispatchEvent(
-                new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
+            filterNode.dispatchEvent(new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
             e.preventDefault();
         }
     });
 
-    let inventory = getInventoryNodeTree();
-    let itemDataMap;
-    let refreshItemDataMap = async () => {
-        let itemIds = Array.from(iterateInventoryNodeTree(inventory), node => node.itemId);
-        let allItemData = await Promise.all(itemIds.map(getItemData));
-        itemDataMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
-    };
-    await refreshItemDataMap();
-    let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
-    itemUpdateListener.onMessage.addListener(refreshItemDataMap);
-
     filterNode.addEventListener("ftext-change", e => {
-        let pattern = e.detail.text;
-        let regex = new RegExp(pattern, "i");
-        let show = node => node.classList.remove("filtered");
-        let hide = node => node.classList.add("filtered");
-
-        for (let stuffbox of inventory) {
-            if (stuffbox.element.id == "curequip") continue;
-            let showBox = false;
-            for (let row of stuffbox.rows) {
-                let showRow = false;
-                for (let col of row.columns) {
-                    let description = itemDataMap[col.itemId]?.description || "";
-                    let showCol = !pattern.length || col.itemName.match(regex) || description.match(regex);
-                    showCol ? show(col.element) : hide(col.element);
-                    if (showCol) showRow = true;
-                }
-                showRow ? show(row.element) : hide(row.element);
-                if (showRow) showBox = true;
-            }
-            showBox ? show(stuffbox.element) : hide(stuffbox.element);
-        }
+        filterInventory(e.detail.text, {inventory, itemDataMap});
+        resizeInventoryFtextNode();
     });
+}
 
-    ftextNode.style.minWidth = getComputedStyle(ftextNode).width;
-    ftextNode.style.width = null;
-    const resizeFtextNode = () => {
-        let hidden = document.createElement("span");
-        hidden.style.position = "absolute";
-        hidden.style.height = 0;
-        hidden.style.overflow = "hidden";
-        hidden.style.font = getComputedStyle(ftextNode).font;
-        hidden.textContent = ftextNode.value;
+function resizeInventoryFtextNode() {
+    let ftextNode = document.getElementById("ftext");
 
-        ftextNode.parentNode.insertBefore(hidden, ftextNode);
-        ftextNode.style.width = (hidden.offsetWidth + 10) + "px";
-        hidden.remove();
-    };
-    resizeFtextNode();
-    filterNode.addEventListener("ftext-change", resizeFtextNode);
+    let hidden = document.createElement("span");
+    hidden.style.position = "absolute";
+    hidden.style.height = 0;
+    hidden.style.overflow = "hidden";
+    hidden.style.font = getComputedStyle(ftextNode).font;
+    hidden.textContent = ftextNode.value;
+
+    ftextNode.parentNode.insertBefore(hidden, ftextNode);
+    ftextNode.style.width = (hidden.offsetWidth + 10) + "px";
+    hidden.remove();
+}
+
+async function getInventoryItemDataMap(inventory) {
+    if (!inventory) inventory = getInventoryNodeTree();
+    let itemIds = Array.from(iterateInventoryNodeTree(inventory), node => node.itemId);
+    let allItemData = await Promise.all(itemIds.map(getItemData));
+    return Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
+}
+
+async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
+    if (!inventory) inventory = getInventoryNodeTree();
+    if (!itemDataMap) itemDataMap = await getInventoryItemDataMap(inventory);
+
+    let regex = new RegExp(pattern, "i");
+    let show = node => node.classList.remove("filtered");
+    let hide = node => node.classList.add("filtered");
+
+    for (let stuffbox of inventory) {
+        if (stuffbox.element.id == "curequip") continue;
+        let showBox = false;
+        for (let row of stuffbox.rows) {
+            let showRow = false;
+            for (let col of row.columns) {
+                let description = itemDataMap[col.itemId]?.description || "";
+                let showCol = !pattern.length || col.itemName.match(regex) || description.match(regex);
+                showCol ? show(col.element) : hide(col.element);
+                if (showCol) showRow = true;
+            }
+            showRow ? show(row.element) : hide(row.element);
+            if (showRow) showBox = true;
+        }
+        showBox ? show(stuffbox.element) : hide(stuffbox.element);
+    }
 }
 
 function getInventoryNodeTree() {
@@ -256,4 +266,130 @@ function* iterateStuffboxNodes(stuffbox) {
             yield col;
         }
     }
+}
+
+function addInventoryFilterPresets() {
+    let filterNode = document.getElementById("filter");
+
+    const allFilters = {
+        "-Combat": "less attracted",
+        "+Combat": "more attracted",
+        "Item": "\\+.*item drop",
+        "Meat": "\\+.*meat",
+        "+ML": "\\+.*monster level",
+        "-ML": "-.*monster level",
+        "Init": "combat init.*\\+|\\+.*combat init",
+        "Fam": "\\+.*familiar weight",
+        "Heal": {
+            "HP": "(heal|restore).*(hp|hit point)",
+            "MP": "restore.*mp",
+        },
+        "Regen": {
+            "HP": "regen.*hp",
+            "MP": "regen.*mp",
+        },
+        "Stats": {
+            "HP": "max.*hp.*\\+",
+            "MP": "max.*mp.*\\+",
+            "Mus": "muscle.*\\+",
+            "Mus%": "muscle.*\\+.*%",
+            "Mox": "moxie.*\\+",
+            "Mox%": "moxie.*\\+.*%",
+            "Mys": "mystic.*\\+",
+            "Mys%": "mystic.*\\+.*%",
+        },
+        "Res": {
+            "All": "resist.*all elem",
+            "Hot": "hot resist|resist.*all elem",
+            "Cold": "cold resist|resist.*all elem",
+            "Stench": "stench resist|resist.*all elem",
+            "Spooky": "spooky resist|resist.*all elem",
+            "Sleaze": "sleaze resist|resist.*all elem",
+        },
+        "Elem": {
+            "Hot": "hot (damage|spell)",
+            "Cold": "cold (damage|spell)",
+            "Stench": "stench (damage|spell)",
+            "Spooky": "spooky (damage|spell)",
+            "Sleaze": "sleaze (damage|spell)",
+        },
+        "Spell%": "spell.*\\+.*%",
+        "Adv": "adv.*per day",
+    };
+
+    let div = document.createElement("div");
+    div.style.fontSize = "0.7em";
+
+    let allHideGroup = [];
+    const hideAllGroups = () => allHideGroup.forEach(fn => fn());
+
+    const toNodes = (filters, onFilterClick) => {
+        let nodes = [];
+        for (let [key, val] of Object.entries(filters)) {
+            if (nodes.length) {
+                let separator = document.createElement("span");
+                separator.innerText = "|";
+                separator.style.margin = "0 2px";
+                nodes.push(separator);
+            }
+
+            if (typeof val == "object") {
+                let group = document.createElement("span");
+                group.style.display = "none";
+
+                let heading = document.createElement("a");
+                heading.innerText = `[${key}]`;
+                heading.href = "#";
+
+                let showGroup = _ => {
+                    group.style.display = "inline";
+                    heading.innerText = `{${key}:`;
+                    heading.style.fontWeight = "bold";
+                    heading.style.textDecoration = "none";
+                    heading.style.marginRight = "2px";
+                };
+                let hideGroup = _ => {
+                    group.style.display = "none";
+                    heading.innerText = `[${key}]`;
+                    heading.style.fontWeight = "normal";
+                    heading.style.textDecoration = null;
+                    heading.style.marginRight = null;
+                };
+                allHideGroup.push(hideGroup);
+
+                heading.onclick = e => {
+                    e.preventDefault();
+                    let wasHidden = group.style.display == "none";
+                    hideAllGroups();
+                    if (wasHidden) showGroup();
+                };
+
+                toNodes(val, showGroup).forEach(n => group.append(n));
+                let closeBrace = document.createElement("span");
+                closeBrace.innerText = "}";
+                closeBrace.style.fontWeight = "bold";
+                group.append(closeBrace);
+
+                nodes.push(heading);
+                nodes.push(group);
+            } else {
+                let anchor = document.createElement("a");
+                anchor.innerText = key;
+                anchor.href = "#";
+                anchor.onclick = e => {
+                    e.preventDefault();
+                    let ftextNode = document.getElementById("ftext");
+                    ftextNode.value = val;
+                    filterNode.dispatchEvent(new CustomEvent("ftext-change", {detail: {text: val}}));
+                    hideAllGroups();
+                    if (onFilterClick) onFilterClick();
+                };
+                nodes.push(anchor);
+            }
+        }
+        return nodes;
+    };
+
+    toNodes(allFilters).forEach(n => div.append(n));
+    filterNode.parentElement.append(div);
 }

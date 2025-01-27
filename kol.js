@@ -5,6 +5,7 @@ switch (pathname) {
         break;
     case "/inventory.php":
     case "/closet.php":
+    case "/storage.php":
         handleInventoryPage();
         break;
     case "/backoffice.php":
