@@ -11,9 +11,12 @@ function handleWiki() {
         }
     }
 
+    let contentTextNode = document.getElementById("mw-content-text");
+    let thingName = document.evaluate("./table[1]/tbody/tr[1]/td[1]//p/b", contentTextNode).iterateNext()?.innerText;
     let pageTitle = document.getElementById("firstHeading")?.innerText;
-    if (pageTitle) {
-        bindKey("c", () => navigator.clipboard.writeText(pageTitle));
+    let copyText = thingName || pageTitle;
+    if (copyText) {
+        bindKey("c", () => navigator.clipboard.writeText(copyText));
     }
 }
 
