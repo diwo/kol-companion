@@ -1,8 +1,32 @@
 [
-    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a batwinged gremlin" }], "edits": [{ "text": "hammer", "highlight": true }] },
-    { "conditions": [{ "url": "/fight.php", "pageText": "fighting an erudite gremlin" }],  "edits": [{ "text": "wrench", "highlight": true }] },
-    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a spider gremlin" }],    "edits": [{ "text": "pliers", "highlight": true }] },
-    { "conditions": [{ "url": "/fight.php", "pageText": "fighting a vegetable gremlin" }], "edits": [{ "text": "screwdriver", "highlight": true }] },
+    {
+        "conditions": [{ "url": "/fight.php", "lastAdventure": "Next to that Barrel with Something Burning in it", "pageText": "fighting a batwinged gremlin" }],
+        "edits": [
+            { "text": "hammer", "highlight": true },
+            { "text": "a batwinged gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/fight.php", "lastAdventure": "Over Where the Old Tires Are", "pageText": "fighting an erudite gremlin" }],
+        "edits": [
+            { "text": "wrench", "highlight": true },
+            { "text": "an erudite gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/fight.php", "lastAdventure": "Near an Abandoned Refrigerator", "pageText": "fighting a spider gremlin" }],
+        "edits": [
+            { "text": "pliers", "highlight": true },
+            { "text": "a spider gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/fight.php", "lastAdventure": "Out by that Rusted-Out Car", "pageText": "fighting a vegetable gremlin" }],
+        "edits": [
+            { "text": "screwdriver", "highlight": true },
+            { "text": "a vegetable gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+        ]
+    },
     {
         "conditions": [{ "url": "/questlog.php" }],
         "edits": [

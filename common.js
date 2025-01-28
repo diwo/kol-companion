@@ -50,13 +50,15 @@ async function editPageText() {
     let fetchResponse = await fetch(browser.runtime.getURL("data/textedit.json"));
     let json = await fetchResponse.json();
     let pathname = getPathName();
+    let lastAdventure = getLastAdventure();
 
     for (let rule of json) {
         let conditionsMatched = true;
         if (rule.conditions) {
             for (let condition of rule.conditions) {
-                if (condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
                 if (condition.url && condition.url != pathname) conditionsMatched = false;
+                if (condition.lastAdventure && condition.lastAdventure != lastAdventure) conditionsMatched = false;
+                if (condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
             }
         }
         if (!conditionsMatched) continue;
@@ -458,6 +460,11 @@ function isMpAlmostFull() {
 
 function isMpLow() {
     return getMp().ratio <= 0.15;
+}
+
+function getLastAdventure() {
+    let charDoc = getPane("charpane").document;
+    return charDoc.evaluate("//a[text()='Last Adventure:']/following::a[1]", charDoc).iterateNext()?.innerText;
 }
 
 async function sendCommand(command) {
