@@ -310,10 +310,10 @@
             },
             "Strung-Up Quartet": {
                 "choiceText": {
-                    "Play 'Provare Compasione Per El Sciocco'":  { "note": "+5 ML" },
-                    "Play 'Sono Un Amanten Non Un Combattente'": { "note": "+5% Combat" },
-                    "Play 'Le Mie Cose Favorite'":               { "note": "+5% Item" },
-                    "Play nothing, please.":                     { "note": "Does not consume an adventure" }
+                    "\"Play 'Provare Compasione Per El Sciocco'\"":  { "note": "+5 ML" },
+                    "\"Play 'Sono Un Amanten Non Un Combattente'\"": { "note": "-5% Combat" },
+                    "\"Play 'Le Mie Cose Favorite'\"":               { "note": "+5% Item" },
+                    "\"Play nothing, please.\"":                     { "note": "Does not consume an adventure" }
                 }
             },
             "We'll All Be Flat": { "choiceText": { "Play the music": { "tag": "quest" } } }
@@ -627,8 +627,10 @@
         "adventures": {
             "Working Holiday": {
                 "choiceText": {
-                    "Knock on the boss's office door": { "note": "Boss", "tag": "quest" },
-                    "Raid the supply cabinet":         { "note": "Boring binder clip", "tag": "quest" }
+                    "Knock on the boss's office door":   { "note": "Boss", "tag": "quest" },
+                    "Raid the supply cabinet":           { "note": "Boring binder clip", "tag": "quest" },
+                    "Pick a fight with a cubicle drone": { "note": "Fight accountant" },
+                    "Take the day off":                  { "note": "Free runaway" }
                 }
             }
         }
