@@ -92,12 +92,7 @@ async function scanToolTips() {
 }
 
 async function sortInventory() {
-    let mainDoc = getPane("mainpane").document;
-    let path = getPathName(mainDoc);
-    if (path != "/inventory.php" && path != "/closet.php") {
-        return;
-    }
-    await Promise.all(getInventoryNodeTree().map(sortStuffbox));
+    return Promise.all(getInventoryNodeTree().map(sortStuffbox));
 }
 
 async function sortStuffbox(stuffbox) {
