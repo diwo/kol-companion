@@ -409,6 +409,7 @@ function getWindowId(win = window) {
 function getPane(name, {id, returnFrame} = {}) {
     let topDoc = window.top.document;
     let frame = topDoc.evaluate(`//frame[@name='${name}']`, topDoc).iterateNext();
+    if (!frame) return null;
     if (returnFrame) return frame;
     let win = frame.contentWindow;
     return id ? win.document.getElementById(id) : win;
@@ -419,33 +420,35 @@ function isVisible(elem) {
 }
 
 function getTurns() {
-    let charDoc = getPane("charpane").document;
-    let hourglass = charDoc.evaluate("//img[@title='Adventures Remaining']", charDoc).iterateNext();
-    return parseInt(hourglass.parentNode.nextSibling.firstChild.innerText);
+    let charDoc = getPane("charpane")?.document;
+    let hourglass = charDoc && charDoc.evaluate("//img[@title='Adventures Remaining']", charDoc).iterateNext();
+    let textNode = hourglass?.parentNode?.nextSibling?.firstChild;
+    return textNode ? parseInt(textNode.innerText) : null;
 }
 
 function getHp() {
-    return parseHpMpText(getHpTextNode().innerText);
+    return parseHpMpText(getHpTextNode()?.innerText);
 }
 
 function getMp() {
-    return parseHpMpText(getMpTextNode().innerText);
+    return parseHpMpText(getMpTextNode()?.innerText);
 }
 
 function getHpTextNode() {
-    let charDoc = getPane("charpane").document;
-    let hpIcon = charDoc.evaluate("//img[@title='Hit Points']", charDoc).iterateNext();
-    return hpIcon.parentNode.nextSibling.firstChild;
+    let charDoc = getPane("charpane")?.document;
+    let hpIcon = charDoc && charDoc.evaluate("//img[@title='Hit Points']", charDoc).iterateNext();
+    return hpIcon?.parentNode?.nextSibling?.firstChild;
 }
 
 function getMpTextNode() {
-    let charDoc = getPane("charpane").document;
-    let mpIcon = charDoc.evaluate("//img[@title='Mojo Points' or @title='Mana Points' or @title='Muscularity Points']", charDoc).iterateNext();
-    return mpIcon.parentNode.nextSibling.firstChild;
+    let charDoc = getPane("charpane")?.document;
+    let mpIcon = charDoc && charDoc.evaluate("//img[@title='Mojo Points' or @title='Mana Points' or @title='Muscularity Points']", charDoc).iterateNext();
+    return mpIcon?.parentNode?.nextSibling?.firstChild;
 }
 
 function parseHpMpText(text) {
-    let match = text.match(/(\d+)\s\/\s(\d+)/);
+    let match = text && text.match(/(\d+)\s\/\s(\d+)/);
+    if (!match) return null;
     let current = parseInt(match[1]);
     let total = parseInt(match[2]);
     let ratio = current / total;
@@ -453,20 +456,20 @@ function parseHpMpText(text) {
 }
 
 function isHpLow() {
-    return getHp().ratio <= 0.35;
+    return getHp()?.ratio <= 0.35;
 }
 
 function isMpAlmostFull() {
-    return getMp().ratio >= 0.85;
+    return getMp()?.ratio >= 0.85;
 }
 
 function isMpLow() {
-    return getMp().ratio <= 0.15;
+    return getMp()?.ratio <= 0.15;
 }
 
 function getLastAdventure() {
-    let charDoc = getPane("charpane").document;
-    return charDoc.evaluate("//a[text()='Last Adventure:']/following::a[1]", charDoc).iterateNext()?.innerText;
+    let charDoc = getPane("charpane")?.document;
+    return charDoc ? charDoc.evaluate("//a[text()='Last Adventure:']/following::a[1]", charDoc).iterateNext()?.innerText : null;
 }
 
 async function sendCommand(command) {
@@ -474,17 +477,19 @@ async function sendCommand(command) {
         command = "/" + command;
     }
 
-    let chatDoc = getPane("chatpane").document;
-    let enterChat = chatDoc.evaluate("//a[@href='mchat.php']/b[text()='Enter the Chat']", chatDoc).iterateNext();
+    let chatDoc = getPane("chatpane")?.document;
+    let enterChat = chatDoc && chatDoc.evaluate("//a[@href='mchat.php']/b[text()='Enter the Chat']", chatDoc).iterateNext();
     if (enterChat) {
         enterChat.click();
         await new Promise(resolve => setTimeout(resolve, 500));
-        chatDoc = getPane("chatpane").document;
+        chatDoc = getPane("chatpane")?.document;
     }
 
-    let inputForm = chatDoc.getElementById("InputForm");
-    chatDoc.evaluate(".//input[@name='graf']", inputForm).iterateNext().value = command;
-    chatDoc.evaluate(".//input[@type='submit']", inputForm).iterateNext().click();
+    if (chatDoc) {
+        let inputForm = chatDoc.getElementById("InputForm");
+        chatDoc.evaluate(".//input[@name='graf']", inputForm).iterateNext().value = command;
+        chatDoc.evaluate(".//input[@type='submit']", inputForm).iterateNext().click();
+    }
 }
 
 function randomId() {
