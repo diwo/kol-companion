@@ -454,7 +454,9 @@ function getTurnsUseRemaining() {
     return withRetry(() => {
         let untilTurnElem = getPane("companionpane", {id: "until-turn"});
         let untilTurn = parseInt(untilTurnElem.value) || 0;
-        return getTurns() - untilTurn;
+        let remainTurns = getTurns();
+        if (remainTurns == null) throw Error();
+        return remainTurns - untilTurn;
     });
 }
 
