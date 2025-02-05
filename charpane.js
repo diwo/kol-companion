@@ -39,12 +39,12 @@ async function addEffectModifiersSection() {
             <b><font size="2">Effect Modifiers:</font></b>
             <table><tbody style="font-size: 0.75em"></tbody></table>
         `;
-        let effectsParentNode = document.evaluate("//b/font[text()='Effects:']/ancestor::center", document).iterateNext();
+        let effectsParentNode = document.evaluate("//center[p/b/font[text()='Effects:']]", document).iterateNext();
         effectsParentNode.insertBefore(effectModifiersSection, effectsParentNode.firstChild);
     }
 
     let activeEffects = [];
-    let effectRows = evaluateToNodesArray("//b/font[text()='Effects:']/ancestor::p/table/tbody/tr");
+    let effectRows = evaluateToNodesArray("//center/p[b/font[text()='Effects:']]/table/tbody/tr");
     for (let effectRow of effectRows) {
         let effectText = effectRow.lastChild?.firstChild?.innerText || "";
         let effectName = effectText.match(/^(.*) \(\d+\)/)?.[1];
