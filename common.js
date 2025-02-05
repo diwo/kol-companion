@@ -202,6 +202,150 @@ function parseItemFlagsFromDescription(description) {
     return {notrade, nodiscard, gift, quest, oneday};
 }
 
+function parseModifiersFromText(text) {
+    let mods = {};
+    let unknown = [];
+    for (let line of text.split("\n")) {
+        try {
+            let mod = parseModifierLine(line);
+            if (mod) {
+                if (mod.unknown) {
+                    unknown.push(line);
+                } else {
+                    mods[mod.key] = mods[mod.key] || 0;
+                    mods[mod.key] += mod.val;
+                }
+            }
+        } catch (e) {
+            console.error(`Error parsing modifier "${line}":`, e.message);
+        }
+    }
+    let nonZeroMods = Object.fromEntries(Object.entries(mods).filter(([_, val]) => val));
+    return unknown.length ? {...nonZeroMods, unknown} : nonZeroMods;
+}
+
+function parseModifierLine(line) {
+    const ignoredMods = [
+        "(because you hate them)",
+        "(so you can destroy them)",
+    ];
+    if (!line) return null;
+    if (ignoredMods.indexOf(line) >= 0) return null;
+
+    const captureInt = (str, pattern) => {
+        let matched = str.match(pattern);
+        let num = parseInt(matched?.[2]) || 0;
+        return matched?.[1] == "-" ? -num : num;
+    };
+    let captures = [];
+
+    captures.push({ key: "muscle%", val: captureInt(line, /^Muscle ([+-]?)(\d+)%$/) });
+    captures.push({ key: "moxie%", val: captureInt(line, /^Moxie ([+-]?)(\d+)%$/) });
+    captures.push({ key: "myst%", val: captureInt(line, /^Mysticality ([+-]?)(\d+)%$/) });
+    captures.push({ key: "allAttr%", val: captureInt(line, /^All Attributes ([+-]?)(\d+)%$/) });
+    captures.push({ key: "muscleFlat", val: captureInt(line, /^Muscle ([+-]?)(\d+)$/) });
+    captures.push({ key: "moxieFlat", val: captureInt(line, /^Moxie ([+-]?)(\d+)$/) });
+    captures.push({ key: "mystFlat", val: captureInt(line, /^Mysticality ([+-]?)(\d+)$/) });
+    captures.push({ key: "allAttrFlat", val: captureInt(line, /^All Attributes ([+-]?)(\d+)$/) });
+
+    captures.push({ key: "statGainMuscle%", val: captureInt(line, /^([+-]?)(\d+)% to all Muscle Gains$/) });
+    captures.push({ key: "statGainMoxie%", val: captureInt(line, /^([+-]?)(\d+)% to all Moxie Gains$/) });
+    captures.push({ key: "statGainMyst%", val: captureInt(line, /^([+-]?)(\d+)% to all Mysticality Gains$/) });
+    captures.push({ key: "statGainMuscleFlat", val: captureInt(line, /^([+-]?)(\d+) Muscle Stats Per Fight$/) });
+    captures.push({ key: "statGainMoxieFlat", val: captureInt(line, /^([+-]?)(\d+) Moxie Stats Per Fight$/) });
+    captures.push({ key: "statGainMystFlat", val: captureInt(line, /^([+-]?)(\d+) Mysticality Stats Per Fight$/) });
+    captures.push({ key: "statGainFlat", val: captureInt(line, /^([+-]?)(\d+) Stats Per Fight$/) });
+
+    captures.push({ key: "maxHp%", val: captureInt(line, /^Maximum HP ([+-]?)(\d+)%$/) });
+    captures.push({ key: "maxMp%", val: captureInt(line, /^Maximum MP ([+-]?)(\d+)%$/) });
+    captures.push({ key: "maxHpFlat", val: captureInt(line, /^Maximum HP ([+-]?)(\d+)$/) });
+    captures.push({ key: "maxMpFlat", val: captureInt(line, /^Maximum MP ([+-]?)(\d+)$/) });
+
+    captures.push({ key: "weapDmg%", val: captureInt(line, /^Weapon Damage ([+-]?)(\d+)%$/) });
+    captures.push({ key: "weapDmgFlat", val: captureInt(line, /^Weapon Damage ([+-]?)(\d+)$/) });
+    captures.push({ key: "weapDmgHotFlat", val: captureInt(line, /^([+-]?)(\d+) Hot Damage$/) });
+    captures.push({ key: "weapDmgColdFlat", val: captureInt(line, /^([+-]?)(\d+) Cold Damage$/) });
+    captures.push({ key: "weapDmgStenchFlat", val: captureInt(line, /^([+-]?)(\d+) Stench Damage$/) });
+    captures.push({ key: "weapDmgSpookyFlat", val: captureInt(line, /^([+-]?)(\d+) Spooky Damage$/) });
+    captures.push({ key: "weapDmgSleazeFlat", val: captureInt(line, /^([+-]?)(\d+) Sleaze Damage$/) });
+    captures.push({ key: "weapDmgPrismFlat", val: captureInt(line, /^([+-]?)(\d+) Hot, Cold, Stench, Spooky, and Sleaze Damage$/) });
+
+    captures.push({ key: "spellDmg%", val: captureInt(line, /^Spell Damage ([+-]?)(\d+)%$/) });
+    captures.push({ key: "spellDmgFlat", val: captureInt(line, /^Spell Damage ([+-]?)(\d+)$/) });
+    captures.push({ key: "spellDmgHotFlat", val: captureInt(line, /^([+-]?)(\d+) Damage to Hot Spells$/) });
+    captures.push({ key: "spellDmgColdFlat", val: captureInt(line, /^([+-]?)(\d+) Damage to Cold Spells$/) });
+    captures.push({ key: "spellDmgStenchFlat", val: captureInt(line, /^([+-]?)(\d+) Damage to Stench Spells$/) });
+    captures.push({ key: "spellDmgSpookyFlat", val: captureInt(line, /^([+-]?)(\d+) Damage to Spooky Spells$/) });
+    captures.push({ key: "spellDmgSleazeFlat", val: captureInt(line, /^([+-]?)(\d+) Damage to Sleaze Spells$/) });
+
+    captures.push({ key: "rangedDmg%", val: captureInt(line, /^Ranged Damage ([+-]?)(\d+)%$/) });
+    captures.push({ key: "rangedDmgFlat", val: captureInt(line, /^Ranged Damage ([+-]?)(\d+)$/) });
+
+    captures.push({ key: "dmgBugbear%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Bugbears$/) });
+    captures.push({ key: "dmgBugbearFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Bugbears$/) });
+    captures.push({ key: "dmgWerewolf%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Werewolves$/) });
+    captures.push({ key: "dmgWerewolfFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Werewolves$/) });
+    captures.push({ key: "dmgZombie%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Zombies$/) });
+    captures.push({ key: "dmgZombieFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Zombies$/) });
+    captures.push({ key: "dmgGhost%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Ghosts$/) });
+    captures.push({ key: "dmgGhostFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Ghosts$/) });
+    captures.push({ key: "dmgVampire%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Vampires$/) });
+    captures.push({ key: "dmgVampireFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Vampires$/) });
+    captures.push({ key: "dmgSkeleton%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Skeletons$/) });
+    captures.push({ key: "dmgSkeletonFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Skeletons$/) });
+    captures.push({ key: "dmgUndead%", val: captureInt(line, /^([+-]?)(\d+)% Damage vs. Undead$/) });
+    captures.push({ key: "dmgUndeadFlat", val: captureInt(line, /^([+-]?)(\d+) Damage vs. Undead$/) });
+
+    captures.push({ key: "crit%", val: captureInt(line, /^([+-]?)(\d+)% chance of Critical Hit$/) });
+    captures.push({ key: "spellCrit%", val: captureInt(line, /^([+-]?)(\d+)% Chance of Spell Critical Hit$/) });
+    captures.push({ key: "init%", val: captureInt(line, /^([+-]?)(\d+)% Combat Initiative$/) });
+    captures.push({ key: "da", val: captureInt(line, /^Damage Absorption ([+-]?)(\d+)$/) });
+    captures.push({ key: "dr", val: captureInt(line, /^Damage Reduction: ([+-]?)(\d+)$/) });
+
+    captures.push({ key: "resHot", val: captureInt(line, /^.*Hot Resistance \(([+-]?)(\d+)\)$/) });
+    captures.push({ key: "resCold", val: captureInt(line, /^.*Cold Resistance \(([+-]?)(\d+)\)$/) });
+    captures.push({ key: "resStench", val: captureInt(line, /^.*Stench Resistance \(([+-]?)(\d+)\)$/) });
+    captures.push({ key: "resSpooky", val: captureInt(line, /^.*Spooky Resistance \(([+-]?)(\d+)\)$/) });
+    captures.push({ key: "resSleaze", val: captureInt(line, /^.*Sleaze Resistance \(([+-]?)(\d+)\)$/) });
+    captures.push({ key: "resAll", val: captureInt(line, /^.*Resistance to All Elements \(([+-]?)(\d+)\)$/) });
+
+    captures.push({ key: "dropMeat%", val: captureInt(line, /^([+-]?)(\d+)% Meat from Monsters$/) });
+    captures.push({ key: "dropItem%", val: captureInt(line, /^([+-]?)(\d+)% Item Drops from Monsters$/) });
+    captures.push({ key: "dropGear%", val: captureInt(line, /^([+-]?)(\d+)% Gear Drops from Monsters$/) });
+    captures.push({ key: "dropFood%", val: captureInt(line, /^([+-]?)(\d+)% Food Drops from Monsters$/) });
+    captures.push({ key: "dropBooze%", val: captureInt(line, /^([+-]?)(\d+)% Booze Drops from Monsters$/) });
+    captures.push({ key: "dropCandy%", val: captureInt(line, /^([+-]?)(\d+)% Candy Drops from Monsters$/) });
+    captures.push({ key: "pickpocket%", val: captureInt(line, /^([+-]?)(\d+)% Pickpocket Chance$/) });
+
+    captures.push({ key: "ml", val: captureInt(line, /^([+-]?)(\d+) to Monster Level$/) });
+    captures.push({ key: "famWeight", val: captureInt(line, /^([+-]?)(\d+) to Familiar Weight$/) });
+    captures.push({ key: "famDamage", val: captureInt(line, /^Familiar Damage ([+-]?)(\d+)$/) });
+    captures.push({ key: "famExp", val: captureInt(line, /^([+-]?)(\d+) Familiar Experience Per Combat$/) });
+    captures.push({ key: "poolSkill", val: captureInt(line, /^([+-]?)(\d+) Pool Skill$/) });
+    captures.push({ key: "hoboPower", val: captureInt(line, /^([+-]?)(\d+) Hobo Power$/) });
+    captures.push({ key: "smithsness", val: captureInt(line, /^([+-]?)(\d+) Smithsness$/) });
+    captures.push({ key: "fishingSkill", val: captureInt(line, /^([+-]?)(\d+) Fishing Skill$/) });
+
+    let combatFreqMatch = line.match(/(more|less) attract/);
+    if (combatFreqMatch) {
+        let amount;
+        if (line.match(/very very very much (more|less)/)) amount = 20;
+        else if (line.match(/way (more|less)/)) amount = 20;
+        else if (line.match(/significantly (more|less)/)) amount = 15;
+        else if (line.match(/much (more|less)/)) amount = 10;
+        else amount = 5;
+        amount = combatFreqMatch[1] == "less" ? -amount : amount;
+        captures.push({ key: "combatFreq", val: amount });
+    }
+
+    if (line.match(/Makes you a better diver/)) captures.push({ key: "diving", val: 10 }); // at least 10, sometimes more
+
+    captures = captures.filter(c => c.val);
+    if (captures.length > 1) throw Error("Multiple captures matched: " + captures.map(c => c.key));
+    if (captures.length == 0) return { unknown: line };
+    return captures[0];
+}
+
 function bindKey(keys, action) {
     let keysMap = {};
     if (Array.isArray(keys)) {
@@ -359,6 +503,10 @@ function getItemPriceKey(itemId) {
 
 function getItemDataKey(itemId) {
     return `item_data_${itemId}`;
+}
+
+function getEffectDataKey(effectId) {
+    return `effect_data_${effectId}`;
 }
 
 function getPriceColor(price, volume, itemFlags = {}) {

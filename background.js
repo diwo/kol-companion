@@ -43,6 +43,10 @@ async function exportItemData() {
     return exportStorageToClipboard(/^item_data_/);
 }
 
+async function exportEffectData() {
+    return exportStorageToClipboard(/^effect_data_/);
+}
+
 async function exportMallLinks() {
     return exportStorageToClipboard(/^mall_links$/);
 }
@@ -63,6 +67,7 @@ async function exportStorageToClipboard(keyMatcher) {
 async function importCacheFromBackup() {
     await importDataFile("data/local/item_price.json", "item price", kv => Object.keys(kv).length);
     await importDataFile("data/local/item_data.json", "item data", kv => Object.keys(kv).length);
+    await importDataFile("data/local/effect_data.json", "effect data", kv => Object.keys(kv).length);
     await importDataFile("data/local/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
 }
 
@@ -110,6 +115,8 @@ browser.runtime.onMessage.addListener(message => {
             return Promise.resolve();
         case "setItemData":
             return setItemData(message.itemId, message.name, message.description);
+        case "setEffectData":
+            return setEffectData(message.effectId, message.name, message.description, message.modifierText);
     }
     return false;
 });
@@ -288,12 +295,10 @@ async function fetchItemData(itemId, itemDescId) {
 }
 
 async function setItemData(itemId, name, description) {
-    let existing = await getItemData(itemId);
-    if (existing) return;
     if (!name || !description) return;
 
     let flags = parseItemFlagsFromDescription(description);
-    let itemData = { name, description, flags };
+    let itemData = { itemId, name, description, flags };
     let itemDataKey = getItemDataKey(itemId);
     await browser.storage.local.set({[itemDataKey]: itemData});
 
@@ -305,6 +310,20 @@ async function setItemData(itemId, name, description) {
     notifyItemUpdated([itemId]);
 
     return itemData;
+}
+
+async function setEffectData(effectId, name, description, modifierText) {
+    let modifiers = parseModifiersFromText(modifierText);
+    if (modifiers.unknown) {
+        console.log(`Unknown modifiers on effect "${name}":`,
+            modifiers.unknown.map(mod => `"${mod}"`).join(", "));
+    }
+    let effectData = { effectId, name, description, modifierText, modifiers };
+
+    let effectDataKey = getEffectDataKey(effectId);
+    await browser.storage.local.set({[effectDataKey]: effectData});
+
+    return effectData;
 }
 
 function notifyItemUpdated(itemIds) {

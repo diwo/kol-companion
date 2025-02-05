@@ -25,6 +25,16 @@ async function handleDescriptionPage() {
         itemIdDiv.style.display = 'inline';
     }
 
+    if (pathname == "/desc_effect.php") {
+        let effectId = document.body.innerHTML.match(/<!-- effectid: (\d+) -->/)?.[1];
+        if (effectId) {
+            let descNode = document.getElementById("description");
+            let description = evaluateToNodesArray(".//blockquote", {contextNode: descNode})[0]?.innerText;
+            let modifierText = evaluateToNodesArray(".//blockquote/following-sibling::center/font[@color='blue']/b", {contextNode: descNode})[0]?.innerText;
+            await browser.runtime.sendMessage({operation: "setEffectData", effectId, name: thingName, description, modifierText});
+        }
+    }
+
     let wikiDiv = addDiv(koliteminfo, '[<a id="wiki" href="#">Wiki</a>]');
     wikiDiv.style.display = 'inline';
 
