@@ -8,19 +8,19 @@ async function displayItemData(valMatcher) {
     return displayStorage(k => k.startsWith("item_data_"), valMatcher);
 }
 
-async function clearStorage(keyMatcher, valMatcher) {
+async function deleteStorage(keyMatcher, valMatcher) {
     let keyVals = await scanStorage(keyMatcher, valMatcher);
     let count = Object.keys(keyVals).length;
     console.log(`Removing ${count} entries`, keyVals);
     await browser.storage.local.remove(Object.keys(keyVals));
 }
 
-async function clearItemPriceCache(valMatcher) {
-    return clearStorage(key => key.startsWith("item_price_"), valMatcher);
+async function deleteItemPriceCache(valMatcher) {
+    return deleteStorage(key => key.startsWith("item_price_"), valMatcher);
 }
 
-async function clearItemPriceCacheErrorOrNoPrice() {
-    return clearItemPriceCache(val => {
+async function deleteItemPriceCacheErrorOrNoPrice() {
+    return deleteItemPriceCache(val => {
         let hasError = val.data?.error;
         let noPrice = val.data && !val.data?.average;
         return hasError || noPrice;
@@ -100,15 +100,20 @@ browser.runtime.onMessage.addListener(message => {
                 return fetchItemData(message.itemId, message.itemDescId);
             }
             return Promise.resolve();
+        case "fetchEffectData":
+            if (message.effectDescId) {
+                return fetchEffectData(message.effectId, message.effectDescId);
+            }
+            return Promise.resolve();
         case "queueItemDescriptionFetch":
             if (message.itemId && message.itemDescId) {
                 itemDescFetchQueue[message.itemId] = message.itemDescId;
             }
             return Promise.resolve();
         case "setItemData":
-            return setItemData(message.itemId, message.name, message.description);
+            return setItemData(message.itemId, {...message});
         case "setEffectData":
-            return setEffectData(message.effectId, message.name, message.description, message.modifierText);
+            return setEffectData(message.effectId, {...message});
     }
     return false;
 });
@@ -270,23 +275,17 @@ async function fetchItemData(itemId, itemDescId) {
 
     console.log(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
 
-    let page = await fetchUrl(`https://www.kingdomofloathing.com/desc_item.php?whichitem=${itemDescId}`);
-    if (page.match(/This script is not available unless you're logged in/)) {
-        throw Error("not logged in");
-    }
+    let url = `https://www.kingdomofloathing.com/desc_item.php?whichitem=${itemDescId}`;
+    let data = await fetchDescription(url, (doc, content) => {
+        let name = doc.evaluate(".//div[@id='description']/center/b", content).iterateNext()?.innerText;
+        let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
+        return {name, description};
+    });
 
-    // div must be added to document for \n to be rendered
-    let div = document.createElement("div");
-    div.innerHTML = page;
-    document.body.append(div);
-    let name = document.evaluate(".//div[@id='description']/center/b", div).iterateNext()?.innerText;
-    let description = document.evaluate(".//blockquote", div).iterateNext()?.innerText;
-    div.remove();
-
-    return setItemData(itemId, name, description);
+    return setItemData(itemId, data);
 }
 
-async function setItemData(itemId, name, description) {
+async function setItemData(itemId, {name, description}) {
     if (!name || !description) return;
 
     let flags = parseItemFlagsFromDescription(description);
@@ -304,7 +303,27 @@ async function setItemData(itemId, name, description) {
     return itemData;
 }
 
-async function setEffectData(effectId, name, description, modifierText) {
+async function fetchEffectData(effectId, effectDescId) {
+    if (effectId) {
+        let existing = await getEffectData(effectId);
+        if (existing) return existing;
+    }
+
+    console.log(`Fetching effect description effectDescId=${effectDescId} for effectId=${effectId}`);
+
+    let url = `https://www.kingdomofloathing.com/desc_effect.php?whicheffect=${effectDescId}`;
+    let data = await fetchDescription(url, (doc, content) => {
+        let name = doc.evaluate(".//div[@id='description']//center[1]//b", content).iterateNext()?.innerText;
+        let effectId = content.innerHTML.match(/<!-- effectid: (\d+) -->/)?.[1];
+        let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
+        let modifierText = doc.evaluate(".//blockquote/following-sibling::center/font[@color='blue']/b", content).iterateNext()?.innerText;
+        return {effectId, name, description, modifierText};
+    });
+
+    return setEffectData(data.effectId, data);
+}
+
+async function setEffectData(effectId, {name, description, modifierText}) {
     let modifiers = parseModifiersFromText(modifierText);
     if (modifiers.unknown.length) {
         console.log(`Unknown modifiers on effect "${name}":`,
@@ -316,6 +335,22 @@ async function setEffectData(effectId, name, description, modifierText) {
     await browser.storage.local.set({[effectDataKey]: effectData});
 
     return effectData;
+}
+
+async function fetchDescription(url, extractData) {
+    let page = await fetchUrl(url);
+    if (page.match(/This script is not available unless you're logged in/)) {
+        throw Error("not logged in");
+    }
+
+    // content must be added to document for \n to be rendered
+    let content = document.createElement("div");
+    content.innerHTML = page;
+    document.body.append(content);
+    let data = extractData(document, content);
+    content.remove();
+
+    return data;
 }
 
 function notifyItemUpdated(itemIds) {

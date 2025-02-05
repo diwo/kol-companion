@@ -32,29 +32,52 @@ function moveQuestCloseButton() {
 }
 
 async function addEffectModifiersSection() {
-    let effectsParentNode = document.evaluate("//b/font[text()='Effects:']/ancestor::center", document).iterateNext();
-    let effectModifiersSection = document.createElement("p");
-    effectModifiersSection.id = "effect-modifiers";
-    effectModifiersSection.innerHTML = `
-        <b><font size="2">Effect Modifiers:</font></b>
-        <table><tbody style="font-size: 0.75em"></tbody></table>
-    `;
-    effectsParentNode.appendChild(effectModifiersSection);
+    if (!document.getElementById("effect-modifiers")) {
+        let effectModifiersSection = document.createElement("p");
+        effectModifiersSection.id = "effect-modifiers";
+        effectModifiersSection.innerHTML = `
+            <b><font size="2">Effect Modifiers:</font></b>
+            <table><tbody style="font-size: 0.75em"></tbody></table>
+        `;
+        let effectsParentNode = document.evaluate("//b/font[text()='Effects:']/ancestor::center", document).iterateNext();
+        effectsParentNode.insertBefore(effectModifiersSection, effectsParentNode.firstChild);
+    }
 
-    let allEffectData = await scanStorage(k => k.startsWith("effect_data_"));
-    let effectNameToMods = Object.fromEntries(Object.values(allEffectData).map(data => [data.name, data.modifiers]));
-
-    let aggregatedMods = {};
+    let activeEffects = [];
     let effectRows = evaluateToNodesArray("//b/font[text()='Effects:']/ancestor::p/table/tbody/tr");
     for (let effectRow of effectRows) {
         let effectText = effectRow.lastChild?.firstChild?.innerText || "";
         let effectName = effectText.match(/^(.*) \(\d+\)/)?.[1];
-        if (!effectNameToMods[effectName]) {
-            console.log("Unknown effect: ", effectName); // TODO fetch effect
-        }
-        let mods = effectNameToMods[effectName] || {};
-        for (let key of Object.keys(mods)) {
-            aggregatedMods[key] = (aggregatedMods[key] || 0) + mods[key];
+
+        let imgNode = document.evaluate("./td[2]//img", effectRow).iterateNext();
+        let effectId = imgNode?.getAttribute("oncontextmenu")?.match(/shrug\((\d+)(,.*)?\)/)?.[1];
+        let effectDescId = imgNode?.getAttribute("onclick")?.match(/eff\("(.*)"\)/)?.[1];
+
+        activeEffects.push({ effectName, effectId, effectDescId });
+    }
+
+    let scannedEffectData = await scanStorage(k => k.startsWith("effect_data_"));
+    let effectToMods = Object.fromEntries(Object.values(scannedEffectData).map(data => [data.name, data.modifiers]));
+
+    updateEffectModifiers(activeEffects, effectToMods);
+
+    let effectsWithNoData = activeEffects.filter(eff => !effectToMods[eff.effectName]);
+    let fetchedEffectData = await Promise.all(
+        effectsWithNoData.map(({effectId, effectDescId}) =>
+            browser.runtime.sendMessage({operation: "fetchEffectData", effectId, effectDescId}))
+    );
+    for (let effectData of fetchedEffectData) {
+        effectToMods[effectData.name] = effectData.modifiers;
+    }
+    updateEffectModifiers(activeEffects, effectToMods);
+}
+
+function updateEffectModifiers(activeEffects, effectToMods) {
+    let aggregatedMods = {};
+    for (let effect of activeEffects) {
+        let mods = effectToMods[effect.effectName] || {};
+        for (let modName of Object.keys(mods)) {
+            aggregatedMods[modName] = (aggregatedMods[modName] || 0) + mods[modName];
         }
     }
 
@@ -65,8 +88,10 @@ async function addEffectModifiersSection() {
         "WeapDmg%", "SpellDmg%", "Crit%", "SpellCrit%",
         "DmgHot", "DmgCold", "DmgStench", "DmgSpooky", "DmgSleaze",
     ];
-    let modsTbody = document.evaluate(".//tbody", effectModifiersSection).iterateNext();
 
+    let effectModifiersSection = document.getElementById("effect-modifiers");
+    let modsTbody = document.evaluate(".//tbody", effectModifiersSection).iterateNext();
+    while (modsTbody.lastChild) modsTbody.removeChild(modsTbody.lastChild);
     for (let modName of modsToDisplay) {
         let val = getModVal(modName);
         if (val) {
@@ -78,7 +103,6 @@ async function addEffectModifiersSection() {
             let td2 = document.createElement("td");
             td1.innerText = `${modName}:`;
             td1.style.float = "right";
-            td1.style.fontWeight = "bold";
             td2.innerText = val > 0 ? `+${val}` : val;
             tr.appendChild(td1);
             tr.appendChild(td2);

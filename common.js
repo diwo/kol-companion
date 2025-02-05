@@ -520,22 +520,9 @@ async function queueItemDescriptionFetch(itemId, itemDescId) {
     return browser.runtime.sendMessage({operation: "queueItemDescriptionFetch", itemId, itemDescId});
 }
 
-async function getCachedPrice(itemId) {
-    let itemPriceKey = getItemPriceKey(itemId);
-    let cacheFetch = await browser.storage.local.get(itemPriceKey);
-    return cacheFetch[itemPriceKey];
-}
-
-async function getItemData(itemId) {
-    let itemDataKey = getItemDataKey(itemId);
-    let cacheFetch = await browser.storage.local.get(itemDataKey);
-    return cacheFetch[itemDataKey];
-}
-
-function isTradableItemFlags(itemFlags) {
-    let flags = itemFlags || {};
-    let untradable = flags.notrade || flags.gift || flags.quest || flags.oneday;
-    return !untradable;
+async function getFromStorage(key) {
+    let cacheFetch = await browser.storage.local.get(key);
+    return cacheFetch[key];
 }
 
 async function scanStorage(keyMatcher, valMatcher) {
@@ -552,6 +539,18 @@ async function scanStorage(keyMatcher, valMatcher) {
     return keyVals;
 }
 
+async function getCachedPrice(itemId) {
+    return getFromStorage(getItemPriceKey(itemId));
+}
+
+async function getItemData(itemId) {
+    return getFromStorage(getItemDataKey(itemId));
+}
+
+async function getEffectData(effectId) {
+    return getFromStorage(getEffectDataKey(effectId));
+}
+
 function getItemPriceKey(itemId) {
     return `item_price_${itemId}`;
 }
@@ -562,6 +561,12 @@ function getItemDataKey(itemId) {
 
 function getEffectDataKey(effectId) {
     return `effect_data_${effectId}`;
+}
+
+function isTradableItemFlags(itemFlags) {
+    let flags = itemFlags || {};
+    let untradable = flags.notrade || flags.gift || flags.quest || flags.oneday;
+    return !untradable;
 }
 
 function getPriceColor(price, volume, itemFlags = {}) {
