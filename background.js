@@ -1,30 +1,22 @@
-async function selectCache(keyMatcher, valMatcher) {
-    let cacheFetch = await browser.storage.local.get(null);
-    let keyVals = {};
-    for (let key of Object.keys(cacheFetch)) {
-        if (!keyMatcher || keyMatcher(key)) {
-            let val = cacheFetch[key];
-            if (!valMatcher || valMatcher(val)) {
-                keyVals[key] = val;
-            }
-        }
-    }
+async function displayStorage(keyMatcher, valMatcher) {
+    let keyVals = await scanStorage(keyMatcher, valMatcher);
     let count = Object.keys(keyVals).length;
     console.log(`Matched ${count} entries`, keyVals);
-    return keyVals;
 }
 
-async function selectItemData(valMatcher) {
-    return selectCache(k => k.startsWith("item_data_"), valMatcher);
+async function displayItemData(valMatcher) {
+    return displayStorage(k => k.startsWith("item_data_"), valMatcher);
 }
 
-async function clearCache(keyMatcher, valMatcher) {
-    let keyValsToRemove = await selectCache(keyMatcher, valMatcher);
-    await browser.storage.local.remove(Object.keys(keyValsToRemove));
+async function clearStorage(keyMatcher, valMatcher) {
+    let keyVals = await scanStorage(keyMatcher, valMatcher);
+    let count = Object.keys(keyVals).length;
+    console.log(`Removing ${count} entries`, keyVals);
+    await browser.storage.local.remove(Object.keys(keyVals));
 }
 
 async function clearItemPriceCache(valMatcher) {
-    return clearCache(key => key.startsWith("item_price_"), valMatcher);
+    return clearStorage(key => key.startsWith("item_price_"), valMatcher);
 }
 
 async function clearItemPriceCacheErrorOrNoPrice() {
@@ -314,11 +306,11 @@ async function setItemData(itemId, name, description) {
 
 async function setEffectData(effectId, name, description, modifierText) {
     let modifiers = parseModifiersFromText(modifierText);
-    if (modifiers.unknown) {
+    if (modifiers.unknown.length) {
         console.log(`Unknown modifiers on effect "${name}":`,
-            modifiers.unknown.map(mod => `"${mod}"`).join(", "));
+            modifiers.unknown.map(modText => `"${modText}"`).join(", "));
     }
-    let effectData = { effectId, name, description, modifierText, modifiers };
+    let effectData = { effectId, name, description, modifierText, modifiers: modifiers.mods, unknownModifiers: modifiers.unknown };
 
     let effectDataKey = getEffectDataKey(effectId);
     await browser.storage.local.set({[effectDataKey]: effectData});
