@@ -347,38 +347,42 @@ function parseModifierLine(line) {
 }
 
 function getPseudoMods(mods) {
+    const modVal = name => mods[name] || 0;
     let pseudoMods = {};
-    pseudoMods["Muscle%"] = (mods["Muscle%"] || 0) + (mods["AllAttr%"] || 0);
-    pseudoMods["Moxie%"] = (mods["Moxie%"] || 0) + (mods["AllAttr%"] || 0);
-    pseudoMods["Myst%"] = (mods["Myst%"] || 0) + (mods["AllAttr%"] || 0);
-    pseudoMods["MuscleFlat"] = (mods["MuscleFlat"] || 0) + (mods["AllAttrFlat"] || 0);
-    pseudoMods["MoxieFlat"] = (mods["MoxieFlat"] || 0) + (mods["AllAttrFlat"] || 0);
-    pseudoMods["MystFlat"] = (mods["MystFlat"] || 0) + (mods["AllAttrFlat"] || 0);
-    pseudoMods["StatGainMuscleFlat"] = (mods["StatGainMuscleFlat"] || 0) + (mods["StatGainFlat"] || 0);
-    pseudoMods["StatGainMoxieFlat"] = (mods["StatGainMoxieFlat"] || 0) + (mods["StatGainFlat"] || 0);
-    pseudoMods["StatGainMystFlat"] = (mods["StatGainMystFlat"] || 0) + (mods["StatGainFlat"] || 0);
 
-    pseudoMods["WeapDmgHotFlat"] = (mods["WeapDmgHotFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["WeapDmgColdFlat"] = (mods["WeapDmgColdFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["WeapDmgStenchFlat"] = (mods["WeapDmgStenchFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["WeapDmgSpookyFlat"] = (mods["WeapDmgSpookyFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["WeapDmgSleazeFlat"] = (mods["WeapDmgSleazeFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["DmgHot"] = (mods["WeapDmgHotFlat"] || 0) + (mods["SpellDmgHotFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["DmgCold"] = (mods["WeapDmgColdFlat"] || 0) + (mods["SpellDmgColdFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["DmgStench"] = (mods["WeapDmgStenchFlat"] || 0) + (mods["SpellDmgStenchFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["DmgSpooky"] = (mods["WeapDmgSpookyFlat"] || 0) + (mods["SpellDmgSpookyFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
-    pseudoMods["DmgSleaze"] = (mods["WeapDmgSleazeFlat"] || 0) + (mods["SpellDmgSleazeFlat"] || 0) + (mods["WeapDmgPrismFlat"] || 0);
+    pseudoMods["Muscle%"] = modVal("Muscle%") + modVal("AllAttr%");
+    pseudoMods["Moxie%"]  = modVal("Moxie%")  + modVal("AllAttr%");
+    pseudoMods["Myst%"]   = modVal("Myst%")   + modVal("AllAttr%");
+    pseudoMods["MuscleFlat"] = modVal("MuscleFlat") + modVal("AllAttrFlat");
+    pseudoMods["MoxieFlat"]  = modVal("MoxieFlat")  + modVal("AllAttrFlat");
+    pseudoMods["MystFlat"]   = modVal("MystFlat")   + modVal("AllAttrFlat");
 
-    pseudoMods["ResHot"] = (mods["ResHot"] || 0) + (mods["ResAll"] || 0);
-    pseudoMods["ResCold"] = (mods["ResCold"] || 0) + (mods["ResAll"] || 0);
-    pseudoMods["ResStench"] = (mods["ResStench"] || 0) + (mods["ResAll"] || 0);
-    pseudoMods["ResSpooky"] = (mods["ResSpooky"] || 0) + (mods["ResAll"] || 0);
-    pseudoMods["ResSleaze"] = (mods["ResSleaze"] || 0) + (mods["ResAll"] || 0);
+    pseudoMods["StatGainMuscleFlat"] = modVal("StatGainMuscleFlat") + modVal("StatGainFlat");
+    pseudoMods["StatGainMoxieFlat"]  = modVal("StatGainMoxieFlat")  + modVal("StatGainFlat");
+    pseudoMods["StatGainMystFlat"]   = modVal("StatGainMystFlat")   + modVal("StatGainFlat");
 
-    pseudoMods["GearDrop%"] = (mods["GearDrop%"] || 0) + (mods["ItemDrop%"] || 0);
-    pseudoMods["FoodDrop%"] = (mods["FoodDrop%"] || 0) + (mods["ItemDrop%"] || 0);
-    pseudoMods["BoozeDrop%"] = (mods["BoozeDrop%"] || 0) + (mods["ItemDrop%"] || 0);
-    pseudoMods["CandyDrop%"] = (mods["CandyDrop%"] || 0) + (mods["ItemDrop%"] || 0);
+    pseudoMods["WeapDmgHotFlat"]    = modVal("WeapDmgHotFlat")    + modVal("WeapDmgPrismFlat");
+    pseudoMods["WeapDmgColdFlat"]   = modVal("WeapDmgColdFlat")   + modVal("WeapDmgPrismFlat");
+    pseudoMods["WeapDmgStenchFlat"] = modVal("WeapDmgStenchFlat") + modVal("WeapDmgPrismFlat");
+    pseudoMods["WeapDmgSpookyFlat"] = modVal("WeapDmgSpookyFlat") + modVal("WeapDmgPrismFlat");
+    pseudoMods["WeapDmgSleazeFlat"] = modVal("WeapDmgSleazeFlat") + modVal("WeapDmgPrismFlat");
+
+    pseudoMods["DmgHot"]    = modVal("WeapDmgHotFlat")    + modVal("SpellDmgHotFlat")    + modVal("WeapDmgPrismFlat");
+    pseudoMods["DmgCold"]   = modVal("WeapDmgColdFlat")   + modVal("SpellDmgColdFlat")   + modVal("WeapDmgPrismFlat");
+    pseudoMods["DmgStench"] = modVal("WeapDmgStenchFlat") + modVal("SpellDmgStenchFlat") + modVal("WeapDmgPrismFlat");
+    pseudoMods["DmgSpooky"] = modVal("WeapDmgSpookyFlat") + modVal("SpellDmgSpookyFlat") + modVal("WeapDmgPrismFlat");
+    pseudoMods["DmgSleaze"] = modVal("WeapDmgSleazeFlat") + modVal("SpellDmgSleazeFlat") + modVal("WeapDmgPrismFlat");
+
+    pseudoMods["ResHot"]    = modVal("ResHot")    + modVal("ResAll");
+    pseudoMods["ResCold"]   = modVal("ResCold")   + modVal("ResAll");
+    pseudoMods["ResStench"] = modVal("ResStench") + modVal("ResAll");
+    pseudoMods["ResSpooky"] = modVal("ResSpooky") + modVal("ResAll");
+    pseudoMods["ResSleaze"] = modVal("ResSleaze") + modVal("ResAll");
+
+    pseudoMods["GearDrop%"]  = modVal("GearDrop%")  + modVal("ItemDrop%");
+    pseudoMods["FoodDrop%"]  = modVal("FoodDrop%")  + modVal("ItemDrop%");
+    pseudoMods["BoozeDrop%"] = modVal("BoozeDrop%") + modVal("ItemDrop%");
+    pseudoMods["CandyDrop%"] = modVal("CandyDrop%") + modVal("ItemDrop%");
 
     return Object.fromEntries(Object.entries(pseudoMods).filter(([_, val]) => val != 0));
 }
