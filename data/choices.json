@@ -386,6 +386,18 @@
         }
     },
     {
+        "zone": "The Smut Orc Logging Camp",
+        "adventures": {
+            "Blech House": {
+                "choiceText": {
+                    "Kick it down":               { "note": "Muscle / Weapon Damage" },
+                    "Blast it down with a spell": { "note": "Myst / Spell Damage" },
+                    "Carefully take it apart":    { "note": "Moxie / Sleaze Res" }
+                }
+            }
+        }
+    },
+    {
         "zone": "Twin Peak",
         "adventures": {
             "Lost in the Great Overlook Lodge": {
@@ -707,6 +719,23 @@
         }
     },
     {
+        "zone": "The Mysterious Island of Mystery",
+        "adventures": {
+            "Mysterious Island Arena": {
+                "choiceText": {
+                    "Party with the free spirits":          { "note": "Stats Gain +5 / 20 turns" },
+                    "Investigate a curious cloud of smoke": { "note": "Item +20% / 20 turns" },
+                    "Join a drum circle":                   { "note": "Fam Weight +5 / 20 turns" },
+                    "Try to get into the music": { "note": "All Stats +10% / 20 turns" },
+                    "Bust a move":               { "note": "Meat +40% / 20 turns" },
+                    "Pick a fight":              { "note": "Init +50% / 20 turns" }
+                }
+            },
+            "Bait and Switch":        { "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } } },
+            "The Thin Tie-Dyed Line": { "choiceText": { "The Barracks Yurt": { "note": "Fight" } } }
+        }
+    },
+    {
         "zone": "The Mer-Kin Outpost",
         "adventures": {
             "Into the Outpost": {
@@ -742,24 +771,24 @@
     {
         "zone": "Mer-kin Elementary School",
         "adventures": {
-            "Woolly Scaly Bully": { "choiceText": { "Bully the Nerd":           { "tag": "quest" } } },
-            "Bored of Education": { "choiceText": { "Offer to Play Dry Willy":  { "tag": "quest" } } },
-            "A Mer-kin Graffiti": { "choiceText": { "Threaten To Turn Them In": { "tag": "quest" } } },
+            "Woolly Scaly Bully": { "choiceText": { "Bully the Nerd":           { "note": "monitor/sawdust", "tag": "quest" } } },
+            "Bored of Education": { "choiceText": { "Offer to Play Dry Willy":  { "note": "teacher/cancerstick", "tag": "quest" } } },
+            "A Mer-kin Graffiti": { "choiceText": { "Threaten To Turn Them In": { "note": "punisher/wordquiz", "tag": "quest" } } },
             "The Case of the Closet": {
                 "choiceText": {
-                    "Stand (float?) and fight":       { "note": "Fight" },
+                    "Stand (float?) and fight":       { "note": "Fight monitor" },
                     "Duck into the janitor's closet": { "note": "Sawdust" }
                 }
             },
             "No Rest for the Room": {
                 "choiceText": {
-                    "Stand and deliver":                { "note": "Fight" },
+                    "Stand and deliver":                { "note": "Fight teacher" },
                     "Lean on the Door to the Bathroom": { "note": "Cancerstick" }
                 }
             },
             "Raising Cane": {
                 "choiceText": {
-                    "Rage against the Mer-kin Punisher":   { "note": "Fight" },
+                    "Rage against the Mer-kin Punisher":   { "note": "Fight punisher" },
                     "Lounge against the Mer-kin Teachers": { "note": "Quiz, facecowl, waistrobe" }
                 }
             },
@@ -769,6 +798,20 @@
                     "Go to the janitor's closet":                { "note": "Sawdust" },
                     "Head to the bathroom":                      { "note": "Cancerstick" },
                     "Check out the teacher's lounge":            { "note": "Quiz, facecowl, waistrobe" }
+                }
+            }
+        }
+    },
+    {
+        "zone": "The Daily Dungeon",
+        "adventures": {
+            "The First Chest Isn't the Deepest.": { "choiceText": { "Go through the boring door": { "note": "Shortcut" } } },
+            "Second Chest":                       { "choiceText": { "Go through the boring door": { "note": "Shortcut" } } },
+            "It's Almost Certainly a Trap": { "choiceText": { "Use your eleven-foot pole":  { "note": "Free" } } },
+            "I Wanna Be a Door": {
+                "choiceText": {
+                    "Use a skeleton key": { "note": "Free, may break" },
+                    "Use your lockpicks": { "note": "Free" }
                 }
             }
         }
@@ -812,6 +855,25 @@
                     "Modify the living room lights": { "note": "30 Megawoots" }
                 }
             }
+        }
+    },
+    {
+        "zone": "LavaCo™ Lamp Factory",
+        "adventures": {
+            "The Floor Is Yours": {
+                "choiceText": {
+                    "Use the wire puller":       { "note": "1,970 -> gold wire" },
+                    "Use the kiln":              { "note": "Heal Crystal -> Empty Bottle" },
+                    "Use the squirter":          { "note": "Empty Bottle -> Full Bottle" },
+                    "Use the glob dyer":         { "note": "Viscous Glob -> Colored Glob" },
+                    "Use the bulber":            { "note": "Glowing Crystal -> Light Bulb" },
+                    "Use the chassis assembler": { "note": "Craft Housing" },
+                    "Sabotage the machine":      { "note": "Fused Fuse quest item" },
+                    "Leave the machine alone":   { "note": "Free runaway" }
+                }
+            },
+            "Bait and Switch":        { "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } } },
+            "The Thin Tie-Dyed Line": { "choiceText": { "The Barracks Yurt": { "note": "Fight" } } }
         }
     },
     {

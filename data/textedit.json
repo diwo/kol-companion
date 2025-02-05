@@ -28,6 +28,19 @@
         ]
     },
     {
+        "conditions": [{ "url": "/fight.php", "pageText": "twirl the lasso" }],
+        "edits": [
+            { "text": "clumsily",  "highlight": { "bold": true, "color": "red" } },
+            { "text": "carefully", "highlight": { "bold": true, "color": "orangered" } },
+            { "text": "deftly",    "highlight": { "bold": true, "color": "orange" } },
+            { "text": "expertly",  "highlight": { "bold": true, "color": "#14A000", "underline": true } }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/fight.php", "pageText": "You win the fight" }],
+        "edits": [ { "text": "Mer-kin lockkey",  "highlight": true } ]
+    },
+    {
         "conditions": [{ "url": "/questlog.php" }],
         "edits": [
             {
@@ -68,7 +81,7 @@
             },
             {
                 "text": "and the Quest for the Holy MacGuffin", "highlight": { "color":"maroon" },
-                "insertAfter": { "text": "(Lv11)", "style": { "color":"maroon", "marginLeft": 2 } }
+                "insertAfter": { "text": "(Lv11)", "style": { "color":"maroon", "marginLeft": 3 } }
             },
             {
                 "text": "Black to the Future", "highlight": { "color":"maroon" },
@@ -96,6 +109,10 @@
             },
             {
                 "text": "Just Deserts", "highlight": { "color":"maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "A Pyramid Scheme", "highlight": { "color":"maroon" },
                 "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
