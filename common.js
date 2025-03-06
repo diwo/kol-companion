@@ -76,8 +76,9 @@ async function editPageText() {
             let insertAfter = decorateTextWithStyle(edit.insertAfter?.text || "", edit.insertAfter?.style);
             let replaceString = insertBefore + matchedString + insertAfter;
 
+            let translatedText = edit.text.toLowerCase().replaceAll('"', "'");
             let matches = evaluateToNodesArray(
-                `.//*[text()[contains(${xpathToLowercase(".")}, ${xpathToLowercase(`"${edit.text}"`)})]]`,
+                `.//*[text()[contains(translate(${xpathToLowercase(".")}, '"', "'"), "${translatedText}")]]`,
                 {contextNode: document.body});
             for (let match of matches) {
                 if (match.tagName == "SCRIPT" || match.tagName == "STYLE") continue;
