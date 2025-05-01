@@ -208,7 +208,9 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
     if (!inventory) inventory = getInventoryNodeTree();
     if (!itemDataMap) itemDataMap = await getInventoryItemDataMap(inventory);
 
-    let regex = new RegExp(pattern, "i");
+    let nameOnly = pattern.startsWith("name:");
+    let untaggedPattern = nameOnly ? pattern.slice("name:".length) : pattern;
+    let regex = new RegExp(untaggedPattern, "i");
     let show = node => node.classList.remove("filtered");
     let hide = node => node.classList.add("filtered");
 
@@ -219,7 +221,7 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
             let showRow = false;
             for (let col of row.columns) {
                 let description = itemDataMap[col.itemId]?.description || "";
-                let showCol = !pattern.length || col.itemName.match(regex) || description.match(regex);
+                let showCol = !pattern.length || col.itemName.match(regex) || (!nameOnly && description.match(regex));
                 showCol ? show(col.element) : hide(col.element);
                 if (showCol) showRow = true;
             }
