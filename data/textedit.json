@@ -1,30 +1,30 @@
 [
     {
-        "conditions": [{ "url": "/fight.php", "lastAdventure": "Next to that Barrel with Something Burning in it", "pageText": "fighting a batwinged gremlin" }],
-        "edits": [
-            { "text": "hammer", "highlight": true },
-            { "text": "a batwinged gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
-        ]
-    },
-    {
-        "conditions": [{ "url": "/fight.php", "lastAdventure": "Over Where the Old Tires Are", "pageText": "fighting an erudite gremlin" }],
+        "conditions": [{ "url": "/fight.php", "html": "<!-- MONSTERID: 547 -->", "_comment": "erudite gremlin" }],
         "edits": [
             { "text": "wrench", "highlight": true },
             { "text": "an erudite gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
         ]
     },
     {
-        "conditions": [{ "url": "/fight.php", "lastAdventure": "Near an Abandoned Refrigerator", "pageText": "fighting a spider gremlin" }],
+        "conditions": [{ "url": "/fight.php", "html": "<!-- MONSTERID: 549 -->", "_comment": "batwinged gremlin" }],
         "edits": [
-            { "text": "pliers", "highlight": true },
-            { "text": "a spider gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+            { "text": "hammer", "highlight": true },
+            { "text": "a batwinged gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
         ]
     },
     {
-        "conditions": [{ "url": "/fight.php", "lastAdventure": "Out by that Rusted-Out Car", "pageText": "fighting a vegetable gremlin" }],
+        "conditions": [{ "url": "/fight.php", "html": "<!-- MONSTERID: 551 -->", "_comment": "vegetable gremlin" }],
         "edits": [
             { "text": "screwdriver", "highlight": true },
             { "text": "a vegetable gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/fight.php", "html": "<!-- MONSTERID: 553 -->", "_comment": "spider gremlin" }],
+        "edits": [
+            { "text": "pliers", "highlight": true },
+            { "text": "a spider gremlin", "insertAfter": { "text": "(quest)", "style": { "marginLeft": 2, "color": "darkviolet", "bold": true, "fontSize": 0.9 } } }
         ]
     },
     {

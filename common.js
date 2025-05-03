@@ -56,9 +56,10 @@ async function editPageText() {
         let conditionsMatched = true;
         if (rule.conditions) {
             for (let condition of rule.conditions) {
-                if (condition.url && condition.url != pathname) conditionsMatched = false;
-                if (condition.lastAdventure && condition.lastAdventure != lastAdventure) conditionsMatched = false;
-                if (condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
+                if (conditionsMatched && condition.url && condition.url != pathname) conditionsMatched = false;
+                if (conditionsMatched && condition.html && !document.body.innerHTML.includes(condition.html)) conditionsMatched = false;
+                if (conditionsMatched && condition.lastAdventure && condition.lastAdventure != lastAdventure) conditionsMatched = false;
+                if (conditionsMatched && condition.pageText && !document.body.innerText.match(RegExp(condition.pageText, "i"))) conditionsMatched = false;
             }
         }
         if (!conditionsMatched) continue;
