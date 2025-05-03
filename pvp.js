@@ -4,9 +4,6 @@ function handlePvp() {
         addMarketLinksToPvpLogs();
     }
 
-    let observer = new MutationObserver(() => clickLink(/fast-forward results/));
-    observer.observe(document.body, {childList: true, subtree: true});
-
     bindKey("`", () => clickButton(/A Fighter is You!/));
 
     addPriceToAdventureRewardItems();
