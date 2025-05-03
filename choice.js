@@ -16,14 +16,19 @@ async function addAdventureChoiceNotes() {
             "./ancestor::table/tbody/tr[1]/td[1][@align='center']/b",
             button).iterateNext()?.innerText;
         let choiceText = button.value;
+
+        // TODO: search from form ancestor element
         let optionNum = parseInt(document.evaluate(
             "./input[@name='option']",
-            button.parentElement).iterateNext()?.value || 0); // TODO: search from form ancestor element
+            button.parentElement).iterateNext()?.value || 0);
+        let bandersnatch = document.evaluate(
+            "./input[@name='bandersnatch']",
+            button.parentElement).iterateNext()?.value;
 
         let adventure = adventureData[adventureName];
         if (!adventure) adventure = adventureData["*"];
 
-        let choice = matchAdventureChoice(adventure, choiceText, optionNum);
+        let choice = matchAdventureChoice(adventure, choiceText, optionNum, bandersnatch);
         let note = choice?.note;
         let tag = choice?.tag;
 
@@ -109,12 +114,15 @@ function isAdventureConditionMatch(adventure) {
     return true;
 }
 
-function matchAdventureChoice(adventure, choiceText, optionNum) {
+function matchAdventureChoice(adventure, choiceText, optionNum, bandersnatch) {
     let choiceTextMatch = adventure?.choiceText?.[choiceText];
     if (choiceTextMatch) return choiceTextMatch;
 
     let optionNumMatch = adventure?.optionNum?.[optionNum];
     if (optionNumMatch) return optionNumMatch;
+
+    let bandersnatchMatch = adventure?.bandersnatch?.[bandersnatch];
+    if (bandersnatchMatch) return bandersnatchMatch;
 
     return null;
 }

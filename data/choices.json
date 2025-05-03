@@ -901,5 +901,18 @@
                 }
             }
         }
+    },
+    {
+        "url": "/choice.php",
+        "adventures": {
+            "Peering Through Your Peridot": {
+                "bandersnatch": {
+                    "547": { "tag": "quest", "_comment": "erudite gremlin" },
+                    "549": { "tag": "quest", "_comment": "batwinged gremlin" },
+                    "551": { "tag": "quest", "_comment": "vegetable gremlin" },
+                    "553": { "tag": "quest", "_comment": "spider gremlin" }
+                }
+            }
+        }
     }
 ]
