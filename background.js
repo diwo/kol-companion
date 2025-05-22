@@ -5,7 +5,7 @@ async function displayStorage(keyMatcher, valMatcher) {
 }
 
 async function displayItemData(valMatcher) {
-    return displayStorage(k => k.startsWith("item_data_"), valMatcher);
+    return displayStorage(k => k.startsWith(getItemDataKeyPrefix()), valMatcher);
 }
 
 async function deleteStorage(keyMatcher, valMatcher) {
@@ -16,7 +16,7 @@ async function deleteStorage(keyMatcher, valMatcher) {
 }
 
 async function deleteItemPriceCache(valMatcher) {
-    return deleteStorage(key => key.startsWith("item_price_"), valMatcher);
+    return deleteStorage(key => key.startsWith(getItemPriceKeyPrefix()), valMatcher);
 }
 
 async function deleteItemPriceCacheErrorOrNoPrice() {
@@ -27,40 +27,46 @@ async function deleteItemPriceCacheErrorOrNoPrice() {
     });
 }
 
-async function exportItemPrice() {
-    return exportStorageToClipboard(/^item_price_/);
+async function scanStorageItemPrice() {
+    return scanStorage(k => k.startsWith(getItemPriceKeyPrefix()));
 }
 
-async function exportItemData() {
-    return exportStorageToClipboard(/^item_data_/);
+async function scanStorageItemData() {
+    return scanStorage(k => k.startsWith(getItemDataKeyPrefix()));
 }
 
-async function exportEffectData() {
-    return exportStorageToClipboard(/^effect_data_/);
+async function scanStorageEffectData() {
+    return scanStorage(k => k.startsWith(getEffectDataKeyPrefix()));
 }
 
-async function exportMallLinks() {
-    return exportStorageToClipboard(/^mall_links$/);
+async function scanStorageMallLinks() {
+    return scanStorage(k => k == getMallLinksKey());
 }
 
-async function exportStorageToClipboard(keyMatcher) {
-    let fetched = await browser.storage.local.get(null);
-    let keyVals = {};
-    for (let key of Object.keys(fetched)) {
-        if (key.match(keyMatcher)) {
-            keyVals[key] = fetched[key];
-        }
-    }
-    let json = JSON.stringify(keyVals);
-    navigator.clipboard.writeText(json);
+async function writeObjectToClipboard(obj) {
+    let json = JSON.stringify(obj);
+    await navigator.clipboard.writeText(json);
     console.log("Exported to clipboard");
 }
 
+async function exportCacheToClipboard() {
+    let data = {
+        "item_price": await scanStorageItemPrice(),
+        "item_data": await scanStorageItemData(),
+        "effect_data": await scanStorageEffectData(),
+        "mall_links": await scanStorageMallLinks(),
+    };
+    return writeObjectToClipboard(data);
+}
+
 async function importCacheFromBackup() {
-    await importDataFile("data/local/item_price.json", "item price", kv => Object.keys(kv).length);
-    await importDataFile("data/local/item_data.json", "item data", kv => Object.keys(kv).length);
-    await importDataFile("data/local/effect_data.json", "effect data", kv => Object.keys(kv).length);
-    await importDataFile("data/local/mall_links.json", "mall links", kv => Object.values(kv)[0].length);
+    let response = await fetch(browser.runtime.getURL("data/local/exported_backup.json"));
+    let data = await response.json();
+
+    for (let category of Object.keys(data)) {
+        await browser.storage.local.set(data[category]);
+        console.log(`Imported ${Object.keys(data[category]).length} entries from ${category}`);
+    }
 }
 
 async function importDataFile(path, type, countEntries) {

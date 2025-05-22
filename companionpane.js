@@ -1,4 +1,4 @@
-const mallLinksKey = "mall_links";
+const mallLinksKey = getMallLinksKey();
 let mallLinks = [];
 
 initSearchMallSection();

@@ -554,15 +554,31 @@ async function getEffectData(effectId) {
 }
 
 function getItemPriceKey(itemId) {
-    return `item_price_${itemId}`;
+    return getItemPriceKeyPrefix() + itemId;
 }
 
 function getItemDataKey(itemId) {
-    return `item_data_${itemId}`;
+    return getItemDataKeyPrefix() + itemId;
 }
 
 function getEffectDataKey(effectId) {
-    return `effect_data_${effectId}`;
+    return getEffectDataKeyPrefix() + effectId;
+}
+
+function getMallLinksKey() {
+    return "mall_links";
+}
+
+function getItemPriceKeyPrefix() {
+    return "item_price_";
+}
+
+function getItemDataKeyPrefix() {
+    return "item_data_";
+}
+
+function getEffectDataKeyPrefix() {
+    return "effect_data_";
 }
 
 function isTradableItemFlags(itemFlags) {
