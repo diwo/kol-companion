@@ -26,6 +26,7 @@
                 "fight.js",
                 "charpane.js",
                 "description.js",
+                "loggedout.js",
                 "kol.js"
             ],
             "all_frames": true

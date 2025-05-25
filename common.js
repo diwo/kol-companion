@@ -415,8 +415,8 @@ function clickLink(textPattern) {
 }
 
 function _click(xpath, extractText, textPattern) {
-    let mainDoc = getPane("mainpane").document;
-    let elems = mainDoc.evaluate(xpath, mainDoc);
+    let doc = getPane("mainpane")?.document || document;
+    let elems = doc.evaluate(xpath, doc);
     let elem = elems.iterateNext();
     while (elem) {
         if (isVisible(elem) && extractText(elem).match(textPattern)) {

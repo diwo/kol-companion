@@ -40,6 +40,9 @@ switch (pathname) {
     case "/desc_guardian.php":
         handleDescriptionPage();
         break;
+    case "/loggedout.php":
+        handleLoggedOutPage();
+        break;
     default:
         addPriceToAdventureRewardItems();
 }
