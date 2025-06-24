@@ -109,7 +109,7 @@ async function saveSearchMallTerm(searchTerm) {
 }
 
 async function deleteSearchMallTerm(searchTerm) {
-    mallLinks = mallLinks.filter(quicklink => quicklink.toLowerCase() != searchTerm.toLowerCase());
+    mallLinks = mallLinks.filter(quicklink => quicklink.toLowerCase().trim() != searchTerm.toLowerCase().trim());
     browser.storage.local.set({[mallLinksKey]: mallLinks});
 }
 
