@@ -4,9 +4,14 @@ function handlePvp() {
         addMarketLinksToPvpLogs();
     }
 
-    bindKey("`", () => clickButton(/A Fighter is You!/));
+    bindKey("`", fightPvP);
+    document.addEventListener("fight-pvp", fightPvP);
 
     addPriceToAdventureRewardItems();
+}
+
+function fightPvP() {
+    clickButton(/A Fighter is You!/);
 }
 
 function addMarketLinksToPvpLogs() {

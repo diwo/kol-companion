@@ -50,6 +50,7 @@ function initCompanionPane() {
 
     getPane("companionpane", {id: "mine-gold"}).addEventListener("click", mineGold);
     getPane("companionpane", {id: "farm-dust-bunnies"}).addEventListener("click", farmDustBunnies);
+    getPane("companionpane", {id: "fight-pvp"}).addEventListener("click", autoFightPvP);
     getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
     getPane("companionpane", {id: "preset-soulfood"}).addEventListener("click",
@@ -152,6 +153,37 @@ async function farmDustBunnies() {
                 withDelay(() => clickButton(/Visit some empty buildings/)),
                 // withDelay(() => clickButton(/Nevermind/), 2000),
             ]));
+        }
+        resultElem.innerText = "Finished";
+    } catch (e) {
+        resultElem.innerText = e;
+        console.log(e);
+    }
+    stop();
+}
+
+async function autoFightPvP() {
+    let ctx = start();
+    if (!ctx) return stop();
+
+    let resultElem = getPane("companionpane", {id: "fight-pvp-result"});
+
+    try {
+        let isDone = async () => await exec(ctx, withRetry(() => {
+            let mainpane = getPane("mainpane");
+            return mainpane.document.body.innerText.match(/You're out of fights/);
+        }));
+        while (!await isDone()) {
+            let mainDoc = getPane("mainpane").document;
+            let pathname = getPathName(mainDoc);
+            if (pathname == "/peevpee.php") {
+                resultElem.innerText = "Running";
+                mainDoc.dispatchEvent(new Event("fight-pvp"));
+                await sleep(600, ctx);
+            } else {
+                resultElem.innerText = "Waiting";
+                await sleep(1000, ctx);
+            }
         }
         resultElem.innerText = "Finished";
     } catch (e) {
