@@ -25,6 +25,24 @@
         }
     },
     {
+        "zone": "The Overgrown Lot",
+        "adventures": {
+            "Lots of Options": { "choiceText": { "Let sleeping oysters lie": { "note": "Free runaway" } } }
+        }
+    },
+    {
+        "zone": "The Skeleton Store",
+        "adventures": {
+            "Temporarily Out of Skeletons": { "choiceText": { "Just leave": { "note": "Free runaway" } } }
+        }
+    },
+    {
+        "zone": "Madness Bakery",
+        "adventures": {
+            "Heart of Madness": { "choiceText": { "Opt out of the madness": { "note": "Free runaway" } } }
+        }
+    },
+    {
         "zone": "The Spooky Forest",
         "adventures": {
             "Arboreal Respite": {
@@ -493,15 +511,15 @@
         "adventures": {
             "Copper Feel": {
                 "choiceText": {
-                    "Harrumph in Disdain":  { "note": "Unlock with model airship", "tag": "quest" },
-                    "Investigate the Whirligigs and Gimcrackery": { "note": "Steam-powered model rocketship", "tag": "quest" },
+                    "Harrumph in Disdain":  { "note": "Unlock with model airship, or fight Steampunk", "tag": "quest" },
+                    "Investigate the Whirligigs and Gimcrackery": { "note": "Get rocketship, or free runaway", "tag": "quest" },
                     "Grab a Gear":          { "note": "Brass gear" },
                     "Go through the Crack": { "note": "To Melon Collie", "to": "Melon Collie and the Infinite Lameness" }
                 }
             },
             "Melon Collie and the Infinite Lameness": {
                 "choiceText": {
-                    "End His Suffering":   { "note": "Fight" },
+                    "End His Suffering":   { "note": "Fight Goth" },
                     "Change up the Music": { "note": "Unlock with DnB record", "tag": "quest" },
                     "Snag some Candles":   { "note": "3 thin black candles" },
                     "Gimme Steam":         { "note": "To Copper Feel", "to": "Copper Feel" }
@@ -509,7 +527,7 @@
             },
             "Yeah, You're for Me, Punk Rock Giant": {
                 "choiceText": {
-                    "Get the Punk's Attention":   { "note": "Unlock with mohawk", "tag": "quest" },
+                    "Get the Punk's Attention":   { "note": "Unlock with mohawk, or fight Punk Rock", "tag": "quest" },
                     "Dig Through His Drawers":    { "note": "450-550  Meat" },
                     "Check behind the trash can": { "note": "To Copper Feel", "to": "Copper Feel" },
                     "Look Behind the Poster":     { "note": "To Flavor of a Raver", "to": "Flavor of a Raver" }
@@ -517,7 +535,7 @@
             },
             "Flavor of a Raver": {
                 "choiceText": {
-                    "Pick a Fight":   { "note": "Fight" },
+                    "Pick a Fight":   { "note": "Fight Raver" },
                     "Breathe Deeply": { "note": "Restore 1000 HP/MP" },
                     "Raid the Crate": { "note": "DnB record" },
                     "Check Behind the Giant Poster": { "note": "To Punk Rock", "to": "Yeah, You're for Me, Punk Rock Giant" }
@@ -906,6 +924,10 @@
         "url": "/choice.php",
         "adventures": {
             "Peering Through Your Peridot": {
+                "choiceText": {
+                    "an animated ornate nightstand":  { "note": "specs / camera", "tag": "quest" },
+                    "an elegant animated nightstand": { "note": "gown", "tag": "quest" }
+                },
                 "bandersnatch": {
                     "547": { "tag": "quest", "_comment": "erudite gremlin" },
                     "549": { "tag": "quest", "_comment": "batwinged gremlin" },

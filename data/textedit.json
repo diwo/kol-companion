@@ -1,5 +1,13 @@
 [
     {
+        "conditions": [{ "url": "/fight.php", "pageText": "You win the fight" }],
+        "edits": [
+            { "text": "Spookyraven billiards room key",  "highlight": true },
+            { "text": "Lady Spookyraven's necklace",  "highlight": true },
+            { "text": "Mer-kin lockkey",  "highlight": true }
+        ]
+    },
+    {
         "conditions": [{ "url": "/fight.php", "html": "<!-- MONSTERID: 547 -->", "_comment": "erudite gremlin" }],
         "edits": [
             { "text": "wrench", "highlight": true },
@@ -37,91 +45,312 @@
         ]
     },
     {
-        "conditions": [{ "url": "/fight.php", "pageText": "You win the fight" }],
-        "edits": [ { "text": "Mer-kin lockkey",  "highlight": true } ]
-    },
-    {
         "conditions": [{ "url": "/questlog.php" }],
         "edits": [
             {
-                "text": "Looking for a Larva in All the Wrong Places", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv2]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Looking for a Larva in All the Wrong Places", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv2]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Ooh, I Think I Smell a Rat", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv3]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Ooh, I Think I Smell a Rat", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv3]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Ooh, I Think I Smell a Bat.", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv4]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Ooh, I Think I Smell a Bat.", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv4]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "The Goblin Who Wouldn't Be King", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv5]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "The Goblin Who Wouldn't Be King", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv5]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Trial By Friar", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv6]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Trial By Friar", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv6]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Cyrptic Emanations", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv7]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Cyrptic Emanations", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv7]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Am I my Trapper's Keeper?", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv8]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Am I my Trapper's Keeper?", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv8]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "There Can Be Only One Topping", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv9]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "There Can Be Only One Topping", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv9]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "The Rain on the Plains is Mainly Garbage", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv10]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "The Rain on the Plains is Mainly Garbage", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv10]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "and the Quest for the Holy MacGuffin", "highlight": { "color":"maroon" },
-                "insertAfter": { "text": "(Lv11)", "style": { "color":"maroon", "marginLeft": 3 } }
+                "text": "and the Quest for the Holy MacGuffin", "highlight": { "color": "maroon" },
+                "insertAfter": { "text": "(Lv11)", "style": { "color": "maroon", "marginLeft": 3 } }
             },
             {
-                "text": "Black to the Future", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Black to the Future", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Gotta Worship Them All", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Gotta Worship Them All", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "In a Manor of Spooking", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "In a Manor of Spooking", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Of Mice and Shen", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Of Mice and Shen", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Merry-Go-Ron", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Merry-Go-Ron", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Never Odd Or Even", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Never Odd Or Even", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Just Deserts", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Just Deserts", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "A Pyramid Scheme", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv11]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "A Pyramid Scheme", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv11]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "Make War, Not... Oh, Wait", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv12]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "Make War, Not... Oh, Wait", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv12]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
             },
             {
-                "text": "The Ultimate Final Epic Conflict of the Ages", "highlight": { "color":"maroon" },
-                "insertBefore": { "text": "[Lv13]", "style": { "color":"maroon", "marginRight": 2, "fontSize": 0.9 } }
+                "text": "The Ultimate Final Epic Conflict of the Ages", "highlight": { "color": "maroon" },
+                "insertBefore": { "text": "[Lv13]", "style": { "color": "maroon", "marginRight": 2, "fontSize": 0.9 } }
+            }
+        ]
+    },
+    {
+        "conditions": [{ "url": "/bounty.php" }],
+        "edits": [
+            {
+                "text": "beanbats in the Beanbat Chamber",
+                "insertAfter": { "text": "(3 monsters, screambat/8)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Knob Goblin Barbecue Teams in the Outskirts of Cobb's Knob",
+                "insertAfter": { "text": "(4 monsters, 79% combat)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "cooler winos in the Overgrown Lot",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "mad scientists in the Cobb's Knob Laboratory",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Gnollish Plungermasters in the Degrassi Knoll Restroom",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Knob Goblin Bean Counters in the Cobb's Knob Treasury",
+                "insertAfter": { "text": "(3 monsters, 84% combat)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "mariachi calaveras, South of the Border",
+                "insertAfter": { "text": "(5 monsters, 50% combat)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "novelty tropical skeletons in the Skeleton Store",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "unemployed Knob Goblins in the Typical Tavern",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "big creepy spiders in the Sleazy Back Alley",
+                "insertAfter": { "text": "(4 monsters, 79% combat)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "creepy clowns in the \"Fun\" House",
+                "insertAfter": { "text": "(6 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "one-eyed Gnolls in the Degrassi Knoll Gym",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "anglerbushes in the Haunted Conservatory of Spookyraven Manor",
+                "insertAfter": { "text": "(6 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "briefcase bats in Guano Junction",
+                "insertAfter": { "text": "(6 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "paper towelgeists in the Haunted Kitchen of Spookyraven Manor",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "albino bats in the Bat Hole Entrance",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "triffids in the Spooky Forest",
+                "insertAfter": { "text": "(6 monsters, 85% combat)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "fiendish cans of asparagus in the Haunted Pantry",
+                "insertAfter": { "text": "(4 monsters, 81% combat)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "gingerbread murderers in Madness Bakery",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "portly abominations on the third level of Cobb's Knob Menagerie",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "rolling stones in The Oasis",
+                "insertAfter": { "text": "(hydration)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Taco Cats in The Palindome",
+                "insertAfter": { "text": "(7 monsters, 85% combat)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "black panthers in the Black Forest",
+                "insertAfter": { "text": "(5 monsters, 95% combat)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "MagiMechTech MechaMechs on the Penultimate Fantasy Airship",
+                "insertAfter": { "text": "(6 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Ninja Snowman Janitors on Mt. McLargeHuge",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Raver Giants in the Castle in the Clouds in the Sky",
+                "insertAfter": { "text": "(4 monsters, 95% combat, scheduled NC)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "sommeliers in the Haunted Wine Cellar of Spookyraven Manor",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "locusts in the Arid, Extra-Dry Desert",
+                "insertAfter": { "text": "(hydration)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "bartenders at the Copperhead Club",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "pipelayers in the Smut Orc Logging Camp",
+                "insertAfter": { "text": "(4* monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "cubist bulls in the Haunted Gallery of Spookyraven Manor",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "astronomers in the Hole in the Sky",
+                "insertAfter": { "text": "(10 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Neckbeard Giants in the Castle in the Clouds in the Sky",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "model skeletons in the Haunted Laboratory of Spookyraven Manor",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "creepy dolls in the Haunted Nursery of Spookyraven Manor",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "claw-foot bathtubs in the Haunted Bathroom of Spookyraven Manor",
+                "insertAfter": { "text": "(3 monsters, 90% combat)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "pygmy witch accountants in the Hidden City",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "eXtreme Orcish snowboarders on Mt. McLargeHuge",
+                "insertAfter": { "text": "(3 monsters, 95% combat w/ outfit)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "warty pirates on the Poop Deck",
+                "insertAfter": { "text": "(5 monsters, gated)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "kobolds in the Dungeons of Doom",
+                "insertAfter": { "text": "(5 monsters, 69% combat)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "rage flames in Anger Man's Level",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "filthy pirates on the Pirates of the Garbage Barges ride",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "ice concierges at the Ice Hotel",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "roller-skating Muses in the Stately Pleasure Dome",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "grizzled survivors in the Domed City of Grimacia",
+                "insertAfter": { "text": "(6 monsters)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "lava golems in the LavaCo™ Lamp Factory",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "Sorrowful Hickories in the Clumsiness Grove",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "salaminders in the Nightmare Meatrealm",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "burgers in the Sloppy Seconds Diner",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "country bats in An Incredibly Strange Place",
+                "insertAfter": { "text": "(5 monsters)", "style": { "color": "orangered", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "wasps in wigs in the Red Queen's Garden",
+                "insertAfter": { "text": "(4 monsters)", "style": { "color": "darkkhaki", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "velvet underground dwellers in Mt. Molehill",
+                "insertAfter": { "text": "(forced adventures)", "style": { "color": "red", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "jungle baboons in the Jungles of Ancient Loathing",
+                "insertAfter": { "text": "(3 monsters)", "style": { "color": "green", "bold": true, "marginLeft": 2, "fontSize": 0.9 } }
+            },
+            {
+                "text": "lucky cat statues in the Chinatown Shops",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
+            },
+            {
+                "text": "lab monkeys in the Secret Government Laboratory",
+                "insertAfter": { "text": "(expensive)", "style": { "bold": true, "marginLeft": 2, "fontSize": 0.9, "color": "red" } }
             }
         ]
     }
