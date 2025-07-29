@@ -44,6 +44,7 @@ function initCompanionPane() {
     getPane("companionpane").addEventListener("contextmenu", handleEventToggleCompanionPane);
 
     getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));
+    getPane("companionpane", {id: "combat-macro-clear"}).addEventListener("click", () => setCompanionPaneText("combat-macro"));
     getPane("companionpane", {id: "while-text-clear"}).addEventListener("click", () => setCompanionPaneText("while-text"));
     getPane("companionpane", {id: "after-adv-cmd-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd"));
     getPane("companionpane", {id: "after-adv-cmd-text-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd-text"));
@@ -53,10 +54,8 @@ function initCompanionPane() {
     getPane("companionpane", {id: "fight-pvp"}).addEventListener("click", autoFightPvP);
     getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
-    getPane("companionpane", {id: "preset-soulfood"}).addEventListener("click",
-        () => applyPreset({whileText: "", afterAdvCmd: "/cast 20 Soul Food", afterAdvCmdText: "Soulsauce:	100"}));
-    getPane("companionpane", {id: "preset-hospital"}).addEventListener("click",
-        () => applyPreset({whileText: "", afterAdvCmd: "/closet 1 head mirror", afterAdvCmdText: "pygmy witch surgeon"}));
+    getPane("companionpane", {id: "preset-chroner"}).addEventListener("click",
+        () => applyPreset({combatMacro: "Chroner"}));
 
     // getPane("companionpane", {id: "test-button"})
     //     .addEventListener("click", async () => {
@@ -234,7 +233,7 @@ async function readventure() {
                 }
             } else if (isCombat) {
                 resultElem.innerText = "Running";
-                await exec(ctx, withDelay(useCombatAction));
+                await exec(ctx, withDelay(autoCombat));
             } else {
                 let success = await exec(ctx, withDelay(chooseAdventureOption));
                 if (!success) {
@@ -256,10 +255,19 @@ function setCompanionPaneText(elemId, newText = "") {
     getPane("companionpane", {id: elemId}).value = newText;
 }
 
-function applyPreset({whileText, afterAdvCmd, afterAdvCmdText} = {}) {
+function applyPreset({combatMacro, whileText, afterAdvCmd, afterAdvCmdText} = {}) {
+    setCompanionPaneText("combat-macro", (combatMacro || ""));
     setCompanionPaneText("while-text", (whileText || ""));
     setCompanionPaneText("after-adv-cmd", (afterAdvCmd || ""));
     setCompanionPaneText("after-adv-cmd-text", (afterAdvCmdText || ""));
+}
+
+function autoCombat() {
+    let macroName = getPane("companionpane", {id: "combat-macro"}).value;
+    if (macroName) {
+        return withDelay(executeMacro(macroName), 1000);
+    }
+    return useCombatAction();
 }
 
 function useCombatAction() {
@@ -333,6 +341,13 @@ function useItem(itemName) {
     return sequence([
         () => select("whichitem", itemName),
         () => clickButton(/Use Item/),
+    ], {stopOnError: true});
+}
+
+function executeMacro(macroName) {
+    return sequence([
+        () => select("whichmacro", macroName),
+        () => clickButton(/Execute Macro/),
     ], {stopOnError: true});
 }
 

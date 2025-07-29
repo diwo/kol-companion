@@ -14,23 +14,28 @@
     #searchmall input { width: 90% }
 </style>
 
+<!-- <div><a id="test-button" href="#">Test Button</a></div><hr/> -->
+
 <div class="section">
     <div class="subsection">
-        <input type="checkbox" id="stop-mp-low" checked />Stop if MP low<br/>
-        <input type="checkbox" id="stop-mp-full" checked />Stop if MP full<br/>
+        <input type="checkbox" id="stop-mp-low" />Stop if MP low<br/>
+        <input type="checkbox" id="stop-mp-full" />Stop if MP full<br/>
         <input type="checkbox" id="spend-mp-buff" />Spend MP with /buff<br/>
-        <input type="checkbox" id="use-steal" checked />Use Steal<br/>
+        <input type="checkbox" id="use-steal" />Use Steal<br/>
         <input type="checkbox" id="use-stun" />Use Stun<br/>
     </div>
     <div class="subsection">
-        <div>Until Turn: <div><input id="until-turn" type="text" style="width:90%"/><input id="until-turn-clear" type="button" value="x"/></div>
-    </div>
-    <div class="subsection">
+        <div>Until Turn: <input id="until-turn" type="text" style="width:50px"/><input id="until-turn-clear" type="button" value="x"/></div>
+        <div>Combat Macro: <input id="combat-macro" type="text" style="width:90%"/><input id="combat-macro-clear" type="button" value="x"/></div>
         <div>While text: <input id="while-text" type="text" style="width:90%"/><input id="while-text-clear" type="button" value="x"/></div>
-    </div>
-    <div class="subsection">
         <div>After Adv. Cmd: <input id="after-adv-cmd" type="text" style="width:90%"/><input id="after-adv-cmd-clear" type="button" value="x"/></div>
         <div>Cmd Only If Text: <input id="after-adv-cmd-text" type="text" style="width:90%"/><input id="after-adv-cmd-text-clear" type="button" value="x"/></div>
+    </div>
+    <div class="subsection">
+        <span>Presets:</span>
+        <ul>
+            <li><a id="preset-chroner" href="#">Chroner Farm</a></li>
+        </ul>
     </div>
 </div>
 
@@ -39,17 +44,6 @@
         <a id="re-adventure" href="#">Re-adventure</a><br/>
         <span id="re-adventure-result"></span>
     </div>
-
-    <div class="subsection">
-        <span>Presets:</span>
-        <ul>
-            <li><a id="preset-soulfood" href="#">Soul Food</a></li>
-            <li><a id="preset-hospital" href="#">Hospital</a></li>
-        </ul>
-    </div>
-</div>
-
-<div class="section"></div>
     <div class="subsection">
         <a id="mine-gold" href="#">Mine Gold</a><br/>
         <span id="mine-gold-result"></span>
@@ -68,11 +62,6 @@
     <span>Search Mall: <a class="addlink" href="#">[+]</a></span>
     <ul></ul>
 </div>
-
-<!--
-<hr/>
-<div><a id="test-button" href="#">Test Button</a></div>
--->
 
 <script src="common.js"></script>
 <script src="companionpane.js"></script>
