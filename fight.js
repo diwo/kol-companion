@@ -1,6 +1,6 @@
 function handleFight() {
+    clickLink(/jump to final round/);
     addPriceToAdventureRewardItems();
-
     bindKey("-", () => document.getElementById("button11")?.click());
 
     document.addEventListener("wheel", e => {
