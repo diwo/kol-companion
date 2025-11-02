@@ -32,10 +32,18 @@
             "all_frames": true
         },
         {
-            "matches": ["https://kol.coldfront.net/thekolwiki/index.php/*"],
+            "matches": ["https://wiki.kingdomofloathing.com/*"],
             "js": [
                 "common.js",
                 "wiki.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://kol.coldfront.net/thekolwiki/index.php/*"],
+            "js": [
+                "common.js",
+                "oldwiki.js"
             ],
             "all_frames": true
         }
@@ -52,6 +60,7 @@
         "alarms",
         "clipboardWrite",
         "https://www.kingdomofloathing.com/desc_item.php",
-        "*://kol.coldfront.net/*"
+        "https://wiki.kingdomofloathing.com/*",
+        "https://kol.coldfront.net/*"
     ]
 }

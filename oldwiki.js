@@ -1,25 +1,26 @@
-handleWiki();
+handleOldWiki();
 
-function handleWiki() {
+function handleOldWiki() {
     let infobox = document.getElementsByClassName("infobox")?.[0];
     if (infobox) {
         let lines = infobox.innerText.split("\n").map(line => line.replace(/\s+/g, " "));
         let matches = lines.map(line => line.match(/Item number: (\d+)/)).filter(m => !!m);
         if (matches.length) {
             let itemId = parseInt(matches[0][1]);
-            handleWikiItemPage(itemId);
+            handleOldWikiItemPage(itemId);
         }
     }
 
+    let contentTextNode = document.getElementById("mw-content-text");
+    let thingName = document.evaluate("./table[1]/tbody/tr[1]/td[1]//p/b", contentTextNode).iterateNext()?.innerText;
     let pageTitle = document.getElementById("firstHeading")?.innerText;
-    let itemName = getWikiItemNameNode()?.innerText;
-    let copyText = itemName || pageTitle;
+    let copyText = thingName || pageTitle;
     if (copyText) {
         bindKey("c", () => navigator.clipboard.writeText(copyText));
     }
 }
 
-function handleWikiItemPage(itemId) {
+function handleOldWikiItemPage(itemId) {
     let marketLink = document.evaluate(
         "//a[translate(text(), '\u00a0', ' ') = 'View market statistics']", document).iterateNext();
     if (marketLink) {
@@ -37,14 +38,14 @@ function handleWikiItemPage(itemId) {
         }
     }
 
-    redrawWikiItemInfoPrice(itemId, {cachedOnly: true}).then(() =>
-        redrawWikiItemInfoPrice(itemId, {cachedOnly: false}));
+    redrawOldWikiItemInfoPrice(itemId, {cachedOnly: true}).then(() =>
+        redrawOldWikiItemInfoPrice(itemId, {cachedOnly: false}));
 }
 
-async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
+async function redrawOldWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
     return redrawPrices([itemId], {cachedOnly},
         (_, flags, average, volume, color, fontStyle) => {
-            let itemNameNode = getWikiItemNameNode();
+            let itemNameNode = document.evaluate("//div[@id='mw-content-text']//tr[1]//td[1]/p/b[1]", document).iterateNext();
             itemNameNode.style.color = color;
             itemNameNode.style.fontStyle = fontStyle;
 
@@ -57,8 +58,4 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
                 }
             }
         });
-}
-
-function getWikiItemNameNode() {
-    return document.evaluate("//div[@id='mw-content-text']//div[contains(@class, 'template-item')]//p/b[1]", document).iterateNext();
 }

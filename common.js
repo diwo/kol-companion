@@ -476,7 +476,7 @@ function openUrl(url) {
 }
 
 function openWiki(searchTerm) {
-    const wikiSearchPrefix = "https://kol.coldfront.net/thekolwiki/index.php?search=";
+    const wikiSearchPrefix = "https://wiki.kingdomofloathing.com/index.php?search=";
     let url = wikiSearchPrefix + encodeURIComponent(searchTerm);
     open(url);
 }
