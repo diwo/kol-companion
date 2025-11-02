@@ -269,8 +269,8 @@ function addInventoryFilterPresets() {
     let filterNode = document.getElementById("filter");
 
     const allFilters = {
-        "-Combat": "less attract",
-        "+Combat": "more attract",
+        "-Combat": "less attracted",
+        "+Combat": "more attracted",
         "Item": "\\+.*item drop",
         "Meat": "\\+.*meat",
         "+ML": "\\+.*monster level",
