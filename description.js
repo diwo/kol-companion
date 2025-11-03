@@ -67,7 +67,7 @@ async function handleDescriptionPage() {
     let searchInventoryElem = document.getElementById("searchinv");
     if (searchInventoryElem) {
         searchInventoryElem.addEventListener("click", () => {
-            searchInventory(thingName);
+            gotoInventory(thingName);
             window.close();
         });
     }

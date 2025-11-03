@@ -53,7 +53,7 @@ function addMarketLinksToPvpLogs() {
             invLink.innerText = "[inv]";
             invLink.onclick = e => {
                 e.preventDefault();
-                searchInventory(itemName);
+                gotoInventory(itemName);
             };
             invLink.style.fontSize = "0.7em";
             invLink.style.marginLeft = "3px";

@@ -389,21 +389,20 @@ function getPseudoMods(mods) {
     return Object.fromEntries(Object.entries(pseudoMods).filter(([_, val]) => val != 0));
 }
 
-function bindKey(keys, action) {
-    let keysMap = {};
-    if (Array.isArray(keys)) {
-        for (let key of keys) {
-            keysMap[key] = true;
-        }
-    } else {
-        keysMap[keys] = true;
-    }
+function bindKey(bindings, action) {
+    if (!Array.isArray(bindings)) bindings = [bindings];
 
-    window.addEventListener("keydown", event => {
-        if (keysMap[event.key]) {
-            action();
-        }
-    });
+    for (let binding of bindings) {
+        let key = binding.key || binding;
+        let modifiers = binding.modifiers || [];
+        window.addEventListener("keydown", event => {
+            let modifiersDown = modifiers.every(m => event.getModifierState(m));
+            if (event.key === key && modifiersDown) {
+                event.preventDefault();
+                action();
+            }
+        });
+    }
 }
 
 function clickButton(textPattern) {
@@ -489,12 +488,24 @@ async function searchMall(searchTerm, {exactMatch} = {}) {
     return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
 }
 
-async function searchInventory(searchTerm) {
-    let searchTermStripped = searchTerm.replace(/[^\x00-\x7F]+/g, "*").replace(/"/g, "*");
-    let searchParams = new URLSearchParams();
-    searchParams.set("ftext", searchTermStripped);
-    let url = `https://www.kingdomofloathing.com/inventory.php?${searchParams.toString()}`;
+async function gotoInventory(searchTerm, inventoryType = "inventory") {
+    let searchParamsString = "";
+    if (searchTerm) {
+        let searchParams = new URLSearchParams();
+        let searchTermStripped = searchTerm.replace(/[^\x00-\x7F]+/g, "*").replace(/"/g, "*");
+        searchParams.set("ftext", searchTermStripped);
+        searchParamsString = "?" + searchParams.toString();
+    }
+    let url = `https://www.kingdomofloathing.com/${inventoryType}.php${searchParamsString}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
+}
+
+async function gotoCloset(searchTerm) {
+    return gotoInventory(searchTerm, "closet");
+}
+
+async function gotoStorage(searchTerm) {
+    return gotoInventory(searchTerm, "storage");
 }
 
 function openPriceCheck(itemId) {
