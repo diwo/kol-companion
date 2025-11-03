@@ -12,10 +12,19 @@ function handleGamePage() {
         companionpane.src = browser.runtime.getURL("companionpane.html");
         document.getElementById("rootset").appendChild(companionpane);
     }
+    companionpane.addEventListener("mouseleave", () => companionpane.pinned || hideCompanionPane());
 
     let chatpane = getPane("chatpane", {returnFrame: true});
-    chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
-    chatpane.onload = () => chatpane.contentWindow.addEventListener("contextmenu", handleEventToggleCompanionPane);
+    let bindChatpaneEvents = () => {
+        chatpane.contentWindow.addEventListener("mousemove", event => {
+            let offsetRight = chatpane.contentWindow.innerWidth - event.clientX;
+            if (!isCompanionPaneVisible() && offsetRight < 10) {
+                showCompanionPane();
+            }
+        });
+    };
+    chatpane.onload = bindChatpaneEvents;
+    bindChatpaneEvents();
 }
 
 function registerCommandReceiver() {
@@ -41,7 +50,7 @@ function registerCommandReceiver() {
 function initCompanionPane() {
     setWindowId(getWindowId(), {window: getPane("companionpane")});
 
-    getPane("companionpane").addEventListener("contextmenu", handleEventToggleCompanionPane);
+    getPane("companionpane").addEventListener("contextmenu", handleCompanionPaneTogglePin);
 
     getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));
     getPane("companionpane", {id: "combat-macro-clear"}).addEventListener("click", () => setCompanionPaneText("combat-macro"));
@@ -63,15 +72,30 @@ function initCompanionPane() {
     //     });
 }
 
-function handleEventToggleCompanionPane(event) {
+function handleCompanionPaneTogglePin(event) {
     event.preventDefault();
+    let companionpane = document.getElementById("companionpane");
+    companionpane.pinned = !companionpane.pinned;
+    if (!companionpane.pinned) hideCompanionPane();
+}
 
+function isCompanionPaneVisible() {
     let rootset = document.getElementById("rootset");
-    let cols = rootset.getAttribute("cols");
-    let colsSplit = cols.split(",");
-    if (colsSplit.length == 3) {
+    return rootset.getAttribute("cols").split(",").length > 3;
+}
+
+function showCompanionPane() {
+    if (!isCompanionPaneVisible()) {
+        let rootset = document.getElementById("rootset");
+        let cols = rootset.getAttribute("cols");
         rootset.setAttribute("cols", cols + ",200");
-    } else {
+    }
+}
+
+function hideCompanionPane() {
+    if (isCompanionPaneVisible()) {
+        let rootset = document.getElementById("rootset");
+        let cols = rootset.getAttribute("cols");
         let colsFirstThree = cols.split(",").splice(0,3).join(",");
         rootset.setAttribute("cols", colsFirstThree);
     }
