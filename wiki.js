@@ -15,7 +15,13 @@ function handleWiki() {
     let itemName = getWikiItemNameNode()?.innerText;
     let copyText = itemName || pageTitle;
     if (copyText) {
-        bindKey("c", () => navigator.clipboard.writeText(copyText));
+        bindKey({key: "c", modifiers: ["Control"]}, () => {
+            let hasSelection = window.getSelection().toString();
+            if (!hasSelection) {
+                navigator.clipboard.writeText(copyText);
+                return true;
+            }
+        });
     }
 }
 

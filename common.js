@@ -398,8 +398,7 @@ function bindKey(bindings, action) {
         window.addEventListener("keydown", event => {
             let modifiersDown = modifiers.every(m => event.getModifierState(m));
             if (event.key === key && modifiersDown) {
-                event.preventDefault();
-                action();
+                if (action()) event.preventDefault();
             }
         });
     }
