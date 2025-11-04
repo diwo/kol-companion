@@ -12,7 +12,11 @@ function handleGamePage() {
         companionpane.src = browser.runtime.getURL("companionpane.html");
         document.getElementById("rootset").appendChild(companionpane);
     }
-    companionpane.addEventListener("mouseleave", () => companionpane.pinned || hideCompanionPane());
+    companionpane.addEventListener("mouseenter", () => {
+        clearTimeout(companionpane.hoverTimeout);
+        companionpane.hoverTimeout = null;
+    });
+    companionpane.addEventListener("mouseleave", hideCompanionPane);
 
     let chatpane = getPane("chatpane", {returnFrame: true});
     let bindChatpaneEvents = () => {
@@ -20,6 +24,11 @@ function handleGamePage() {
             let offsetRight = chatpane.contentWindow.innerWidth - event.clientX;
             if (!isCompanionPaneVisible() && offsetRight < 10) {
                 showCompanionPane();
+                clearTimeout(companionpane.hoverTimeout);
+                companionpane.hoverTimeout = setTimeout(() => {
+                    companionpane.hoverTimeout = null;
+                    hideCompanionPane();
+                }, 10);
             }
         });
     };
@@ -93,7 +102,8 @@ function showCompanionPane() {
 }
 
 function hideCompanionPane() {
-    if (isCompanionPaneVisible()) {
+    let companionpane = document.getElementById("companionpane");
+    if (isCompanionPaneVisible() && !companionpane.pinned) {
         let rootset = document.getElementById("rootset");
         let cols = rootset.getAttribute("cols");
         let colsFirstThree = cols.split(",").splice(0,3).join(",");
