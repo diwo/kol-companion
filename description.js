@@ -52,6 +52,8 @@ async function handleDescriptionPage() {
             addDiv(koliteminfo, 'Volume: <span id="market-volume"><i>loading</i></span>');
         }
 
+        addLevelToStatRequirement();
+
         redrawItemDescriptionPrice(itemId, thingNameNode, {cachedOnly: true}).then(() =>
             redrawItemDescriptionPrice(itemId, thingNameNode, {cachedOnly: false}));
     }
@@ -167,6 +169,21 @@ function addDiv(element, content, styleFunc) {
     }
     element.appendChild(newDiv);
     return newDiv;
+}
+
+function addLevelToStatRequirement() {
+    let descLines = evaluateToNodesArray("//blockquote//text()");
+    let reqNode = descLines.filter(t => t.textContent.match(/(Muscle|Moxie|Mysticality) Required:/))[0]?.nextSibling;
+    let stats = reqNode && parseInt(reqNode.textContent) || 0;
+    if (stats) {
+        let levelMainstat = Math.sqrt(stats - 4) + 1;
+        let levelOffstat = Math.sqrt(stats*Math.sqrt(2) - 4) + 1;
+        const round = x => Math.round(x*10) / 10;
+        let statLevelText = document.createElement("span");
+        statLevelText.textContent = ` (Lv ${round(levelMainstat)} / ${round(levelOffstat)})`;
+        statLevelText.style.fontWeight = "bold";
+        reqNode.parentNode.insertBefore(statLevelText, reqNode.nextSibling);
+    }
 }
 
 async function redrawItemDescriptionPrice(itemId, itemNameNode, {cachedOnly} = {}) {
