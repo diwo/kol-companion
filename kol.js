@@ -32,6 +32,9 @@ switch (pathname) {
     case "/awesomemenu.php":
         handleTopMenu();
         break;
+    case "/mchat.php":
+        handleChatPane();
+        break;
     case "/desc_item.php":
     case "/desc_outfit.php":
     case "/desc_effect.php":

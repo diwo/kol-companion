@@ -15,7 +15,6 @@
             "matches": ["https://www.kingdomofloathing.com/*"],
             "js": [
                 "common.js",
-                "topmenu.js",
                 "game.js",
                 "inventory.js",
                 "backoffice.js",
@@ -25,6 +24,8 @@
                 "choice.js",
                 "fight.js",
                 "charpane.js",
+                "topmenu.js",
+                "mchat.js",
                 "description.js",
                 "loggedout.js",
                 "kol.js"
