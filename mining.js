@@ -14,8 +14,11 @@ function nextAction(grid) {
         return clickButton(/Find New Cavern/);
     }
 
+    let mineVelvet = getPane("companionpane", {id: "mine-gold-velvet"})?.checked;
+    let stopRow = mineVelvet ? 0 : grid.length-2;
+
     let openCount = 0;
-    for (let y=grid.length-1; y>=0; y--) {
+    for (let y=grid.length-1; y>=stopRow; y--) {
         let row = grid[y];
         for (let x=row.length-1; x>=0; x--) {
             let node = row[x];
