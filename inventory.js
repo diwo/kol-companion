@@ -4,6 +4,10 @@ async function handleInventoryPage() {
     bindKey({key: "2", modifiers: ["Control"]}, () => gotoCloset(urlFtext));
     bindKey({key: "3", modifiers: ["Control"]}, () => gotoStorage(urlFtext));
 
+    bindInventoryFilterEvents();
+    addInventoryFilterPresets();
+    bindInventoryOutfitRightClick();
+
     let evaluateResult = document.evaluate('//table[@class="item"]', document);
     let itemIds = [];
     let it = evaluateResult.iterateNext();
@@ -41,9 +45,6 @@ async function handleInventoryPage() {
 
     let observer = new MutationObserver(() => scanToolTips());
     observer.observe(document.body, {childList: true, subtree: true});
-
-    bindInventoryFilterEvents();
-    addInventoryFilterPresets();
 }
 
 function redrawInventoryPrices(itemIds) {
@@ -394,4 +395,21 @@ function addInventoryFilterPresets() {
 
     toNodes(allFilters).forEach(n => div.append(n));
     filterNode.parentElement.append(div);
+}
+
+function bindInventoryOutfitRightClick() {
+    let form = evaluateToNodesArray("//form[@name='outfit']")[0];
+    if (form) {
+        let submit = evaluateToNodesArray(".//input[@type='submit']", {contextNode: form})[0];
+        submit.addEventListener("contextmenu", event => {
+            event.preventDefault();
+            let select = evaluateToNodesArray(".//select[@name='whichoutfit']", {contextNode: form})[0];
+            let option = evaluateToNodesArray(".//option", {contextNode: select})[0];
+            let optgroup = evaluateToNodesArray(".//optgroup[@label='Normal Outfits']", {contextNode: select})[0];
+            let optionValues = Array.from(optgroup.childNodes).map(option => [option.value, option.innerText]);
+            let picked = optionValues[Math.floor(Math.random() * optionValues.length)];
+            option.value = picked[0];
+            option.innerText = picked[1];
+        });
+    }
 }
