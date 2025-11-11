@@ -215,9 +215,7 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
     if (!inventory) inventory = getInventoryNodeTree();
     if (!itemDataMap) itemDataMap = await getInventoryItemDataMap(inventory);
 
-    let nameOnly = pattern.startsWith("name:");
-    let untaggedPattern = nameOnly ? pattern.slice("name:".length) : pattern;
-    let regex = new RegExp(untaggedPattern, "i");
+    let filterCriteria = parseInventoryFilterPattern(pattern);
     let show = node => node.classList.remove("filtered");
     let hide = node => node.classList.add("filtered");
 
@@ -227,8 +225,7 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
         for (let row of stuffbox.rows) {
             let showRow = false;
             for (let col of row.columns) {
-                let description = itemDataMap[col.itemId]?.description || "";
-                let showCol = !pattern.length || col.itemName.match(regex) || (!nameOnly && description.match(regex));
+                let showCol = matchItemDataCriteria(col.itemName, itemDataMap[col.itemId], filterCriteria);
                 showCol ? show(col.element) : hide(col.element);
                 if (showCol) showRow = true;
             }
@@ -237,6 +234,60 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
         }
         showBox ? show(stuffbox.element) : hide(stuffbox.element);
     }
+}
+
+function parseInventoryFilterPattern(pattern) {
+    let criteria = {};
+    let currentTag = "";
+    let currentVal = "";
+    for (let i=0; i<pattern.length; i++) {
+        let c = pattern[i];
+        let lastChar = (i > 0) ? pattern[i-1] : "";
+        let lastLastChar = (i > 1) ? pattern[i-2] : "";
+        if (c == " " && lastChar != "\\") {
+            if (lastChar == " " && lastLastChar != "\\") continue;
+            if (currentTag) {
+                // end of current val
+                criteria[currentTag] = currentVal;
+                currentTag = currentVal = "";
+            } else {
+                // not tag:val pair
+                criteria["_text"] = currentVal + pattern.slice(i);
+                return criteria;
+            }
+        } else if (c == ":" && !currentTag) {
+            // transition from tag to val
+            currentTag = currentVal;
+            currentVal = "";
+        } else {
+            currentVal += c;
+        }
+    }
+    criteria[currentTag || "_text"] = currentVal;
+    return criteria;
+}
+
+function matchItemDataCriteria(name, data, criteria) {
+    const regexMatch = (text, pattern) => !pattern || text?.match(new RegExp(pattern, "i"));
+    const parseBool = text => {
+        if (text) {
+            if ("yes".startsWith(text.toLowerCase()) || "true".startsWith(text.toLowerCase())) return true;
+            if ("no".startsWith(text.toLowerCase()) || "false".startsWith(text.toLowerCase())) return false;
+        }
+        return undefined;
+    };
+    const flagMatch = (flags, _criteria, flag) => !_criteria.hasOwnProperty(flag) || parseBool(_criteria[flag]) === flags[flag];
+
+    if (!regexMatch(name, criteria["_text"]) && !regexMatch(data?.description, criteria["_text"])) return false;
+    if (!regexMatch(name, criteria["name"])) return false;
+
+    if (data?.flags) {
+        for (let flag of Object.keys(data.flags)) {
+            if (!flagMatch(data.flags, criteria, flag)) return false;
+        }
+    }
+
+    return true;
 }
 
 function getInventoryNodeTree() {
