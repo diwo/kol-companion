@@ -4,7 +4,6 @@ async function handleInventoryPage() {
     bindKey({key: "2", modifiers: ["Control"]}, () => gotoCloset(urlFtext));
     bindKey({key: "3", modifiers: ["Control"]}, () => gotoStorage(urlFtext));
 
-    bindInventoryFilterEvents();
     addInventoryFilterPresets();
     bindInventoryOutfitRightClick();
 
@@ -34,7 +33,9 @@ async function handleInventoryPage() {
     }
 
     await sortInventory();
+    bindInventoryFilterEvents();
     redrawInventoryPrices(itemIds);
+
 
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
