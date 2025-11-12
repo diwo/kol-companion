@@ -172,10 +172,12 @@ async function bindInventoryFilterEvents() {
     resizeInventoryFtextNode();
 
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
-    itemUpdateListener.onMessage.addListener(async () => itemDataMap = await refreshItemDataMap());
+    itemUpdateListener.onMessage.addListener(async () => {
+        itemDataMap = await getInventoryItemDataMap(inventory);
+    });
 
     document.addEventListener("keypress", e => {
-        if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}\[\]\\]$/i)) return;
+        if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}<=>\[\]\\]$/i)) return;
         if (document.activeElement.tagName != "INPUT" || document.activeElement.type != "text") {
             ftextNode.value += e.key;
             filterNode.dispatchEvent(new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
@@ -208,7 +210,8 @@ async function getInventoryItemDataMap(inventory) {
     if (!inventory) inventory = getInventoryNodeTree();
     let itemIds = Array.from(iterateInventoryNodeTree(inventory), node => node.itemId);
     let allItemData = await Promise.all(itemIds.map(getItemData));
-    return Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
+    let allItemPrices = await Promise.all(itemIds.map(getCachedPrice));
+    return Object.fromEntries(itemIds.map((id, i) => [id, {...allItemData[i], price: allItemPrices[i]?.data}]));
 }
 
 async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
@@ -225,7 +228,7 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
         for (let row of stuffbox.rows) {
             let showRow = false;
             for (let col of row.columns) {
-                let showCol = matchItemDataCriteria(col.itemName, itemDataMap[col.itemId], filterCriteria);
+                let showCol = matchItemDataCriteria(itemDataMap[col.itemId] || {name: col.itemName}, filterCriteria);
                 showCol ? show(col.element) : hide(col.element);
                 if (showCol) showRow = true;
             }
@@ -267,7 +270,7 @@ function parseInventoryFilterPattern(pattern) {
     return criteria;
 }
 
-function matchItemDataCriteria(name, data, criteria) {
+function matchItemDataCriteria(data, criteria) {
     const regexMatch = (text, pattern) => !pattern || text?.match(new RegExp(pattern, "i"));
     const parseBool = text => {
         if (text) {
@@ -278,13 +281,30 @@ function matchItemDataCriteria(name, data, criteria) {
     };
     const flagMatch = (flags, _criteria, flag) => !_criteria.hasOwnProperty(flag) || parseBool(_criteria[flag]) === flags[flag];
 
-    if (!regexMatch(name, criteria["_text"]) && !regexMatch(data?.description, criteria["_text"])) return false;
-    if (!regexMatch(name, criteria["name"])) return false;
+    if (!regexMatch(data.name, criteria["_text"]) && !regexMatch(data.description, criteria["_text"])) return false;
+    if (!regexMatch(data.name, criteria["name"])) return false;
 
-    if (data?.flags) {
+    if (data.flags) {
         for (let flag of Object.keys(data.flags)) {
             if (!flagMatch(data.flags, criteria, flag)) return false;
         }
+    }
+
+    if (criteria["price"]) {
+        if (!data.price) return false;
+
+        let [_, comp, amount, unit] = criteria["price"].match(/(<|<=|=|>=|>)([\d,.]+)([kmb])?/);
+
+        amount = parseFloat(amount.replaceAll(",", ""));
+        if (unit == "k") amount *= 1000;
+        if (unit == "m") amount *= 1_000_000;
+        if (unit == "b") amount *= 1_000_000_000;
+
+        if (comp == "<" && !(data.price.average < amount)) return false;
+        if (comp == "<=" && !(data.price.average <= amount)) return false;
+        if (comp == "=" && !(data.price.average === amount)) return false;
+        if (comp == ">=" && !(data.price.average >= amount)) return false;
+        if (comp == ">" && !(data.price.average > amount)) return false;
     }
 
     return true;
