@@ -294,9 +294,14 @@ async function fetchItemData(itemId, itemDescId) {
 async function setItemData(itemId, {name, description}) {
     if (!name || !description) return;
 
-    let flags = parseItemFlagsFromDescription(description);
-    let itemData = { itemId, name, description, flags };
     let itemDataKey = getItemDataKey(itemId);
+
+    let {[itemDataKey]: existingItemData} = await browser.storage.local.get(itemDataKey);
+    if (existingItemData?.lastModified && Date.now() - existingItemData.lastModified < 5_000) return;
+
+    let flags = parseItemFlagsFromDescription(description);
+    let itemData = { itemId, name, description, flags, lastModified: Date.now() };
+
     await browser.storage.local.set({[itemDataKey]: itemData});
 
     if (!isTradableItemFlags(flags)) {
