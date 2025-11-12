@@ -290,21 +290,34 @@ function matchItemDataCriteria(data, criteria) {
         }
     }
 
+    if (criteria["tradable"]) {
+        let isTradable = !data.flags?.notrade && !data.flags?.quest && !data.flags?.gift;
+        if (isTradable !== parseBool(criteria["tradable"])) return false;
+    }
+
+    if (criteria["pvpable"]) {
+        let isPvpable = !data.flags?.notrade && !data.flags?.nodiscard && !data.flags?.quest && !data.flags?.gift;
+        if (isPvpable !== parseBool(criteria["pvpable"])) return false;
+    }
+
     if (criteria["price"]) {
         if (!data.price) return false;
 
-        let [_, comp, amount, unit] = criteria["price"].match(/(<|<=|=|>=|>)([\d,.]+)([kmb])?/);
+        let match = criteria["price"].match(/(<|<=|=|>=|>)([\d,.]+)([kmb])?/);
+        if (match) {
+            let [_, comp, amount, unit] = match;
 
-        amount = parseFloat(amount.replaceAll(",", ""));
-        if (unit == "k") amount *= 1000;
-        if (unit == "m") amount *= 1_000_000;
-        if (unit == "b") amount *= 1_000_000_000;
+            amount = parseFloat(amount.replaceAll(",", ""));
+            if (unit == "k") amount *= 1000;
+            if (unit == "m") amount *= 1_000_000;
+            if (unit == "b") amount *= 1_000_000_000;
 
-        if (comp == "<" && !(data.price.average < amount)) return false;
-        if (comp == "<=" && !(data.price.average <= amount)) return false;
-        if (comp == "=" && !(data.price.average === amount)) return false;
-        if (comp == ">=" && !(data.price.average >= amount)) return false;
-        if (comp == ">" && !(data.price.average > amount)) return false;
+            if (comp == "<" && !(data.price.average < amount)) return false;
+            if (comp == "<=" && !(data.price.average <= amount)) return false;
+            if (comp == "=" && !(data.price.average === amount)) return false;
+            if (comp == ">=" && !(data.price.average >= amount)) return false;
+            if (comp == ">" && !(data.price.average > amount)) return false;
+        }
     }
 
     return true;
