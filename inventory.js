@@ -208,10 +208,16 @@ function resizeInventoryFtextNode() {
 
 async function getInventoryItemDataMap(inventory) {
     if (!inventory) inventory = getInventoryNodeTree();
-    let itemIds = Array.from(iterateInventoryNodeTree(inventory), node => node.itemId);
+    let itemNodes = Array.from(iterateInventoryNodeTree(inventory));
+    let itemIds = itemNodes.map(node => node.itemId);
     let allItemData = await Promise.all(itemIds.map(getItemData));
     let allItemPrices = await Promise.all(itemIds.map(getCachedPrice));
-    return Object.fromEntries(itemIds.map((id, i) => [id, {...allItemData[i], price: allItemPrices[i]?.data}]));
+    return Object.fromEntries(itemIds.map((id, i) => [id, {
+            ...allItemData[i],
+            name: itemNodes[i].itemName,
+            quantity: itemNodes[i].quantity,
+            price: allItemPrices[i]?.data
+        }]));
 }
 
 async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
@@ -228,7 +234,7 @@ async function filterInventory(pattern, {inventory, itemDataMap} = {}) {
         for (let row of stuffbox.rows) {
             let showRow = false;
             for (let col of row.columns) {
-                let showCol = matchItemDataCriteria(itemDataMap[col.itemId] || {name: col.itemName}, filterCriteria);
+                let showCol = matchItemDataCriteria(itemDataMap[col.itemId], filterCriteria);
                 showCol ? show(col.element) : hide(col.element);
                 if (showCol) showRow = true;
             }
@@ -274,8 +280,13 @@ function matchItemDataCriteria(data, criteria) {
     const regexMatch = (text, pattern) => !pattern || text?.match(new RegExp(pattern, "i"));
     const parseBool = text => {
         if (text) {
-            if ("yes".startsWith(text.toLowerCase()) || "true".startsWith(text.toLowerCase())) return true;
-            if ("no".startsWith(text.toLowerCase()) || "false".startsWith(text.toLowerCase())) return false;
+            if ("yes".startsWith(text.toLowerCase())) return true;
+            if ("true".startsWith(text.toLowerCase())) return true;
+            if (text === "1") return true;
+
+            if ("no".startsWith(text.toLowerCase())) return false;
+            if ("false".startsWith(text.toLowerCase())) return false;
+            if (text === "0") return false;
         }
         return undefined;
     };
@@ -290,20 +301,41 @@ function matchItemDataCriteria(data, criteria) {
         }
     }
 
-    if (criteria["tradable"]) {
+    let tradeableCrit = criteria["tradable"] || criteria["trade"];
+    if (tradeableCrit) {
         let isTradable = !data.flags?.notrade && !data.flags?.quest && !data.flags?.gift;
-        if (isTradable !== parseBool(criteria["tradable"])) return false;
+        if (isTradable !== parseBool(tradeableCrit)) return false;
     }
 
-    if (criteria["pvpable"]) {
+    let pvpableCrit = criteria["pvpable"] || criteria["pvp"];
+    if (pvpableCrit) {
         let isPvpable = !data.flags?.notrade && !data.flags?.nodiscard && !data.flags?.quest && !data.flags?.gift;
-        if (isPvpable !== parseBool(criteria["pvpable"])) return false;
+        if (isPvpable !== parseBool(pvpableCrit)) return false;
+    }
+
+    const numericCompare = (lhs, comp, rhs) => {
+        if (comp == "<") return lhs < rhs;
+        if (comp == "<=") return lhs <= rhs;
+        if (comp == "=") return lhs === rhs;
+        if (comp == ">=") return lhs >= rhs;
+        if (comp == ">") return lhs > rhs;
+        return undefined;
+    };
+
+    let quantityCrit = criteria["quantity"] || criteria["qty"];
+    if (quantityCrit) {
+        let match = quantityCrit.match(/^(<|<=|=|>=|>)([\d,]+)?$/);
+        if (match) {
+            let [_, comp, amount] = match;
+            amount = parseInt(amount);
+            if (numericCompare(data.quantity, comp, amount) === false) return false;
+        }
     }
 
     if (criteria["price"]) {
         if (!data.price) return false;
 
-        let match = criteria["price"].match(/(<|<=|=|>=|>)([\d,.]+)([kmb])?/);
+        let match = criteria["price"].match(/^(<|<=|=|>=|>)([\d,.]+)([kmb])?$/);
         if (match) {
             let [_, comp, amount, unit] = match;
 
@@ -312,11 +344,7 @@ function matchItemDataCriteria(data, criteria) {
             if (unit == "m") amount *= 1_000_000;
             if (unit == "b") amount *= 1_000_000_000;
 
-            if (comp == "<" && !(data.price.average < amount)) return false;
-            if (comp == "<=" && !(data.price.average <= amount)) return false;
-            if (comp == "=" && !(data.price.average === amount)) return false;
-            if (comp == ">=" && !(data.price.average >= amount)) return false;
-            if (comp == ">" && !(data.price.average > amount)) return false;
+            if (numericCompare(data.price.average, comp, amount) === false) return false;
         }
     }
 
@@ -332,7 +360,9 @@ function getInventoryNodeTree() {
             let columns = colNodes.map(colNode => {
                 let itemId = getItemIdFromItemNode(colNode.firstChild);
                 let itemName = document.evaluate(".//b[@rel]", colNode).iterateNext()?.textContent;
-                return { element: colNode, itemId, itemName };
+                let quantityText = document.evaluate(".//b[@rel]/following-sibling::span", colNode).iterateNext()?.textContent;
+                let quantity = parseInt(quantityText?.match(/^\((\d+)\)$/)?.[1] || 1);
+                return { element: colNode, itemId, itemName, quantity };
             });
             return { element: rowNode, columns };
         });
