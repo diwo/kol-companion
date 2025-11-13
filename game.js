@@ -142,10 +142,10 @@ async function mineGold() {
                 resultElem.innerText = "MP Full";
                 return stop();
             }
-
             let mainDoc = getPane("mainpane").document;
             let pathname = getPathName(mainDoc);
-            if (pathname == "/mining.php") {
+            let isBeatenUp = !!mainDoc.firstChild.innerText.match(/You're way too beaten up to mine right now/);
+            if (pathname == "/mining.php" && !isBeatenUp) {
                 resultElem.innerText = "Running";
                 mainDoc.dispatchEvent(new Event("mine-gold-auto"));
                 await sleep(600, ctx);
@@ -154,6 +154,7 @@ async function mineGold() {
                 await sleep(1000, ctx);
             }
         }
+        getPane("mainpane").document.dispatchEvent(new Event("mine-gold-auto"));
         resultElem.innerText = "Finished";
     } catch (e) {
         resultElem.innerText = e;
