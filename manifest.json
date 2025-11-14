@@ -12,7 +12,10 @@
     ],
     "content_scripts": [
         {
-            "matches": ["https://www.kingdomofloathing.com/*"],
+            "matches": [
+                "https://www.kingdomofloathing.com/*",
+                "http://127.0.0.1/*"
+            ],
             "js": [
                 "common.js",
                 "game.js",
@@ -60,8 +63,8 @@
         "storage",
         "alarms",
         "clipboardWrite",
-        "https://www.kingdomofloathing.com/desc_item.php",
-        "https://wiki.kingdomofloathing.com/*",
-        "https://kol.coldfront.net/*"
+        "https://www.kingdomofloathing.com/",
+        "https://kol.coldfront.net/",
+        "http://127.0.0.1/"
     ]
 }

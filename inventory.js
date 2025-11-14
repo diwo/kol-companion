@@ -516,7 +516,7 @@ function bindInventoryOutfitRightClick() {
     let form = evaluateToNodesArray("//form[@name='outfit']")[0];
     if (form) {
         let submit = evaluateToNodesArray(".//input[@type='submit']", {contextNode: form})[0];
-        submit.addEventListener("contextmenu", event => {
+        submit?.addEventListener("contextmenu", event => {
             event.preventDefault();
             let select = evaluateToNodesArray(".//select[@name='whichoutfit']", {contextNode: form})[0];
             let option = evaluateToNodesArray(".//option", {contextNode: select})[0];

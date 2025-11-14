@@ -483,7 +483,7 @@ async function searchMall(searchTerm, {exactMatch} = {}) {
     if (exactMatch) searchTerm = `"${searchTerm}"`;
     let searchParams = new URLSearchParams();
     searchParams.set("pudnuggler", searchTerm);
-    let url = `https://www.kingdomofloathing.com/mall.php?${searchParams.toString()}`;
+    let url = `/mall.php?${searchParams.toString()}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
 }
 
@@ -495,7 +495,7 @@ async function gotoInventory(searchTerm, inventoryType = "inventory") {
         searchParams.set("ftext", searchTermStripped);
         searchParamsString = "?" + searchParams.toString();
     }
-    let url = `https://www.kingdomofloathing.com/${inventoryType}.php${searchParamsString}`;
+    let url = `/${inventoryType}.php${searchParamsString}`;
     return browser.runtime.sendMessage({operation: "gotoUrl", windowId: getWindowId(), url});
 }
 
@@ -620,6 +620,11 @@ function getPriceColor(price, volume, itemFlags = {}) {
 
 function parseFormattedInt(str) {
     return parseInt(str.replace(/,/g, ""));
+}
+
+function getBaseUrl(doc = document) {
+    let url = new URL(doc.URL);
+    return url.protocol + "//" + url.host;
 }
 
 function getPathName(doc = document) {

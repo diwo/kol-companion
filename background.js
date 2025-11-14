@@ -222,7 +222,7 @@ async function fetchPrice(itemId) {
     }
     fetchingItemIds.add(itemId);
 
-    console.log(`Fetching price for itemId=${itemId}, cacheAge=${Math.floor(cacheAge/1000/60/60)}h`);
+    console.debug(`Fetching price for itemId=${itemId}, cacheAge=${Math.floor(cacheAge/1000/60/60)}h`);
 
     let fetched = await fetchPriceNoCache(getPriceCheckLink(itemId, oneWeekTimespan));
     if (!fetched.data?.error && !fetched.data?.average) {
@@ -281,8 +281,8 @@ async function fetchItemData(itemId, itemDescId) {
 
     console.log(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
 
-    let url = `https://www.kingdomofloathing.com/desc_item.php?whichitem=${itemDescId}`;
-    let data = await fetchDescription(url, (doc, content) => {
+    let path = "/desc_item.php?whichitem=" + itemDescId;
+    let data = await fetchDescription(path, (doc, content) => {
         let name = doc.evaluate(".//div[@id='description']/center/b", content).iterateNext()?.innerText;
         let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
         return {name, description};
@@ -322,8 +322,8 @@ async function fetchEffectData(effectId, effectDescId) {
 
     console.log(`Fetching effect description effectDescId=${effectDescId} for effectId=${effectId}`);
 
-    let url = `https://www.kingdomofloathing.com/desc_effect.php?whicheffect=${effectDescId}`;
-    let data = await fetchDescription(url, (doc, content) => {
+    let path = "/desc_effect.php?whicheffect=" + effectDescId;
+    let data = await fetchDescription(path, (doc, content) => {
         let name = doc.evaluate(".//div[@id='description']//center[1]//b", content).iterateNext()?.innerText;
         let effectId = content.innerHTML.match(/<!-- effectid: (\d+) -->/)?.[1];
         let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
@@ -348,11 +348,8 @@ async function setEffectData(effectId, {name, description, modifierText}) {
     return effectData;
 }
 
-async function fetchDescription(url, extractData) {
-    let page = await fetchUrl(url);
-    if (page.match(/This script is not available unless you're logged in/)) {
-        throw Error("not logged in");
-    }
+async function fetchDescription(path, extractData) {
+    let page = await fetchPage(path);
 
     // content must be added to document for \n to be rendered
     let content = document.createElement("div");
@@ -362,6 +359,29 @@ async function fetchDescription(url, extractData) {
     content.remove();
 
     return data;
+}
+
+async function fetchPage(path) {
+    const baseUrls = [
+        "http://127.0.0.1:60080",
+        "https://www.kingdomofloathing.com",
+    ];
+
+    let errors = [];
+    for (let baseUrl of baseUrls) {
+        try {
+            let page = await fetchUrl(baseUrl + path);
+            if (page.match(/This script is not available unless you're logged in/)) {
+                errors.push(Error("not logged in"));
+            } else {
+                return page;
+            }
+        } catch (e) {
+            errors.push(e);
+        }
+    }
+
+    throw Error(errors);
 }
 
 function notifyItemUpdated(itemIds) {

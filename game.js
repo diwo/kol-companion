@@ -579,8 +579,7 @@ async function sendCommandWithPause(cmd, delay) {
 }
 
 function goto(page) {
-    const baseUrl = "https://www.kingdomofloathing.com";
-    let url = page.startsWith("/") ? baseUrl + page : page;
+    let url = page.startsWith("/") ? getBaseUrl() + page : page;
     console.log(`Goto ${url}`);
     getPane("mainpane").location = url;
     return true;
