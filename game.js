@@ -133,8 +133,13 @@ async function mineGold() {
     let resultElem = getPane("companionpane", {id: "mine-gold-result"});
 
     try {
-        let isDone = async () => await exec(ctx, getTurnsUseRemaining) == 0;
-        while (!await isDone()) {
+        let isDone = () => {
+            let text = getPane("mainpane").document?.firstChild?.innerText;
+            let isOutOfAdventures = !!text?.match(/You're out of adventures/);
+            let isTooDrunk = !!text?.match(/You're way too drunk to mine right now/);
+            return isOutOfAdventures || isTooDrunk;
+        };
+        while (!isDone()) {
             if (shouldSpendMpBuff() && isMpAlmostFull()) {
                 await sendCommandWithPause("/buff", 3000);
             }
@@ -143,12 +148,11 @@ async function mineGold() {
                 return stop();
             }
             let mainDoc = getPane("mainpane").document;
-            let pathname = getPathName(mainDoc);
-            let isBeatenUp = !!mainDoc.firstChild.innerText.match(/You're way too beaten up to mine right now/);
-            if (pathname == "/mining.php" && !isBeatenUp) {
+            let isBeatenUp = !!mainDoc?.firstChild?.innerText?.match(/You're way too beaten up to mine right now/);
+            if (getPathName(mainDoc) == "/mining.php" && !isBeatenUp) {
                 resultElem.innerText = "Running";
                 mainDoc.dispatchEvent(new Event("mine-gold-auto"));
-                await sleep(600, ctx);
+                await sleep(100, ctx);
             } else {
                 resultElem.innerText = "Waiting";
                 await sleep(1000, ctx);
@@ -659,6 +663,7 @@ function withDelay(action, delay = 600) {
 function sleep(timeoutMilli, ctx, {checkInterval} = {}) {
     if (!checkInterval) checkInterval = 100;
 
+    throwIfStopped(ctx);
     let racers = [new Promise(resolve => setTimeout(() => resolve(true), timeoutMilli))];
     if (timeoutMilli > checkInterval) {
         racers.push(rejectWhenStopped(checkInterval, ctx));

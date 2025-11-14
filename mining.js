@@ -2,13 +2,21 @@ function handleMining() {
     let grid = getGrid();
     highlightClickableShinies(grid);
     printGrid(grid);
-    bindKey("`", () => nextAction(grid));
-    document.addEventListener("mine-gold-auto", () => nextAction(grid));
+
+    let isMining = false;
+    let mineNextOnce = () => {
+        if (isMining) return;
+        isMining = true;
+        mineNext(grid);
+    };
+
+    bindKey("`", mineNextOnce);
+    document.addEventListener("mine-gold-auto", mineNextOnce);
 
     addPriceToAdventureRewardItems();
 }
 
-function nextAction(grid) {
+function mineNext(grid) {
     let foundGold = document.firstChild.innerText.match(/1,970 carat gold/);
     if (foundGold) {
         return clickButton(/Find New Cavern/);
@@ -26,7 +34,7 @@ function nextAction(grid) {
                 node.clickElem.click();
                 return;
             }
-            if (node.open) {
+            if (y === grid.length-1 && !node.clickElem && !node.outOfBound) {
                 openCount += 1;
             }
         }
@@ -50,10 +58,9 @@ function getGrid() {
             if (td.colSpan == 1) {
                 let img = document.evaluate(".//img", td).iterateNext();
                 let shiny = img.alt.match(/Promising Chunk of Wall/);
-                let open = img.alt.match(/Open Cavern/);
                 let outOfBound = td.getAttribute("onclick") == "no();";
                 let clickElem = td.firstChild.tagName == "A" ? td.firstChild : null;
-                row.push({shiny, open, outOfBound, clickElem});
+                row.push({shiny, outOfBound, clickElem});
             }
             td = td.nextSibling;
         }
