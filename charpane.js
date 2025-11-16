@@ -32,6 +32,9 @@ function moveQuestCloseButton() {
 }
 
 async function addEffectModifiersSection() {
+    let effectsNode = document.evaluate("//center[p/b/font[text()='Effects:']]", document).iterateNext();
+    if (!effectsNode) return;
+
     if (!document.getElementById("effect-modifiers")) {
         let effectModifiersSection = document.createElement("p");
         effectModifiersSection.id = "effect-modifiers";
@@ -39,8 +42,7 @@ async function addEffectModifiersSection() {
             <b><font size="2">Effect Modifiers:</font></b>
             <table><tbody style="font-size: 0.75em"></tbody></table>
         `;
-        let effectsParentNode = document.evaluate("//center[p/b/font[text()='Effects:']]", document).iterateNext();
-        effectsParentNode.insertBefore(effectModifiersSection, effectsParentNode.firstChild);
+        effectsNode.insertBefore(effectModifiersSection, effectsNode.firstChild);
     }
 
     let activeEffects = [];
