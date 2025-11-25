@@ -36,11 +36,9 @@ async function handleInventoryPage() {
     bindInventoryFilterEvents();
     redrawInventoryPrices(itemIds);
 
-
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
 
-    fetchMissingPrices(itemIds);
     itemIds.forEach(queuePriceCheck);
     queueAllInventoryItemDescriptionFetch();
 
@@ -64,17 +62,6 @@ function redrawInventoryPrices(itemIds) {
                 priceNode.innerHTML = "";
             }
         });
-}
-
-async function fetchMissingPrices(itemIds) {
-    let missingPrices = [];
-    for (let itemId of itemIds) {
-        let cachedPrice = await getCachedPrice(itemId);
-        if (!cachedPrice) {
-            missingPrices.push(itemId);
-        }
-    }
-    await Promise.all(missingPrices.map(getPrice));
 }
 
 function queueAllInventoryItemDescriptionFetch() {
