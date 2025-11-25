@@ -205,11 +205,11 @@ browser.alarms.create("itemDescFetchQueueWorker", {delayInMinutes: 5/60});
 
 let fetchingItemIds = new Set();
 async function fetchPrice(itemId) {
-    const oneWeekTimespan = 2;
-    const lifetimeTimespan = 4;
+    // const oneWeekTimespan = 2;
+    // const lifetimeTimespan = 4;
 
     let cacheVal = await getCachedPrice(itemId);
-    let cacheAge = Date.now() - cacheVal?.timestamp;
+    let cacheAge = Date.now() - (cacheVal?.timestamp || 0);
     if (cacheVal && (cacheVal.untradable || cacheAge < 6*60*60*1000)) {
         return cacheVal;
     }
@@ -223,15 +223,24 @@ async function fetchPrice(itemId) {
     fetchingItemIds.add(itemId);
 
     console.debug(`Fetching price for itemId=${itemId}, cacheAge=${Math.floor(cacheAge/1000/60/60)}h`);
+    // let fetched = await fetchColdfrontPriceNoCache(getColdfrontPriceCheckLink(itemId, oneWeekTimespan));
+    // if (!fetched.data?.error && !fetched.data?.average) {
+    //     let fetchedLifetime = await fetchColdfrontPriceNoCache(getColdfrontPriceCheckLink(itemId, lifetimeTimespan));
+    //     if (!fetchedLifetime.data?.error) {
+    //         fetched = fetchedLifetime;
+    //         fetched.data.volume = 0;
+    //     }
+    // }
 
-    let fetched = await fetchPriceNoCache(getPriceCheckLink(itemId, oneWeekTimespan));
-    if (!fetched.data?.error && !fetched.data?.average) {
-        let fetchedLifetime = await fetchPriceNoCache(getPriceCheckLink(itemId, lifetimeTimespan));
-        if (!fetchedLifetime.data?.error) {
-            fetched = fetchedLifetime;
-            fetched.data.volume = 0;
+    let mafiaMallPrices = await getMafiaMallPrices();
+    let itemPrice = mafiaMallPrices.data[itemId]?.price;
+    let fetched = {
+        timestamp: Date.now(),
+        data: {
+            average: itemPrice,
+            volumne: 0,
         }
-    }
+    };
 
     let itemPriceKey = getItemPriceKey(itemId);
     await browser.storage.local.set({[itemPriceKey]: fetched});
@@ -241,16 +250,16 @@ async function fetchPrice(itemId) {
     return fetched;
 }
 
-function getPriceCheckLink(itemId, timespan) {
-    return `https://kol.coldfront.net/newmarket/itemgraph.php?itemid=${itemId}&timespan=${timespan}`;
-}
+// function getColdfrontPriceCheckLink(itemId, timespan) {
+//     return `https://kol.coldfront.net/newmarket/itemgraph.php?itemid=${itemId}&timespan=${timespan}`;
+// }
 
-async function fetchPriceNoCache(url) {
-    let page = await fetchUrl(url);
-    let data = parsePrice(page);
-    let timestamp = Date.now();
-    return {timestamp, data};
-}
+// async function fetchColdfrontPriceNoCache(url) {
+//     let page = await fetchUrl(url);
+//     let data = parseColdfrontPrice(page);
+//     let timestamp = Date.now();
+//     return {timestamp, data};
+// }
 
 async function fetchUrl(url) {
     let response = await fetch(url);
@@ -260,19 +269,62 @@ async function fetchUrl(url) {
     return response.text();
 }
 
-function parsePrice(page) {
-    let error = page.match(/\d+ is not a valid item ID/)?.[0];
-    if (error) {
-        return {error: "not a valid item ID"};
+// function parseColdfrontPrice(page) {
+//     let error = page.match(/\d+ is not a valid item ID/)?.[0];
+//     if (error) {
+//         return {error: "not a valid item ID"};
+//     }
+//     try {
+//         let matches = page.match(/CURRENT AVG PRICE:.*?([0-9,.]+) meat.*BOUGHT THIS TIMESPAN:.*?([0-9,.]+)/);
+//         let average = parseFormattedInt(matches[1]);
+//         let volume = parseFormattedInt(matches[2]);
+//         return {average, volume};
+//     } catch (e) {
+//         return {error: e};
+//     }
+// }
+
+let isUpdatingMafiaMallPrices = false;
+
+async function getMafiaMallPrices() {
+    const storageKey = "mafia_mall_prices";
+    let storageFetch = await browser.storage.local.get(storageKey);
+    let mafiaMallPrices = storageFetch[storageKey];
+    if (!mafiaMallPrices || Date.now() - mafiaMallPrices.timestamp > 30*60*1000/*30min*/) {
+        if (isUpdatingMafiaMallPrices) {
+            return new Promise(resolve => setTimeout(() => resolve(getMafiaMallPrices())), Math.random()*1000);
+        }
+        isUpdatingMafiaMallPrices = true;
+        console.debug("Refreshing mall prices from mafia");
+        try {
+            mafiaMallPrices = {
+                data: await fetchMafiaMallPrices(),
+                timestamp: Date.now(),
+            };
+            await browser.storage.local.set({[storageKey]: mafiaMallPrices});
+        } finally {
+            isUpdatingMafiaMallPrices = false;
+        }
     }
-    try {
-        let matches = page.match(/CURRENT AVG PRICE:.*?([0-9,.]+) meat.*BOUGHT THIS TIMESPAN:.*?([0-9,.]+)/);
-        let average = parseFormattedInt(matches[1]);
-        let volume = parseFormattedInt(matches[2]);
-        return {average, volume};
-    } catch (e) {
-        return {error: e};
+    return mafiaMallPrices;
+}
+
+async function fetchMafiaMallPrices() {
+    let page = await fetchUrl("https://kolmafia.us/scripts/updateprices.php?action=getmap");
+    let lines = page.split("\n");
+    let mallPricesVersion = parseInt(lines[0]);
+    if (!mallPricesVersion) throw Error("Unexpected data format");
+    let data = {};
+    for (let i=1; i<lines.length; i++) {
+        let row = lines[i].split("\t");
+        let itemId = parseInt(row[0]);
+        let timestamp = parseInt(row[1]) * 1000;
+        let price = parseInt(row[2]);
+        if (itemId && timestamp && price) {
+            data[itemId] = {price, timestamp: new Date(timestamp)};
+        }
     }
+    return data;
 }
 
 async function fetchItemData(itemId, itemDescId) {
