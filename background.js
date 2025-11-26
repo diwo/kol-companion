@@ -331,7 +331,7 @@ async function fetchItemData(itemId, itemDescId) {
     let existing = await getItemData(itemId);
     if (existing) return existing;
 
-    console.log(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
+    console.debug(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
 
     let path = "/desc_item.php?whichitem=" + itemDescId;
     let data = await fetchDescription(path, (doc, content) => {
@@ -372,7 +372,7 @@ async function fetchEffectData(effectId, effectDescId) {
         if (existing) return existing;
     }
 
-    console.log(`Fetching effect description effectDescId=${effectDescId} for effectId=${effectId}`);
+    console.debug(`Fetching effect description effectDescId=${effectDescId} for effectId=${effectId}`);
 
     let path = "/desc_effect.php?whicheffect=" + effectDescId;
     let data = await fetchDescription(path, (doc, content) => {
