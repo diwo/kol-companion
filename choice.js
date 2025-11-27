@@ -1,6 +1,7 @@
 function handleChoice() {
-    drawCombBeachGrid();
     addPriceToAdventureRewardItems();
+    handleChoiceTrickOrTreat();
+    drawCombBeachGrid();
 }
 
 async function addAdventureChoiceNotes() {
@@ -125,6 +126,49 @@ function matchAdventureChoice(adventure, choiceText, optionNum, bandersnatch) {
     if (bandersnatchMatch) return bandersnatchMatch;
 
     return null;
+}
+
+function handleChoiceTrickOrTreat() {
+    let autoTrickOrTreat = getPane("companionpane", {id: "auto-trick-or-treat"})?.checked;
+    let autoOrBindKey = action => {
+        if (autoTrickOrTreat) return action();
+        bindKey("`", action);
+    };
+
+    if (evaluateToNodesArray("//tr/td/b[text() = 'Trick or Treat!']")[0]) {
+        let starhouse = evaluateToNodesArray("//img[@title = 'A House with a Star on it!']")[0];
+        if (starhouse) {
+            starhouse.style.boxSizing = "border-box";
+            starhouse.style.border = "3px solid orange";
+        }
+
+        let nextHouseLink = null;
+        for (let loopType of ["star", "light", "dark"]) {
+            for (let i=0; i<12; i++) {
+                let house = document.getElementById("house" + i);
+                let link = house && evaluateToNodesArray("./a", {contextNode: house})[0];
+                let isStar = link && !!evaluateToNodesArray("./img[contains(@src, 'starhouse')]", {contextNode: link})[0];
+                let isLit = link && !!evaluateToNodesArray("./img[contains(@src, 'house_l')]", {contextNode: link})[0];
+                let isChosen = link && (isStar || (loopType == "light" && isLit) || loopType == "dark");
+                if (isChosen) {
+                    nextHouseLink = link;
+                    break;
+                }
+            }
+            if (nextHouseLink) break;
+        }
+        if (nextHouseLink) {
+            autoOrBindKey(() => nextHouseLink.click());
+        } else if (!evaluateToNodesArray("//span[text() = \"You don't have enough time to scope out another block.\"]")[0]) {
+            autoOrBindKey(() => clickButton("Scope out a new block"));
+        }
+    }
+    else if (evaluateToNodesArray("//tr/td/b[text() = 'A Fun-Size Dilemma']")[0]) {
+        autoOrBindKey(() => clickButton("Take the whole bowl"));
+    }
+    else {
+        autoOrBindKey(() => clickLink("Back to Trick-or-Treating"));
+    }
 }
 
 function drawCombBeachGrid() {
