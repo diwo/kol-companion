@@ -45,6 +45,12 @@
         ]
     },
     {
+        "conditions": [{ "url": "/fight.php", "pageText": "Your shrunken head-animated-zombie", "_comment": "shrunken head absorb damage" }],
+        "edits": [
+            { "text": "shambles in between you and your foe and absorbs", "highlight": true }
+        ]
+    },
+    {
         "conditions": [{ "url": "/questlog.php" }],
         "edits": [
             {
