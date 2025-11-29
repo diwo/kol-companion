@@ -66,5 +66,5 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
 }
 
 function getWikiItemNameNode() {
-    return document.evaluate("//div[@id='mw-content-text']//div[contains(@class, 'template-item')]//p/b[1]", document).iterateNext();
+    return document.evaluate("//div[@id='mw-content-text']//div[contains(@class, 'template-item')]//b[1]", document).iterateNext();
 }
