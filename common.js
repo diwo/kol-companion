@@ -602,6 +602,8 @@ function getPriceColor(price, volume, itemFlags = {}) {
         return "maroon";
     } else if (!isTradableItemFlags(itemFlags)) {
         return "darkblue";
+    } else if (price == 0) {
+        return "gray";
     }
 
     if (price >= 50_000_000) {
