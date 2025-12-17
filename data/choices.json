@@ -932,7 +932,20 @@
                     "547": { "tag": "quest", "_comment": "erudite gremlin" },
                     "549": { "tag": "quest", "_comment": "batwinged gremlin" },
                     "551": { "tag": "quest", "_comment": "vegetable gremlin" },
-                    "553": { "tag": "quest", "_comment": "spider gremlin" }
+                    "553": { "tag": "quest", "_comment": "spider gremlin" },
+                    "229": { "note": "Ultra Rare", "_comment": "crazy bastard" },
+                    "230": { "note": "Ultra Rare", "_comment": "infinite meat bug" },
+                    "231": { "note": "Ultra Rare", "_comment": "Baiowulf" },
+                    "232": { "note": "Ultra Rare", "_comment": "Hypnotist of Hey Deze" },
+                    "274": { "note": "Ultra Rare", "_comment": "hockey elemental" },
+                    "348": { "note": "Ultra Rare", "_comment": "Count Bakula" },
+                    "371": { "note": "Ultra Rare", "_comment": "Master Of Thieves" },
+                    "392": { "note": "Ultra Rare", "_comment": "The Temporal Bandit" },
+                    "425": { "note": "Ultra Rare", "_comment": "pooltergeist" },
+                    "617": { "note": "Ultra Rare", "_comment": "Knott Slanding" },
+                    "1422": { "note": "Ultra Rare", "_comment": "QuickBASIC elemental" },
+                    "1534": { "note": "Ultra Rare", "_comment": "The Nuge" },
+                    "1966": { "note": "Ultra Rare", "_comment": "Remarkable Elba Kramer" }
                 }
             }
         }
