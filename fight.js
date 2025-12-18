@@ -10,6 +10,12 @@ function handleFight() {
         }
     }
 
+    let autoAdentureAgain = getPane("companionpane", {id: "auto-adventure-again"})?.checked;
+    if (autoAdentureAgain) {
+        let isOutOfAdventures = !!document?.firstChild?.innerText?.match(/You're out of adventures/);
+        if (!isOutOfAdventures) clickLink(/Adventure Again/);
+    }
+
     let autoTrickOrTreat = getPane("companionpane", {id: "auto-trick-or-treat"})?.checked;
     if (autoTrickOrTreat) clickLink(/Back to Trick-or-Treating/);
 
