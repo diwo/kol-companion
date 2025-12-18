@@ -159,7 +159,7 @@ browser.alarms.onAlarm.addListener(alarm => {
                     if (fetched.timestamp == cached?.timestamp) {
                         delayInMinutes = 0;
                     } else {
-                        delayInMinutes = 5 / 60;
+                        delayInMinutes = 1 / 60;
                     }
                 } catch (e) {
                     console.error("Error fetching price", e);
