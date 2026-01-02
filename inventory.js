@@ -378,8 +378,8 @@ function addInventoryFilterPresets() {
         "+Combat": "more attracted",
         "Item": "\\+.*item drop",
         "Meat": "\\+.*meat",
-        "+ML": "\\+.*monster level",
-        "-ML": "-.*monster level",
+        "+ML": "\\+\\d+ to monster level",
+        "-ML": "-\\d+ to monster level",
         "Init": "combat init.*\\+|\\+.*combat init",
         "Fam": "\\+.*familiar weight",
         "Heal": {
