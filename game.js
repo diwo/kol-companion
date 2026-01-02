@@ -72,8 +72,8 @@ function initCompanionPane() {
     getPane("companionpane", {id: "fight-pvp"}).addEventListener("click", autoFightPvP);
     getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
-    getPane("companionpane", {id: "preset-chroner"}).addEventListener("click",
-        () => applyPreset({combatMacro: "Chroner"}));
+    getPane("companionpane", {id: "preset-crimbo"}).addEventListener("click",
+        () => applyPreset({combatMacro: "Crimbo"}));
 
     // getPane("companionpane", {id: "test-button"})
     //     .addEventListener("click", async () => {
