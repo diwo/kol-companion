@@ -1,8 +1,5 @@
 async function handleInventoryPage() {
-    let urlFtext = new URL(document.URL).searchParams.get("ftext");
-    bindKey({key: "1", modifiers: ["Control"]}, () => gotoInventory(urlFtext));
-    bindKey({key: "2", modifiers: ["Control"]}, () => gotoCloset(urlFtext));
-    bindKey({key: "3", modifiers: ["Control"]}, () => gotoStorage(urlFtext));
+    bindSearchKeys({invSearchTerm: new URL(document.URL).searchParams.get("ftext")});
 
     addInventoryFilterPresets();
     bindInventoryOutfitRightClick();

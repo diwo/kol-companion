@@ -21,6 +21,7 @@
                 "game.js",
                 "inventory.js",
                 "backoffice.js",
+                "mall.js",
                 "fleamarket.js",
                 "pvp.js",
                 "mining.js",

@@ -11,6 +11,9 @@ switch (pathname) {
     case "/backoffice.php":
         handleBackoffice();
         break;
+    case "/mall.php":
+        handleMall();
+        break;
     case "/town_fleamarket.php":
         handleFleaMarket();
         break;

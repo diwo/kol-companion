@@ -469,6 +469,22 @@ async function redrawPrices(itemIds, {cachedOnly}, redrawFunc, errorFunc) {
     }
 }
 
+function bindSearchKeys({invSearchTerm, mallSearchTerm}) {
+    if (invSearchTerm && !mallSearchTerm) {
+        mallSearchTerm = invSearchTerm
+            .replace(/^\**(.*?)\**$/, "$1") // trim leading/trailing asterisk
+            .replace(/\*.*/, "");           // trim string after first asterisk
+    }
+    if (mallSearchTerm && !invSearchTerm) {
+        invSearchTerm = mallSearchTerm.replace(/^"(.*)"$/, "$1"); // trim quotes
+    }
+
+    bindKey({key: "1", modifiers: ["Control"]}, () => gotoInventory(invSearchTerm));
+    bindKey({key: "2", modifiers: ["Control"]}, () => gotoCloset(invSearchTerm));
+    bindKey({key: "3", modifiers: ["Control"]}, () => gotoStorage(invSearchTerm));
+    bindKey({key: "4", modifiers: ["Control"]}, () => searchMall(mallSearchTerm));
+}
+
 function openUrl(url) {
     window.open(url, "_blank");
 }
