@@ -4,6 +4,9 @@ function handlePvp() {
         addMarketLinksToPvpLogs();
     }
 
+    let autoPvp = getPane("companionpane", {id: "auto-pvp"})?.checked;
+    if (autoPvp) fightPvP();
+
     bindKey("`", fightPvP);
     document.addEventListener("fight-pvp", fightPvP);
 
