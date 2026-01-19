@@ -1,6 +1,7 @@
 function handleBackoffice() {
     sortStoreInventory();
     formatStoreActivity();
+    addStoreCheckUndercutButton();
 
     let observer = new MutationObserver(bindStoreInventoryListeners);
     observer.observe(document.body, {childList: true, subtree: true});
@@ -75,6 +76,60 @@ function formatStoreActivity() {
             node = nextNode;
         }
     }
+}
+
+function addStoreCheckUndercutButton() {
+    let stockElem = document.getElementById("stock");
+    let buttonContainer = document.createElement("center");
+    let checkUndercutLink = document.createElement("a");
+    checkUndercutLink.href = "#";
+    checkUndercutLink.innerText = "Check Undercut";
+    buttonContainer.append(checkUndercutLink);
+    stockElem.parentElement.insertBefore(buttonContainer, stockElem.nextSibling);
+
+    let isCheckingUndercut = false;
+
+    checkUndercutLink.addEventListener("click", event => {
+        event.preventDefault();
+        if (isCheckingUndercut) return;
+        isCheckingUndercut = true;
+
+        evaluateToNodesArray("//a[@class='prices'][text()='dismiss']").forEach(el => el.click());
+
+        const hasStoreListingBeenUndercut = pres => {
+            let lowestListings = evaluateToNodesArray(".//tr/td[2]", {contextNode: pres});
+            let myPrice = 0;
+            let lowestOtherPrice = 0;
+            for (let listing of lowestListings) {
+                let isMine = !!evaluateToNodesArray(".//small[./i/text()='(yours)']", {contextNode: listing}).length;
+                let priceString = evaluateToNodesArray(".//b/text()", {contextNode: listing})[0].textContent;
+                let price = parseInt(priceString.replaceAll(/,/g, ""));
+                if (isMine) {
+                    myPrice = price;
+                } else if (!lowestOtherPrice || price < lowestOtherPrice) {
+                    lowestOtherPrice = price;
+                }
+            }
+            return !myPrice || (!!lowestOtherPrice && lowestOtherPrice <= myPrice);
+        };
+
+        let observer = new MutationObserver(() => {
+            let dismisses = evaluateToNodesArray("//a[@class='prices'][text()='dismiss']");
+            let preses = evaluateToNodesArray("//tr[@class='pres']");
+            if (preses.length == dismisses.length) {
+                observer.disconnect();
+                for (let pres of preses) {
+                    if (!hasStoreListingBeenUndercut(pres)) {
+                        let dismiss = evaluateToNodesArray(".//a[@class='prices'][text()='dismiss']", {contextNode: pres.previousElementSibling})[0];
+                        dismiss?.click();
+                    }
+                }
+                isCheckingUndercut = false;
+            }
+        });
+        observer.observe(document.body, {childList: true, subtree: true});
+        evaluateToNodesArray("//a[@class='prices'][text()='prices']").forEach(el => el.click());
+    });
 }
 
 function bindStoreInventoryListeners() {
