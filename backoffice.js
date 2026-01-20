@@ -97,7 +97,7 @@ function addStoreCheckUndercutButton() {
         evaluateToNodesArray("//a[@class='prices'][text()='dismiss']").forEach(el => el.click());
 
         const hasStoreListingBeenUndercut = pres => {
-            let lowestListings = evaluateToNodesArray(".//tr/td[2]", {contextNode: pres});
+            let lowestListings = evaluateToNodesArray(".//tr/td[position()>1]", {contextNode: pres});
             let myPrice = 0;
             let lowestOtherPrice = 0;
             for (let listing of lowestListings) {
