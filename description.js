@@ -11,18 +11,23 @@ async function handleDescriptionPage() {
         thingName = thingNameNode.parentNode.innerText.match(/level \d+ (.*)/)[1];
     }
 
-    let koliteminfo = document.createElement("div");
-    koliteminfo.id = "koliteminfo";
-    koliteminfo.style.position = "absolute";
-    koliteminfo.style.top = "2px";
-    koliteminfo.style.left = "2px";
-    koliteminfo.style.fontSize = "0.8em";
+    let koliteminfo1 = document.createElement("div");
+    koliteminfo1.id = "koliteminfo1";
+    koliteminfo1.style.position = "absolute";
+    koliteminfo1.style.top = "2px";
+    koliteminfo1.style.left = "2px";
+    koliteminfo1.style.fontSize = "0.8em";
+
+    let koliteminfo2 = document.createElement("div");
+    koliteminfo2.id = "koliteminfo2";
+    koliteminfo2.style.position = "absolute";
+    koliteminfo2.style.top = "2px";
+    koliteminfo2.style.right = "2px";
+    koliteminfo2.style.fontSize = "0.8em";
 
     let itemId = null;
     if (pathname == "/desc_item.php") {
         itemId = document.body.innerHTML.match(/<!-- itemid: (\d+) -->/)?.[1];
-        let itemIdDiv = addDiv(koliteminfo, `ID: ${itemId} `);
-        itemIdDiv.style.display = 'inline';
     }
 
     if (pathname == "/desc_effect.php") {
@@ -35,21 +40,25 @@ async function handleDescriptionPage() {
         }
     }
 
-    let wikiDiv = addDiv(koliteminfo, '[<a id="wiki" href="#">Wiki</a>]');
-    wikiDiv.style.display = 'inline';
+    addDiv(koliteminfo1, '[<a id="wiki" href="#">Wiki</a>]', style => style.display = "inline");
 
     if (itemId) {
-        addDiv(koliteminfo, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
+        addDiv(koliteminfo1, '[<a id="searchinv" href="#">Inv</a>]', style => style.display = "inline");
 
         let description =  document.evaluate(".//blockquote", document).iterateNext()?.innerText;
         await browser.runtime.sendMessage({operation: "setItemData", itemId, name: thingName, description});
 
         let flags = parseItemFlagsFromDescription(description);
         if (isTradableItemFlags(flags)) {
-            addDiv(koliteminfo, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
-            addDiv(koliteminfo, '[<a id="pricecheck" href="#">PC</a>]', style => style.display = "inline");
-            addDiv(koliteminfo, 'Average: <span id="market-average"><i>loading</i></span>');
-            addDiv(koliteminfo, 'Volume: <span id="market-volume"><i>loading</i></span>');
+            addDiv(koliteminfo1, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
+            addDiv(koliteminfo1, '[<a id="pricegun" href="#">PG</a>]', style => style.display = "inline");
+            addDiv(koliteminfo1, '[<a id="coldfrontPrice" href="#">CF</a>]', style => style.display = "inline");
+        }
+        addDiv(koliteminfo1, `ID: ${itemId} `);
+
+        if (isTradableItemFlags(flags)) {
+            addDiv(koliteminfo2, 'Average: <span id="market-average"><i>loading</i></span>');
+            addDiv(koliteminfo2, 'Volume: <span id="market-volume"><i>loading</i></span>');
         }
 
         addLevelToStatRequirement();
@@ -58,7 +67,8 @@ async function handleDescriptionPage() {
             redrawItemDescriptionPrice(itemId, thingNameNode, {cachedOnly: false}));
     }
 
-    document.body.appendChild(koliteminfo);
+    document.body.appendChild(koliteminfo1);
+    document.body.appendChild(koliteminfo2);
 
     let wikiElem = document.getElementById("wiki");
     wikiElem.addEventListener("click", () => {
@@ -82,10 +92,17 @@ async function handleDescriptionPage() {
         });
     }
 
-    let pricecheckElem = document.getElementById("pricecheck");
-    if (pricecheckElem) {
-        pricecheckElem.addEventListener("click", () => {
-            openPriceCheck(itemId);
+    let priceGunElem = document.getElementById("pricegun");
+    if (priceGunElem) {
+        priceGunElem.addEventListener("click", () => {
+            openPriceGun(itemId);
+            window.close();
+        });
+    }
+    let coldfrontPriceElem = document.getElementById("coldfrontPrice");
+    if (coldfrontPriceElem) {
+        coldfrontPriceElem.addEventListener("click", () => {
+            openColdfrontPriceGraph(itemId);
             window.close();
         });
     }
@@ -119,7 +136,8 @@ async function handleDescriptionPage() {
     bindKey("w", () => wikiElem.click());
     bindKey("s", () => searchInventoryElem && searchInventoryElem.click());
     bindKey("d", () => searchMallElem && searchMallElem.click());
-    bindKey("g", () => pricecheckElem && pricecheckElem.click());
+    bindKey("g", () => priceGunElem && priceGunElem.click());
+    bindKey("h", () => coldfrontPriceElem && coldfrontPriceElem.click());
     bindKey("c", () => { navigator.clipboard.writeText(thingName); window.close(); });
 }
 

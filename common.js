@@ -523,7 +523,11 @@ async function gotoStorage(searchTerm) {
     return gotoInventory(searchTerm, "storage");
 }
 
-function openPriceCheck(itemId) {
+function openPriceGun(itemId) {
+    open(`https://pricegun.loathers.net/item/${itemId}`);
+}
+
+function openColdfrontPriceGraph(itemId) {
     open(`https://api.aventuristo.net/itemgraph?itemid=${itemId}&timespan=2`);
 }
 
