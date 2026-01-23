@@ -51,8 +51,10 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
     return redrawPrices([itemId], {cachedOnly},
         (_, flags, average, volume, color, fontStyle) => {
             let itemNameNode = getWikiItemNameNode();
-            itemNameNode.style.color = color;
-            itemNameNode.style.fontStyle = fontStyle;
+            if (!itemNameNode.style.color && !itemNameNode.style.backgroundColor) {
+                itemNameNode.style.color = color;
+                itemNameNode.style.fontStyle = fontStyle;
+            }
 
             let priceNode = document.getElementById("marketprice");
             if (priceNode) {
@@ -66,5 +68,5 @@ async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
 }
 
 function getWikiItemNameNode() {
-    return document.evaluate("//div[@id='mw-content-text']//div[contains(@class, 'template-item')]//b[1]", document).iterateNext();
+    return document.evaluate("//div[@id='mw-content-text']//div[contains(@class, 'template-item')]//span[b[1]]", document).iterateNext();
 }
