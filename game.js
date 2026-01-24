@@ -61,24 +61,14 @@ function initCompanionPane() {
 
     getPane("companionpane").addEventListener("contextmenu", handleCompanionPaneTogglePin);
 
-    getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));
     getPane("companionpane", {id: "combat-macro-clear"}).addEventListener("click", () => setCompanionPaneText("combat-macro"));
-    getPane("companionpane", {id: "while-text-clear"}).addEventListener("click", () => setCompanionPaneText("while-text"));
-    getPane("companionpane", {id: "after-adv-cmd-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd"));
-    getPane("companionpane", {id: "after-adv-cmd-text-clear"}).addEventListener("click", () => setCompanionPaneText("after-adv-cmd-text"));
+    getPane("companionpane", {id: "until-turn-clear"}).addEventListener("click", () => setCompanionPaneText("until-turn"));
 
     getPane("companionpane", {id: "mine-gold"}).addEventListener("click", mineGold);
     getPane("companionpane", {id: "farm-dust-bunnies"}).addEventListener("click", farmDustBunnies);
-    getPane("companionpane", {id: "fight-pvp"}).addEventListener("click", autoFightPvP);
-    getPane("companionpane", {id: "re-adventure"}).addEventListener("click", readventure);
 
     getPane("companionpane", {id: "preset-crimbo"}).addEventListener("click",
         () => applyPreset({combatMacro: "Crimbo"}));
-
-    // getPane("companionpane", {id: "test-button"})
-    //     .addEventListener("click", async () => {
-    //         // sortInventory();
-    //     });
 }
 
 function handleCompanionPaneTogglePin(event) {
@@ -140,13 +130,6 @@ async function mineGold() {
             return isOutOfAdventures || isTooDrunk;
         };
         while (!isDone()) {
-            if (shouldSpendMpBuff() && isMpAlmostFull()) {
-                await sendCommandWithPause("/buff", 3000);
-            }
-            if (shouldStopMpFull() && isMpAlmostFull()) {
-                resultElem.innerText = "MP Full";
-                return stop();
-            }
             let mainDoc = getPane("mainpane").document;
             let isBeatenUp = !!mainDoc?.firstChild?.innerText?.match(/You're way too beaten up to mine right now/);
             if (getPathName(mainDoc) == "/mining.php" && !isBeatenUp) {
@@ -176,14 +159,6 @@ async function farmDustBunnies() {
     try {
         let isDone = async () => await exec(ctx, getTurnsUseRemaining) < 2;
         while (!await isDone()) {
-            if (shouldSpendMpBuff() && isMpAlmostFull()) {
-                await sendCommandWithPause("/buff", 3000);
-            }
-            if (shouldStopMpFull() && isMpAlmostFull()) {
-                resultElem.innerText = "MP Full";
-                return stop();
-            }
-
             resultElem.innerText = "Running";
             await exec(ctx, sequence([
                 withDelay(() => goto("/place.php?whichplace=monorail&action=monorail_downtown")),
@@ -200,340 +175,12 @@ async function farmDustBunnies() {
     stop();
 }
 
-async function autoFightPvP() {
-    let ctx = start();
-    if (!ctx) return stop();
-
-    let resultElem = getPane("companionpane", {id: "fight-pvp-result"});
-
-    try {
-        let isDone = async () => await exec(ctx, withRetry(() => {
-            let mainpane = getPane("mainpane");
-            return mainpane.document.body.innerText.match(/You're out of fights/);
-        }));
-        while (!await isDone()) {
-            let mainDoc = getPane("mainpane").document;
-            let pathname = getPathName(mainDoc);
-            if (pathname == "/peevpee.php") {
-                resultElem.innerText = "Running";
-                mainDoc.dispatchEvent(new Event("fight-pvp"));
-                await sleep(600, ctx);
-            } else {
-                resultElem.innerText = "Waiting";
-                await sleep(1000, ctx);
-            }
-        }
-        resultElem.innerText = "Finished";
-    } catch (e) {
-        resultElem.innerText = e;
-        console.log(e);
-    }
-    stop();
-}
-
-async function readventure() {
-    let ctx = start();
-    if (!ctx) return stop();
-
-    let resultElem = getPane("companionpane", {id: "re-adventure-result"});
-
-    try {
-        let isDone = async () => !await exec(ctx, checkQuestTextMatch) || await exec(ctx, getTurnsUseRemaining) <= 0;
-        while (!await isDone()) {
-            let mainpane = getPane("mainpane");
-            let isCombat = !!mainpane.document.evaluate("//td/b[text()='Combat!']", mainpane.document).iterateNext();
-            let mainpaneText = mainpane.document.firstChild?.innerText;
-            if (!mainpaneText) {
-                await sleep(200, ctx);
-                continue;
-            }
-            let isAdventureEnd = mainpane.document.firstChild.innerText.match(/Adventure Again/);
-
-            if (isAdventureEnd) {
-                if (shouldSpendMpBuff() && isMpAlmostFull()) {
-                    await sendCommandWithPause("/buff", 3000);
-                }
-                if (shouldStopMpFull() && isMpAlmostFull()) {
-                    resultElem.innerText = "MP Full";
-                    return stop();
-                }
-                if (shouldStopMpLow() && isMpLow()) {
-                    resultElem.innerText = "MP Low";
-                    return stop();
-                }
-
-                resultElem.innerText = "Running";
-                if (getWhileText() || await exec(ctx, getTurnsUseRemaining) <= 2) {
-                    await sleep(500, ctx);
-                }
-                if (!await isDone()) {
-                    await sendAfterAdventureCommand();
-                    await exec(ctx, withDelay(goLastAdventure, 1000));
-                }
-            } else if (isCombat) {
-                resultElem.innerText = "Running";
-                await exec(ctx, withDelay(autoCombat));
-            } else {
-                let success = await exec(ctx, withDelay(chooseAdventureOption));
-                if (!success) {
-                    resultElem.innerText = "Waiting";
-                    await sleep(1000, ctx);
-                }
-            }
-        }
-        await sendAfterAdventureCommand();
-        resultElem.innerText = "Finished";
-    } catch (e) {
-        resultElem.innerText = e;
-        console.log(e);
-    }
-    stop();
-}
-
 function setCompanionPaneText(elemId, newText = "") {
     getPane("companionpane", {id: elemId}).value = newText;
 }
 
-function applyPreset({combatMacro, whileText, afterAdvCmd, afterAdvCmdText} = {}) {
+function applyPreset({combatMacro} = {}) {
     setCompanionPaneText("combat-macro", (combatMacro || ""));
-    setCompanionPaneText("while-text", (whileText || ""));
-    setCompanionPaneText("after-adv-cmd", (afterAdvCmd || ""));
-    setCompanionPaneText("after-adv-cmd-text", (afterAdvCmdText || ""));
-}
-
-function autoCombat() {
-    let macroName = getPane("companionpane", {id: "combat-macro"}).value;
-    if (macroName) {
-        return withDelay(executeMacro(macroName), 1000);
-    }
-    return useCombatAction();
-}
-
-function useCombatAction() {
-    let useSteal = getPane("companionpane", {id: "use-steal"}).checked;
-    let useStun = getPane("companionpane", {id: "use-stun"}).checked;
-    let actions = [];
-
-    if (useSteal) {
-        actions.push(() => clickButton(/Pick .* Pocket/));
-    }
-    if (useStun) {
-        actions.push(useSkill(/Accordion Bash/));
-        actions.push(useSkill(/Entangling Noodles/));
-        actions.push(useSkill(/Soul Bubble/));
-    }
-    if (isHpLow()) {
-        actions.push(useItem(/New Age healing crystal/));
-    }
-    if (useSteal) {
-        actions.push(() => clickButton(/Steal Accordion/));
-    }
-    actions.push(useAttackCombatAction);
-
-    return sequence(actions, {stopOnSuccess: true});
-}
-
-function useAttackCombatAction() {
-    let enemyName = getEnemyName();
-    switch (enemyName) {
-        case "Section 11":
-            return usePhysicalAttackCombatAction();
-        case "spectre of war":
-        case "pumpkin spice wraith":
-            return useElementalAttackCombatAction();
-    }
-    return useGeneralAttackCombatAction();
-}
-
-function usePhysicalAttackCombatAction() {
-    return sequence([
-        useSkill(/Weapon of the Pastalord/),
-        useSkill(/Curse of Marinara/),
-        () => clickButton(/Attack with/),
-    ], {stopOnSuccess: true});
-}
-
-function useElementalAttackCombatAction() {
-    return sequence([
-        useSkill(/Saucestorm/),
-        useSkill(/Cannelloni Cannon/),
-        useSkill(/Bawdy Refrain/),
-    ], {stopOnSuccess: true});
-}
-
-function useGeneralAttackCombatAction() {
-    return sequence([
-        useSkill(/Saucestorm/),
-        useSkill(/Cannelloni Cannon/),
-        () => clickButton(/Attack with/),
-    ], {stopOnSuccess: true});
-}
-
-function useSkill(skillName) {
-    return sequence([
-        () => select("whichskill", skillName),
-        () => clickButton(/Use Skill/),
-    ], {stopOnError: true});
-}
-
-function useItem(itemName) {
-    return sequence([
-        () => select("whichitem", itemName),
-        () => clickButton(/Use Item/),
-    ], {stopOnError: true});
-}
-
-function executeMacro(macroName) {
-    return sequence([
-        () => select("whichmacro", macroName),
-        () => clickButton(/Execute Macro/),
-    ], {stopOnError: true});
-}
-
-function chooseAdventureOption() {
-    return sequence([
-        chooseSpookyForestOption(),
-        chooseDungeonsOfDoomOption(),
-        chooseSouthOfBorderOption(),
-        choosePFAirshipOption(),
-        chooseExtremeSlopeOption(),
-        chooseCastleSkyTopOption(),
-        chooseDailyDungeonOption(),
-        chooseHauntedBathroomOption(),
-        chooseHauntedGalleryOption(),
-        chooseBlackForestOption(),
-        chooseOvergrownLotOption(),
-        chooseCrimbo2024Option(),
-    ], {stopOnSuccess: true});
-}
-
-function chooseSpookyForestOption() {
-    return sequence([
-        // 15: The Spooky Forest
-        () => clickButtonIfPageText(/Arboreal Respite/, /Explore the stream/),
-        () => clickButtonIfPageText(/Consciousness of a Stream/, /Squeeze into the cave/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseDungeonsOfDoomOption() {
-    return sequence([
-        // 39: The Dungeons of Doom
-        () => clickButtonIfPageText(/Ouch! You bump into a door!/, /Leave without buying anything/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseSouthOfBorderOption() {
-    return sequence([
-        // 45: South of The Border
-        () => clickButtonIfPageText(/Finger-Lickin'... Death./, /Walk away in disgust/),
-    ], {stopOnSuccess: true});
-}
-
-function choosePFAirshipOption() {
-    return sequence([
-        // 81: The Penultimate Fantasy Airship
-        () => clickButtonIfPageText(/Random Lack of an Encounter/, /Check the cargo hold/),
-        () => clickButtonIfPageText(/Hammering the Armory/, /Blow this popsicle stand/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseExtremeSlopeOption() {
-    return sequence([
-        // 273: The eXtreme Slope
-        () => clickButtonIfPageText(/Yeti Nother Hippy/, /Negotiate his release/),
-        () => clickButtonIfPageText(/Saint Beernard/, /Ask for some beer, first/),
-        () => clickButtonIfPageText(/Generic Teen Comedy Snowboarding Adventure/, /Offer to help him cheat/),
-        () => clickButtonIfPageText(/Duffel on the Double/, /Dig deeper/),
-        () => clickButtonIfPageText(/Duffel on the Double/, /Scram/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseCastleSkyTopOption() {
-    return sequence([
-        // 324: The Castle in the Clouds in the Sky (Top Floor)
-        () => clickButtonIfPageText(/Flavor of a Raver/, /Check Behind the Giant Poster/),
-        () => clickButtonIfPageText(/Yeah, You're for Me, Punk Rock Giant/, /Check behind the trash can/),
-        () => clickButtonIfPageText(/Copper Feel/, /Go through the Crack/),
-        () => clickButtonIfPageText(/Melon Collie and the Infinite Lameness/, /Snag some Candles/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseDailyDungeonOption() {
-    return sequence([
-        // 325: The Daily Dungeon
-        () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Go through the boring door/),
-        () => clickButtonIfPageText(/In the (5|10)th chamber of the Daily Dungeon/, /Ignore the chest/),
-        () => clickButtonIfPageText(/In the 15th and final chamber of the Daily Dungeon/, /Open it!/),
-        () => clickButtonIfPageText(/It's Almost Certainly a Trap/, /Use your eleven-foot pole/),
-        () => clickButtonIfPageText(/I Wanna Be a Door/, /Use your lockpicks/),
-        () => clickButtonIfPageText(/I Wanna Be a Door/, /Use a skeleton key/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseHauntedBathroomOption() {
-    return sequence([
-        // 392: The Haunted Bathroom
-        () => clickButtonIfPageText(/Having a Medicine Ball/, /Open it and see what's inside/),
-        () => clickButtonIfPageText(/Bad Medicine is What You Need/, /Take off/),
-        () => clickButtonIfPageText(/Off the Rack/, /Take the towel/),
-        () => clickButtonIfPageText(/Lights Out in the Bathroom/, /Fumble Your Way to the Door/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseHauntedGalleryOption() {
-    return sequence([
-        // 394: The Haunted Gallery
-        () => clickButtonIfPageText(/Louvre It or Leave It/, /Pass on by/),
-        () => clickButtonIfPageText(/Out in the Garden/, /None of the above/),
-        () => clickButtonIfPageText(/Lights Out in the Gallery/, /Quit the Gallery/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseBlackForestOption() {
-    return sequence([
-        // 405: The Black Forest
-        () => clickButtonIfPageText(/All Over the Map/, /Go to the black gold mine/),
-        () => clickButtonIfPageText(/Be Mine/, /Go left/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseOvergrownLotOption() {
-    return sequence([
-        // 441: The Overgrown Lot
-        () => clickButtonIfPageText(/Lots of Options/, /Follow the booze map/),
-        () => clickButtonIfPageText(/Lots of Options/, /Look through the cardboard boxes/),
-    ], {stopOnSuccess: true});
-}
-
-function chooseCrimbo2024Option() {
-    return sequence([
-        // Crimbo 2024
-        () => clickButtonIfPageText(/The Eggdump/, /Dig through the eggs/),
-        () => clickButtonIfPageText(/Snakes in the Grasses/, /See what's under the snakes/),
-        () => clickButtonIfPageText(/War is Like Hell: Very Hot/, /Bravely explore/),
-        () => clickButtonIfPageText(/The Edge of Winter/, /Venture into the cold/),
-        () => clickButtonIfPageText(/The Malevolent Spirit of the Holiday/, /Explore the spooky woods/),
-    ], {stopOnSuccess: true});
-}
-
-function clickButtonIfPageText(pageTextPattern, buttonTextPattern) {
-    let mainDoc = getPane("mainpane").document;
-    if (mainDoc.firstChild.innerText.match(pageTextPattern)) {
-        return clickButton(buttonTextPattern);
-    }
-    return false;
-}
-
-function shouldSpendMpBuff() {
-    return getPane("companionpane", {id: "spend-mp-buff"}).checked;
-}
-
-function shouldStopMpFull() {
-    return getPane("companionpane", {id: "stop-mp-full"}).checked;
-}
-
-function shouldStopMpLow() {
-    return getPane("companionpane", {id: "stop-mp-low"}).checked;
 }
 
 function getTurnsUseRemaining() {
@@ -546,55 +193,11 @@ function getTurnsUseRemaining() {
     });
 }
 
-function checkQuestTextMatch() {
-    return withRetry(() => {
-        let charpaneText = getPane("charpane").document.body.innerText;
-        return charpaneText.match(getWhileText());
-    });
-}
-
-function getWhileText() {
-    return getPane("companionpane", {id: "while-text"}).value;
-}
-
-async function sendAfterAdventureCommand() {
-    let cmd = getPane("companionpane", {id: "after-adv-cmd"}).value;
-    if (cmd) {
-        let textPattern = getPane("companionpane", {id: "after-adv-cmd-text"}).value;
-        if (textPattern) {
-            let mainpaneText = getPane("mainpane").document.firstChild.innerText;
-            let charpaneText = getPane("charpane").document.firstChild.innerText;
-            let textIncludes = (haystack, needle) => haystack.toLowerCase().includes(needle.toLowerCase());
-            if (!textIncludes(mainpaneText, textPattern) && !textIncludes(charpaneText, textPattern)) {
-                return;
-            }
-        }
-        await sendCommandWithPause(cmd, 1000);
-    }
-}
-
-async function sendCommandWithPause(cmd, delay) {
-    await sendCommand(cmd);
-    await sleep(delay);
-}
-
 function goto(page) {
     let url = page.startsWith("/") ? getBaseUrl() + page : page;
     console.log(`Goto ${url}`);
     getPane("mainpane").location = url;
     return true;
-}
-
-function goLastAdventure() {
-    let charpaneDoc = getPane("charpane").document;
-    let labelNode = charpaneDoc.evaluate("//a[contains(text(), 'Last Adventure')]", charpaneDoc).iterateNext();
-    if (labelNode) {
-        console.log(`Go last adventure`);
-        let adventureLink = charpaneDoc.evaluate(".//a", labelNode.parentNode.parentNode.parentNode.lastChild).iterateNext();
-        adventureLink.click();
-        return true;
-    }
-    return false;
 }
 
 function throwIfStopped(ctx) {

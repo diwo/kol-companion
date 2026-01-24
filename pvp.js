@@ -8,7 +8,6 @@ function handlePvp() {
     if (autoPvp) fightPvP();
 
     bindKey("`", fightPvP);
-    document.addEventListener("fight-pvp", fightPvP);
 
     addPriceToAdventureRewardItems();
 }
