@@ -52,7 +52,7 @@ async function handleDescriptionPage() {
         if (isTradableItemFlags(flags)) {
             addDiv(koliteminfo1, '[<a id="searchmall" href="#">Mall</a>]', style => style.display = "inline");
             addDiv(koliteminfo1, '[<a id="pricegun" href="#">PG</a>]', style => style.display = "inline");
-            addDiv(koliteminfo1, '[<a id="coldfrontPrice" href="#">CF</a>]', style => style.display = "inline");
+            // addDiv(koliteminfo1, '[<a id="coldfrontPrice" href="#">CF</a>]', style => style.display = "inline");
         }
         addDiv(koliteminfo1, `ID: ${itemId} `);
 
@@ -99,13 +99,13 @@ async function handleDescriptionPage() {
             window.close();
         });
     }
-    let coldfrontPriceElem = document.getElementById("coldfrontPrice");
-    if (coldfrontPriceElem) {
-        coldfrontPriceElem.addEventListener("click", () => {
-            openColdfrontPriceGraph(itemId);
-            window.close();
-        });
-    }
+    // let coldfrontPriceElem = document.getElementById("coldfrontPrice");
+    // if (coldfrontPriceElem) {
+    //     coldfrontPriceElem.addEventListener("click", () => {
+    //         openColdfrontPriceGraph(itemId);
+    //         window.close();
+    //     });
+    // }
 
     let boxedFamiliarImage = document.evaluate('//img[starts-with(@onclick, "fam(")]', document).iterateNext();
     if (boxedFamiliarImage) {
@@ -137,7 +137,7 @@ async function handleDescriptionPage() {
     bindKey("s", () => searchInventoryElem && searchInventoryElem.click());
     bindKey("d", () => searchMallElem && searchMallElem.click());
     bindKey("g", () => priceGunElem && priceGunElem.click());
-    bindKey("h", () => coldfrontPriceElem && coldfrontPriceElem.click());
+    // bindKey("h", () => coldfrontPriceElem && coldfrontPriceElem.click());
     bindKey("c", () => { navigator.clipboard.writeText(thingName); window.close(); });
 }
 

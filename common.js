@@ -527,9 +527,9 @@ function openPriceGun(itemId) {
     open(`https://pricegun.loathers.net/item/${itemId}`);
 }
 
-function openColdfrontPriceGraph(itemId) {
-    open(`https://api.aventuristo.net/itemgraph?itemid=${itemId}&timespan=2`);
-}
+// function openColdfrontPriceGraph(itemId) {
+//     open(`https://api.aventuristo.net/itemgraph?itemid=${itemId}&timespan=2`);
+// }
 
 async function getPrice(itemId, {cachedOnly} = {}) {
     if (cachedOnly) {
