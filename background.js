@@ -231,19 +231,18 @@ async function fetchPrice(itemId) {
 }
 
 async function fetchPriceNoCache(itemId) {
-    const oneWeekTimespan = 2;
-    const lifetimeTimespan = 4;
-    let fetched = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, oneWeekTimespan));
-    if (!fetched.data.error && !fetched.data.average) {
-        let fetchedLifetime = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, lifetimeTimespan));
-        if (!fetchedLifetime.data.error) {
-            fetched = fetchedLifetime;
-            fetched.data.volume = 0;
-        }
-    }
-    if (!fetched.data.error) return fetched;
+    // const oneWeekTimespan = 2;
+    // const lifetimeTimespan = 4;
+    // let fetched = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, oneWeekTimespan));
+    // if (!fetched.data.error && !fetched.data.average) {
+    //     let fetchedLifetime = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, lifetimeTimespan));
+    //     if (!fetchedLifetime.data.error) {
+    //         fetched = fetchedLifetime;
+    //         fetched.data.volume = 0;
+    //     }
+    // }
+    // if (!fetched.data.error) return fetched;
 
-    // fallback
     let mafiaMallPrices = await getMafiaMallPrices();
     let itemPrice = mafiaMallPrices.data[itemId]?.price;
     return {
