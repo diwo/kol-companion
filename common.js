@@ -496,6 +496,7 @@ function openWiki(searchTerm) {
 }
 
 async function searchMall(searchTerm, {exactMatch} = {}) {
+    if (!searchTerm) return;
     if (exactMatch) searchTerm = `"${searchTerm}"`;
     let searchParams = new URLSearchParams();
     searchParams.set("pudnuggler", searchTerm);
