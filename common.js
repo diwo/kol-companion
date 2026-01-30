@@ -633,7 +633,7 @@ function getPriceColor(price, volume, itemFlags = {}) {
         return "red";
     } else if (price >= 80_000) {
         return "darkorange";
-    } else if (price >= 8_000) {
+    } else if (price >= 10_000) {
         return "dodgerblue";
     } else if (price >= 1000 || (price >= 300 && volume >= 1000)) {
         return "green";
