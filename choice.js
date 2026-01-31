@@ -41,7 +41,7 @@ async function addAdventureChoiceNotes() {
             if (tag) {
                 let color;
                 if (tag == "quest") color = "darkviolet";
-                if (tag == "rare") color = "orange";
+                if (tag == "rare" || tag == "ultrarare") color = "orange";
                 let bNode = document.createElement("b");
                 if (color) bNode.style.color = color;
                 bNode.style.marginLeft = "2px";
