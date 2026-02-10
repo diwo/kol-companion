@@ -80,12 +80,26 @@ function formatStoreActivity() {
 
 function addStoreCheckUndercutButton() {
     let stockElem = document.getElementById("stock");
-    let buttonContainer = document.createElement("center");
+    let undercutContainer = document.createElement("center");
+
     let checkUndercutLink = document.createElement("a");
     checkUndercutLink.href = "#";
     checkUndercutLink.innerText = "Check Undercut";
-    buttonContainer.append(checkUndercutLink);
-    stockElem.parentElement.insertBefore(buttonContainer, stockElem.nextSibling);
+    undercutContainer.append(checkUndercutLink);
+
+    let priceMatchSpan = document.createElement("span");
+    priceMatchSpan.style.marginLeft = 6;
+    let priceMatchCheckbox = document.createElement("input");
+    priceMatchCheckbox.id = "include-price-match";
+    priceMatchCheckbox.type = "checkbox";
+    let priceMatchLabel = document.createElement("label");
+    priceMatchLabel.htmlFor = priceMatchCheckbox.id;
+    priceMatchLabel.textContent = "Include Price Match";
+    priceMatchSpan.append(priceMatchCheckbox);
+    priceMatchSpan.append(priceMatchLabel);
+    undercutContainer.append(priceMatchSpan);
+
+    stockElem.parentElement.insertBefore(undercutContainer, stockElem.nextSibling);
 
     let isCheckingUndercut = false;
 
@@ -110,7 +124,9 @@ function addStoreCheckUndercutButton() {
                     lowestOtherPrice = price;
                 }
             }
-            return !myPrice || (!!lowestOtherPrice && lowestOtherPrice <= myPrice);
+            if (!myPrice) return true;
+            if (!lowestOtherPrice) return false;
+            return priceMatchCheckbox.checked ? lowestOtherPrice <= myPrice : lowestOtherPrice < myPrice;
         };
 
         let observer = new MutationObserver(() => {
