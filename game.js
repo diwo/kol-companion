@@ -67,8 +67,8 @@ function initCompanionPane() {
     getPane("companionpane", {id: "mine-gold"}).addEventListener("click", mineGold);
     getPane("companionpane", {id: "farm-dust-bunnies"}).addEventListener("click", farmDustBunnies);
 
-    getPane("companionpane", {id: "preset-crimbo"}).addEventListener("click",
-        () => applyPreset({combatMacro: "Crimbo"}));
+    getPane("companionpane", {id: "preset-crimbo"}).addEventListener("click", () => applyPreset({combatMacro: "Crimbo"}));
+    getPane("companionpane", {id: "preset-trick-or-treat"}).addEventListener("click", () => applyPreset({combatMacro: "Trick-or-Treat"}));
 }
 
 function handleCompanionPaneTogglePin(event) {
