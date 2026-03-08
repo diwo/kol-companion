@@ -835,6 +835,142 @@
         }
     },
     {
+        "zone": "Dreadsylvanian Woods",
+        "adventures": {
+            "The Cabin in the Dreadsylvanian Woods": {
+                "choiceText": {
+                    "Check out the kitchen": { "note": "Tarragon, bone flour (req Mus + old dry bone)" },
+                    "Go down to the basement": { "note": "Freddy, lock (req wax banana), Auditor's badge (req replica key)" },
+                    "Try the attic": { "note": "Intricate music box parts (req AT)" }
+                }
+            },
+            "The Kitchen in the Woods": {
+                "choiceText": {
+                    "Raid the spice rack": { "note": "Dread tarragon" },
+                    "Screw around with the flour mill": { "note": "Bone flour (req Mus + old dry bone)" }
+                }
+            },
+            "Where it's Attic": { "choiceText": { "Turn off the music box": { "note": "Banish + intricate music box parts (req AT)" } } },
+            "What Lies Beneath (the Cabin)": {
+                "choiceText": {
+                    "Look through the newspapers": { "note": "Freddy" },
+                    "Check out the lockbox": { "note": "Auditor's badge (req replica key)" },
+                    "Stick a wax banana in the lock": { "note": "complicated lock impression (req wax banana)" }
+                }
+            },
+            "The Tallest Tree in the Forest": {
+                "choiceText": {
+                    "Climb to the top": { "note": "(req Mus) Blood kiwi (req friend), moon-amber" },
+                    "Check out the fire tower": { "note": "Freddy" },
+                    "Root around at the base": { "note": "Blood kiwi (req friend), seed pod" }
+                }
+            },
+            "All Along the Watchtower": { "choiceText": { "Raid the footlocker": { "note": "Freddy" } } },
+            "Treebasing": {
+                "choiceText": {
+                    "Stand near the base looking upward": { "note": "Blood kiwi (req friend)" },
+                    "Stand near the base looking downward": { "note": "Dreadsylvanian seed pod" }
+                }
+            },
+            "Below the Roots": {
+                "choiceText": {
+                    "Go toward the heat": { "note": "Cool iron ingot (req old ball and chain)" },
+                    "Go toward the smelly": { "note": "Freddy" }
+                }
+            },
+            "Once Midden, Twice Shy": { "choiceText": { "Dig through the garbage": { "note": "Freddy" } } }
+        }
+    },
+    {
+        "zone": "Dreadsylvanian Village",
+        "adventures": {
+            "Dreadsylvanian Village Square": {
+                "choiceText": {
+                    "The schoolhouse": { "note": "Ghost pencil" },
+                    "The blacksmith's shop": { "note": "Freddy, smith (req cool iron ingot + warm fur)" },
+                    "The gallows": { "note": "Class item (req friend)" }
+                }
+            },
+            "Fright School": { "choiceText": { "Rummage through the teacher's desk": { "note": "Ghost pencil" } } },
+            "Smith, Black as Night": {
+                "choiceText": {
+                    "Dig through the till": { "note": "Freddy" },
+                    "Approach the anvil": { "note": "Smith cool iron item" }
+                }
+            },
+            "Good Noose, Everyone!": {
+                "choiceText": {
+                    "Stand on the trap door": { "note": "Class item (req friend)" },
+                    "Stand around gawking": { "note": "Wait" },
+                    "Pull the lever": { "note": "Hang friend" }
+                }
+            },
+            "The Even More Dreadful Part of Town": {
+                "choiceText": {
+                    "Investigate the ticking shack": { "note": "(req Mox) Freddy, replica key (req ingred), polished moon-amber (req amber), songbird (req ingred), old fuse" }
+                }
+            },
+            "The Tinker's. Damn.": {
+                "choiceText": {
+                    "Rummage through the shelves": { "note": "Freddy" },
+                    "Make a key using the wax lock impression": { "note": "Replica key" },
+                    "Polish the moon-amber": { "note": "Polished moon-amber" },
+                    "Assemble a clockwork bird": { "note": "Unwound mechanical songbird" },
+                    "Look through the boxes": { "note": "3 lengths of old fuse" }
+                }
+            },
+            "The Old Duke's Estate": {
+                "choiceText": {
+                    "Check out the family plot": { "note": "Freddy" },
+                    "Investigate the servant's quarters": { "note": "Shepherd's pie (req Myst + ingred)" },
+                    "Make your way to the master suite": { "note": "eau de mort, ghost shawl (req 10 ghost threads)" }
+                }
+            },
+            "The Plot Thickens": { "choiceText": { "Rob some graves": { "note": "Freddy" } } },
+            "No Quarter": { "choiceText": { "Make a shepherd's pie": { "note": "Shepherd's pie (req ingred)" } } },
+            "The Master Suite -- Sweet!": {
+                "choiceText": {
+                    "Check the nightstand": { "note": "Eau de mort" },
+                    "Mess with the loom": { "note": "Ghost shawl (req 10 ghost threads)" }
+                }
+            }
+        }
+    },
+    {
+        "zone": "Dreadsylvanian Castle",
+        "adventures": {
+            "Tower Most Tall": {
+                "choiceText": {
+                    "Go to the laboratory": { "note": "Machine, bloody kiwitini (req Mox + ingred)" },
+                    "Books. Check them out.": { "note": "Necklace recipe (req Myst)" },
+                    "Go to the bedroom": { "note": "Freddy" }
+                }
+            },
+            "In The Boudoir": { "choiceText": { "Check the dresser": { "note": "Freddy" } } },
+            "Working in the Lab, Late One Night": {
+                "choiceText": {
+                    "Approach The Machine": { "note": "Machine" },
+                    "Use the still": { "note": "Bloody kiwitini (req ingred)" }
+                }
+            },
+            "This Hall is Really Great": { "choiceText": { "Investigate the dining room": { "note": "Roast, wax banana (req Myst)" } } },
+            "Dining In (the Castle)": {
+                "choiceText": {
+                    "Grab the roast": { "note": "Dreadful roast" },
+                    "Levitate up to the rafters": { "note": "Wax banana" }
+                }
+            },
+            "The Dreadsylvanian Dungeon": {
+                "choiceText": {
+                    "Head for the boiler room": { "note": "Freddy" },
+                    "Check out the guardroom": { "note": "Stinking agaricus" }
+                }
+            },
+            "The Hot Bowels": { "choiceText": { "Check in the incinerator": { "note": "Freddy" } } },
+            "Among the Fungus": { "choiceText": { "Break off some choice bits": { "note": "Stinking agaricus" } } }
+        }
+    },
+    {
         "zone": "The Neverending Party",
         "adventures": {
             "It Hasn't Ended, It's Just Paused": {
