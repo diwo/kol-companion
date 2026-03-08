@@ -1043,6 +1043,48 @@
         }
     },
     {
+        "zone": "ChibiBuddy™",
+        "adventures": {
+            "ChibiBuddy™": { "choiceText": { "Have a ChibiChat™": { "note": "ChibiChanged™" } } },
+            "Feeding your ChibiBuddy™": {
+                "optionNum": {
+                    "1": { "note": "+Fit" },
+                    "2": { "note": "-Int" },
+                    "3": { "note": "+Int -Social" },
+                    "4": { "note": "+Align -Int" },
+                    "5": { "note": "+Social -Align" }
+                }
+            },
+            "Entertaining your ChibiBuddy™": {
+                "optionNum": {
+                    "1": { "note": "+Int" },
+                    "2": { "note": "-Social" },
+                    "3": { "note": "+Social -Fit" },
+                    "4": { "note": "+Fit -Align" },
+                    "5": { "note": "+Align -Social" }
+                }
+            },
+            "Interacting with your ChibiBuddy™": {
+                "optionNum": {
+                    "1": { "note": "+Social" },
+                    "2": { "note": "-Align" },
+                    "3": { "note": "+Fit -Int" },
+                    "4": { "note": "+Align -Fit" },
+                    "5": { "note": "+Int -Align" }
+                }
+            },
+            "Exploring with your ChibiBuddy™": {
+                "optionNum": {
+                    "1": { "note": "+Align" },
+                    "2": { "note": "-Fit" },
+                    "3": { "note": "+Int -Fit" },
+                    "4": { "note": "+Fit -Social" },
+                    "5": { "note": "+Social -Int" }
+                }
+            }
+        }
+    },
+    {
         "zone": "Clan Rumpus Room",
         "url": "/clan_rumpus.php",
         "adventures": {
