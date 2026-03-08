@@ -1,4 +1,9 @@
 function handleChoice() {
+    // Workaround for mafia sending fight.php content instead of redirecting to fight.php
+    if (evaluateToNodesArray("//form[@action='fight.php']").length) {
+        handleFight();
+        return;
+    }
     addPriceToAdventureRewardItems();
     handleChoiceTrickOrTreat();
     drawCombBeachGrid();
