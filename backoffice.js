@@ -182,7 +182,7 @@ function onClickStoreInventoryPriceUndercut(event) {
     updateLink.click();
 
     let priceInput = document.evaluate(".//input[contains(@class, 'price')]", deets).iterateNext();
-    let price = parseFormattedInt(event.target.innerText);
+    let price = parseFormattedNum(event.target.innerText);
     priceInput.value = (price - 1).toLocaleString();
 
     let savePriceButton = document.evaluate(".//input[@type='submit' and @value='Save']", deets).iterateNext();

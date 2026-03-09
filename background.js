@@ -43,6 +43,10 @@ async function scanStorageMallLinks() {
     return scanStorage(k => k == getMallLinksKey());
 }
 
+async function scanStorageMallAlerts() {
+    return scanStorage(k => k == getMallAlertsKey());
+}
+
 async function writeObjectToClipboard(obj) {
     let json = JSON.stringify(obj);
     await navigator.clipboard.writeText(json);
@@ -55,6 +59,7 @@ async function exportCacheToClipboard() {
         "item_data": await scanStorageItemData(),
         "effect_data": await scanStorageEffectData(),
         "mall_links": await scanStorageMallLinks(),
+        "mall_alerts": await scanStorageMallAlerts(),
     };
     return writeObjectToClipboard(data);
 }
@@ -120,6 +125,8 @@ browser.runtime.onMessage.addListener(message => {
             return setItemData(message.itemId, {...message});
         case "setEffectData":
             return setEffectData(message.effectId, {...message});
+        case "checkMallAlerts":
+            return checkMallAlerts(message.windowId, message.init);
     }
     return false;
 });
@@ -277,8 +284,8 @@ function parseColdfrontPrice(page) {
     }
     try {
         let matches = page.match(/CURRENT AVG PRICE:.*?([0-9,.]+) meat.*BOUGHT THIS TIMESPAN:.*?([0-9,.]+)/);
-        let average = parseFormattedInt(matches[1]);
-        let volume = parseFormattedInt(matches[2]);
+        let average = parseFormattedNum(matches[1]);
+        let volume = parseFormattedNum(matches[2]);
         return {average, volume};
     } catch (e) {
         return {error: e};
@@ -334,8 +341,8 @@ async function fetchItemData(itemId, itemDescId) {
 
     console.debug(`Fetching item description itemDescId=${itemDescId} for itemId=${itemId}`);
 
-    let path = "/desc_item.php?whichitem=" + itemDescId;
-    let data = await fetchDescription(path, (doc, content) => {
+    let {page} = await fetchPage("/desc_item.php?whichitem=" + itemDescId);
+    let data = extractDataFromHtml(page, (doc, content) => {
         let name = doc.evaluate(".//div[@id='description']/center/b", content).iterateNext()?.innerText;
         let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
         return {name, description};
@@ -375,8 +382,8 @@ async function fetchEffectData(effectId, effectDescId) {
 
     console.debug(`Fetching effect description effectDescId=${effectDescId} for effectId=${effectId}`);
 
-    let path = "/desc_effect.php?whicheffect=" + effectDescId;
-    let data = await fetchDescription(path, (doc, content) => {
+    let {page} = await fetchPage("/desc_effect.php?whicheffect=" + effectDescId);
+    let data = extractDataFromHtml(page, (doc, content) => {
         let name = doc.evaluate(".//div[@id='description']//center[1]//b", content).iterateNext()?.innerText;
         let effectId = content.innerHTML.match(/<!-- effectid: (\d+) -->/)?.[1];
         let description = doc.evaluate(".//blockquote", content).iterateNext()?.innerText;
@@ -401,17 +408,95 @@ async function setEffectData(effectId, {name, description, modifierText}) {
     return effectData;
 }
 
-async function fetchDescription(path, extractData) {
-    let page = await fetchPage(path);
+let mallAlertsState = {
+    windowId: 0,
+    lastCheckTimestamp: 0,
+    lowestPrices: {},
+};
 
-    // content must be added to document for \n to be rendered
-    let content = document.createElement("div");
-    content.innerHTML = page;
-    document.body.append(content);
-    let data = extractData(document, content);
-    content.remove();
+async function checkMallAlerts(windowId, init) {
+    const recheckDelay = 2 * 60 * 1000;
+    const requestDelay = 500;
 
-    return data;
+    if (init) {
+        mallAlertsState.windowId = windowId;
+        mallAlertsState.lastCheckTimestamp = 0;
+        mallAlertsState.lowestPrices = {};
+    } else if (mallAlertsState.windowId != windowId) {
+        return {error: "Alerts subscribed from a different window"};
+    }
+
+    if (Date.now() - mallAlertsState.lastCheckTimestamp < recheckDelay) return;
+    mallAlertsState.lastCheckTimestamp = Date.now();
+
+    const mallAlertsKey = getMallAlertsKey();
+    let cacheFetch = await browser.storage.local.get(mallAlertsKey);
+    let entries = cacheFetch[mallAlertsKey];
+    mallAlertsState.lowestPrices = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.lowestPrices[entry]]));
+
+    let alerts = [];
+    for (let i=0; i<entries.length; i++) {
+        let parts = entries[i].split("@");
+        let searchTerm = parts[0];
+        let targetPrice = parseFormattedNum(parts[1]);
+        if (parts.length != 2 || !searchTerm || !targetPrice) {
+            return {error: `Parse error: ${entries[i]}`};
+        }
+        if (i > 0) await new Promise(resolve => setTimeout(resolve, requestDelay));
+        let mallSearchResult = await fetchMallSearch(searchTerm);
+        if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
+
+        let firstListing = mallSearchResult.listings?.[0];
+        let lowestPrice = firstListing?.price || 0;
+        let prevLowestPrice = mallAlertsState.lowestPrices[entries[i]];
+        let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
+        let isActive = lowestPrice && lowestPrice <= targetPrice;
+        if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice)) {
+            alerts.push({alert: entries[i], searchTerm, targetPrice, lowestPrice});
+        }
+        mallAlertsState.lowestPrices[entries[i]] = lowestPrice;
+    }
+
+    for (let alert of alerts) {
+        let diff = alert.targetPrice - alert.lowestPrice;
+        let diffPercent = Math.floor((diff / alert.targetPrice) * 100);
+        browser.notifications.create(alert.alert, {
+            type: "basic", title: alert.searchTerm,
+            message: `Now: ${alert.lowestPrice.toLocaleString()} Meat\n` +
+                        `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
+        });
+    }
+}
+
+browser.notifications.onClicked.addListener(id => {
+    if (!mallAlertsState.lowestPrices[id]) return;
+    if (!mallAlertsState.windowId) return;
+    let searchTerm = id.split("@")[0];
+    notifyGotoUrl(mallAlertsState.windowId, `/mall.php?pudnuggler=${encodeURIComponent(searchTerm)}`);
+});
+
+async function fetchMallSearch(searchTerm) {
+    let {page, baseUrl} = await fetchPage(`/mall.php?pudnuggler=${encodeURIComponent(searchTerm)}`);
+    return extractDataFromHtml(page, (_, content) => {
+        let itemTables = evaluateToNodesArray(".//div[@id='searchresults']/table[@class='itemtable']", {contextNode: content});
+        if (itemTables.length > 1) return {error: `Multiple results found for search term: ${searchTerm}`};
+
+        let rows = itemTables.length ? evaluateToNodesArray(".//tr[starts-with(@id, 'stock_')]", {contextNode: itemTables[0]}) : [];
+        let listings = rows.map(tr => {
+            let storeLink = evaluateToNodesArray("./td[contains(@class, 'store')]/a", {contextNode: tr})[0];
+            let storeName = storeLink.innerText;
+            let storeHref = storeLink.attributes.href.value;
+            let stockColumn = evaluateToNodesArray("./td[contains(@class, 'stock')]", {contextNode: tr})[0];
+            let stock = parseFormattedNum(stockColumn.innerText);
+            let limitText = stockColumn.nextElementSibling.innerText;
+            let limitMatch = limitText.match(/([\d,]+)\s*\/\s*day/);
+            let limit = limitMatch ? parseFormattedNum(limitMatch[1]) : 0;
+            let priceText = evaluateToNodesArray("./td[contains(@class, 'price')]//text()", {contextNode: tr})[0].textContent;
+            let price = parseFormattedNum(priceText.replace(/\s+Meat$/, ""));
+            return {price, stock, limit, storeName, storeUrl: `${baseUrl}/${storeHref}`};
+        });
+        return {listings};
+    });
 }
 
 async function fetchPage(path) {
@@ -423,11 +508,12 @@ async function fetchPage(path) {
     let errors = [];
     for (let baseUrl of baseUrls) {
         try {
-            let page = await fetchUrl(baseUrl + path);
+            let url = baseUrl + path;
+            let page = await fetchUrl(url);
             if (page.match(/This script is not available unless you're logged in/)) {
                 errors.push(Error("not logged in"));
             } else {
-                return page;
+                return {page, baseUrl, url};
             }
         } catch (e) {
             errors.push(e);
@@ -443,6 +529,21 @@ async function fetchUrl(url) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     return response.text();
+}
+
+function extractDataFromHtml(html, extractData) {
+    let noscriptHtml =
+        html.replaceAll(/<script\b/g, "<!--script").replaceAll(/<\/script>/g, "</script-->")
+            .replaceAll(/\bonclick\b/gi, "_onclick");
+
+    // content must be added to document for \n to be rendered
+    let content = document.createElement("div");
+    content.innerHTML = noscriptHtml;
+    document.body.append(content);
+    let data = extractData(document, content);
+    content.remove();
+
+    return data;
 }
 
 function notifyItemUpdated(itemIds) {

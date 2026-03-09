@@ -63,6 +63,7 @@
     "permissions": [
         "storage",
         "alarms",
+        "notifications",
         "clipboardWrite",
         "https://www.kingdomofloathing.com/",
         "https://kolmafia.us/",

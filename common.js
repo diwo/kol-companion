@@ -600,6 +600,10 @@ function getMallLinksKey() {
     return "mall_links";
 }
 
+function getMallAlertsKey() {
+    return "mall_alerts";
+}
+
 function getItemPriceKeyPrefix() {
     return "item_price_";
 }
@@ -641,8 +645,19 @@ function getPriceColor(price, volume, itemFlags = {}) {
     return "black";
 }
 
-function parseFormattedInt(str) {
-    return parseInt(str.replace(/,/g, ""));
+function parseFormattedNum(str) {
+    let match = str?.match(/^([\d,.]+)([kmbt])?$/);
+    if (!match) return NaN;
+
+    let [_, amount, unit] = match;
+
+    amount = parseFloat(amount.replaceAll(",", ""));
+    if (unit == "k") amount *= 1000;
+    if (unit == "m") amount *= 1_000_000;
+    if (unit == "b") amount *= 1_000_000_000;
+    if (unit == "t") amount *= 1_000_000_000_000;
+
+    return amount;
 }
 
 function getBaseUrl(doc = document) {

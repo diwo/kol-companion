@@ -319,15 +319,10 @@ function matchItemDataCriteria(data, criteria) {
     if (criteria["price"]) {
         if (!data.price) return false;
 
-        let match = criteria["price"].match(/^(<|<=|=|>=|>)([\d,.]+)([kmb])?$/);
+        let match = criteria["price"].match(/^(<|<=|=|>=|>)([\d,.]+[kmbt]?)$/);
         if (match) {
-            let [_, comp, amount, unit] = match;
-
-            amount = parseFloat(amount.replaceAll(",", ""));
-            if (unit == "k") amount *= 1000;
-            if (unit == "m") amount *= 1_000_000;
-            if (unit == "b") amount *= 1_000_000_000;
-
+            let comp = match[1];
+            let amount = parseFormattedNum(match[2]);
             if (numericCompare(data.price.average, comp, amount) === false) return false;
         }
     }

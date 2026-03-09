@@ -5,13 +5,16 @@
     }
     .section { margin: 20px 0 }
     .subsection { margin: 10px 0 }
-    .addlink, .removelink { font-size: 0.7em }
-    .removelink { padding-right: 2px }
-    #searchmall ul {
+    .userlist .addbutton, .userlist .removebutton { font-size: 0.7em }
+    .userlist .removebutton { padding-right: 2px }
+    .userlist ul {
         list-style: none;
         padding-left: 5px;
     }
-    #searchmall input { width: 90% }
+    .userlist input { width: 90% }
+    #mallalerts .toggle { font-size: 0.9em; font-weight: bold; }
+    #mallalerts .toggle[data-state="off"] { color: red }
+    #mallalerts .toggle[data-state="on"] { color: green }
 </style>
 
 <!-- <div><a id="test-button" href="#">Test Button</a></div><hr/> -->
@@ -48,8 +51,13 @@
     </div>
 </div>
 
-<div class="section" id="searchmall">
-    <span>Search Mall: <a class="addlink" href="#">[+]</a></span>
+<div class="section userlist" id="mallsearch">
+    <span>Mall Search: <a class="addbutton" href="#">[+]</a></span>
+    <ul></ul>
+</div>
+
+<div class="section userlist" id="mallalerts">
+    <span>Mall Alerts: <a class="addbutton" href="#">[+]</a> <a class="toggle" href="#" data-state="off">Off</a></span>
     <ul></ul>
 </div>
 
