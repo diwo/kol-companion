@@ -446,7 +446,7 @@ async function checkMallAlerts(windowId, init) {
         let mallSearchResult = await fetchMallSearch(searchTerm);
         if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
 
-        let firstListing = mallSearchResult.listings?.[0];
+        let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
         let lowestPrice = firstListing?.price || 0;
         let prevLowestPrice = mallAlertsState.lowestPrices[entries[i]];
         let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
@@ -491,9 +491,10 @@ async function fetchMallSearch(searchTerm) {
             let limitText = stockColumn.nextElementSibling.innerText;
             let limitMatch = limitText.match(/([\d,]+)\s*\/\s*day/);
             let limit = limitMatch ? parseFormattedNum(limitMatch[1]) : 0;
+            let limitReached = tr.classList.contains("limited");
             let priceText = evaluateToNodesArray("./td[contains(@class, 'price')]//text()", {contextNode: tr})[0].textContent;
             let price = parseFormattedNum(priceText.replace(/\s+Meat$/, ""));
-            return {price, stock, limit, storeName, storeUrl: `${baseUrl}/${storeHref}`};
+            return {price, stock, limit, limitReached, storeName, storeUrl: `${baseUrl}/${storeHref}`};
         });
         return {listings};
     });
