@@ -55,12 +55,12 @@ async function loadMallSearchTerms() {
 async function saveMallSearchTerm(searchTerm) {
     companionPaneData.mallSearch.push(searchTerm);
     companionPaneData.mallSearch = caseInsensitiveDedupe(companionPaneData.mallSearch);
-    browser.storage.local.set({[getMallLinksKey()]: companionPaneData.mallSearch});
+    return browser.storage.local.set({[getMallLinksKey()]: companionPaneData.mallSearch});
 }
 
 async function deleteMallSearchTerm(searchTerm) {
     companionPaneData.mallSearch = companionPaneData.mallSearch.filter(elem => elem.toLowerCase().trim() != searchTerm.toLowerCase().trim());
-    browser.storage.local.set({[getMallLinksKey()]: companionPaneData.mallSearch});
+    return browser.storage.local.set({[getMallLinksKey()]: companionPaneData.mallSearch});
 }
 
 function caseInsensitiveDedupe(strArray) {
@@ -82,6 +82,7 @@ async function initMallAlertsSection() {
     let mallAlertsElem = document.getElementById("mallalerts");
 
     companionPaneData.mallAlerts = await loadMallAlerts();
+    companionPaneData.mallAlerts.sort((a,b) => parseMallAlertString(b).price - parseMallAlertString(a).price);
     companionPaneData.mallAlerts.map(createMallAlertsItem)
         .forEach(item => addSectionItem(mallAlertsElem, item, onRemoveMallAlertsItem));
     companionPaneData.mallAlertsRunning = null;
@@ -148,12 +149,12 @@ async function loadMallAlerts() {
 async function saveMallAlert(alertText) {
     companionPaneData.mallAlerts.push(alertText);
     companionPaneData.mallAlerts = caseInsensitiveDedupe(companionPaneData.mallAlerts);
-    browser.storage.local.set({[getMallAlertsKey()]: companionPaneData.mallAlerts});
+    return browser.storage.local.set({[getMallAlertsKey()]: companionPaneData.mallAlerts});
 }
 
 async function deleteMallAlert(alertText) {
     companionPaneData.mallAlerts = companionPaneData.mallAlerts.filter(elem => elem.toLowerCase().trim() != alertText.toLowerCase().trim());
-    browser.storage.local.set({[getMallAlertsKey()]: companionPaneData.mallAlerts});
+    return browser.storage.local.set({[getMallAlertsKey()]: companionPaneData.mallAlerts});
 }
 
 function toggleMallAlerts(state) {
