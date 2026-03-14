@@ -1031,6 +1031,23 @@
         }
     },
     {
+        "zone": "Map to Safety Shelter Grimace Prime",
+        "adventures": {
+            "Deep Inside Grimace, Bow Chick-a Bow Bow": {
+                "choiceText": {
+                    "Have a Drink":                    { "note": "distention pill, synthetic dog hair pill" },
+                    "Check out the Coat Check":        { "note": "E.M.U. harness" },
+                    "Go to Your Campsite, Apparently": { "note": "E.M.U. helmet" },
+                    "Try That One Door":               { "note": "distention pill, synthetic dog hair pill" },
+                    "Follow Captain Smirk":            { "note": "distention pill" },
+                    "Follow the Green Girl":           { "note": "synthetic dog hair pill" }
+                }
+            },
+            "Bait and Switch":        { "choiceText": { "Wake the cadet up and fight him": { "note": "Fight" } } },
+            "The Thin Tie-Dyed Line": { "choiceText": { "The Barracks Yurt": { "note": "Fight" } } }
+        }
+    },
+    {
         "zone": "A Monorail Station",
         "adventures": {
             "On a Downtown Train": {
