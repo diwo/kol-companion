@@ -172,7 +172,7 @@ function toggleMallAlerts(state) {
 }
 
 async function runMallAlerts(init) {
-    const pollingDelay = 5000;
+    const pollingDelay = 1000;
     let windowId = getWindowId();
     let result = await browser.runtime.sendMessage({operation: "checkMallAlerts", windowId, init});
     if (result?.error) {

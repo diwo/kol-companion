@@ -410,68 +410,79 @@ async function setEffectData(effectId, {name, description, modifierText}) {
 
 let mallAlertsState = {
     windowId: 0,
-    lastCheckTimestamp: 0,
-    lowestPrices: {},
+    init: false,
+    running: false,
+    prevChecks: {},
 };
 
 async function checkMallAlerts(windowId, init) {
-    const recheckDelay = 2 * 60 * 1000;
-    const requestDelay = 500;
-
     if (init) {
         mallAlertsState.windowId = windowId;
-        mallAlertsState.lastCheckTimestamp = 0;
-        mallAlertsState.lowestPrices = {};
-    } else if (mallAlertsState.windowId != windowId) {
-        return {error: "Alerts subscribed from a different window"};
+        mallAlertsState.init = true;
     }
 
-    if (Date.now() - mallAlertsState.lastCheckTimestamp < recheckDelay) return;
-    mallAlertsState.lastCheckTimestamp = Date.now();
+    if (mallAlertsState.windowId != windowId) {
+        return {error: "Alerts subscribed from a different window"};
+    }
+    if (mallAlertsState.running) return;
+    mallAlertsState.running = true;
+    mallAlertsState.init = false;
+
+    let result = await doCheckMallAlerts();
+    mallAlertsState.running = false;
+    return result;
+}
+
+async function doCheckMallAlerts() {
+    const recheckDelay = 2 * 60 * 1000;
+    const requestDelay = 500;
 
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
     let entries = cacheFetch[mallAlertsKey];
-    mallAlertsState.lowestPrices = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.lowestPrices[entry]]));
+    mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
 
-    let alerts = [];
     for (let i=0; i<entries.length; i++) {
+        if (mallAlertsState.init) return;
+
+        let prevCheck = mallAlertsState.prevChecks[entries[i]];
+        let prevTimestamp = prevCheck?.timestamp || 0;
+        if (Date.now() - prevTimestamp < recheckDelay) continue;
+
         let parts = entries[i].split("@");
         let searchTerm = parts[0];
         let targetPrice = parseFormattedNum(parts[1]);
         if (parts.length != 2 || !searchTerm || !targetPrice) {
             return {error: `Parse error: ${entries[i]}`};
         }
+
         if (i > 0) await new Promise(resolve => setTimeout(resolve, requestDelay));
         let mallSearchResult = await fetchMallSearch(searchTerm);
         if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
 
         let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
         let lowestPrice = firstListing?.price || 0;
-        let prevLowestPrice = mallAlertsState.lowestPrices[entries[i]];
+        let prevLowestPrice = prevCheck?.lowestPrice;
         let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
         let isActive = lowestPrice && lowestPrice <= targetPrice;
         if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice)) {
-            alerts.push({alert: entries[i], searchTerm, targetPrice, lowestPrice});
+            let diff = targetPrice - lowestPrice;
+            let diffPercent = Math.floor((diff / targetPrice) * 100);
+            browser.notifications.create(entries[i], {
+                type: "basic", title: searchTerm,
+                message: `Now: ${lowestPrice.toLocaleString()} Meat\n` +
+                            `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
+            });
         }
-        mallAlertsState.lowestPrices[entries[i]] = lowestPrice;
-    }
 
-    for (let alert of alerts) {
-        let diff = alert.targetPrice - alert.lowestPrice;
-        let diffPercent = Math.floor((diff / alert.targetPrice) * 100);
-        browser.notifications.create(alert.alert, {
-            type: "basic", title: alert.searchTerm,
-            message: `Now: ${alert.lowestPrice.toLocaleString()} Meat\n` +
-                        `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
-        });
+        mallAlertsState.prevChecks[entries[i]] = {lowestPrice, timestamp: Date.now()};
     }
 }
 
-browser.notifications.onClicked.addListener(id => {
-    if (!mallAlertsState.lowestPrices[id]) return;
+browser.notifications.onClicked.addListener(alertText => {
+    if (!mallAlertsState.prevChecks[alertText]) return;
     if (!mallAlertsState.windowId) return;
-    let searchTerm = id.split("@")[0];
+    let searchTerm = alertText.split("@")[0];
     notifyGotoUrl(mallAlertsState.windowId, `/mall.php?pudnuggler=${encodeURIComponent(searchTerm)}`);
 });
 
