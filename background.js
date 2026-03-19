@@ -411,7 +411,7 @@ async function setEffectData(effectId, {name, description, modifierText}) {
 let mallAlertsState = {
     windowId: 0,
     init: false,
-    running: false,
+    running: 0,
     prevChecks: {},
 };
 
@@ -424,12 +424,13 @@ async function checkMallAlerts(windowId, init) {
     if (mallAlertsState.windowId != windowId) {
         return {error: "Alerts subscribed from a different window"};
     }
-    if (mallAlertsState.running) return;
-    mallAlertsState.running = true;
+    const maxRunTime = 5 * 60 * 1000;
+    if (Date.now() - mallAlertsState.running < maxRunTime) return;
+    mallAlertsState.running = Date.now();
     mallAlertsState.init = false;
 
     let result = await doCheckMallAlerts();
-    mallAlertsState.running = false;
+    mallAlertsState.running = 0;
     return result;
 }
 
