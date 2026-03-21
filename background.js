@@ -437,6 +437,7 @@ async function checkMallAlerts(windowId, init) {
 async function doCheckMallAlerts() {
     const recheckDelay = 2 * 60 * 1000;
     const requestDelay = 500;
+    const resendAlertDelay = 6 * 60 * 60 * 1000;
 
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
@@ -447,8 +448,9 @@ async function doCheckMallAlerts() {
         if (mallAlertsState.init) return;
 
         let prevCheck = mallAlertsState.prevChecks[entries[i]];
-        let prevTimestamp = prevCheck?.timestamp || 0;
-        if (Date.now() - prevTimestamp < recheckDelay) continue;
+        let prevCheckTimestamp = prevCheck?.prevCheckTimestamp || 0;
+        let now = Date.now();
+        if (now - prevCheckTimestamp < recheckDelay) continue;
 
         let parts = entries[i].split("@");
         let searchTerm = parts[0];
@@ -466,7 +468,8 @@ async function doCheckMallAlerts() {
         let prevLowestPrice = prevCheck?.lowestPrice;
         let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
         let isActive = lowestPrice && lowestPrice <= targetPrice;
-        if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice)) {
+        let lastAlertTimestamp = prevCheck?.lastAlertTimestamp;
+        if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice) || (isActive && now - lastAlertTimestamp  > resendAlertDelay)) {
             let diff = targetPrice - lowestPrice;
             let diffPercent = Math.floor((diff / targetPrice) * 100);
             browser.notifications.create(entries[i], {
@@ -474,9 +477,14 @@ async function doCheckMallAlerts() {
                 message: `Now: ${lowestPrice.toLocaleString()} Meat\n` +
                             `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
             });
+            lastAlertTimestamp = now;
         }
 
-        mallAlertsState.prevChecks[entries[i]] = {lowestPrice, timestamp: Date.now()};
+        mallAlertsState.prevChecks[entries[i]] = {
+            lowestPrice,
+            prevCheckTimestamp: now,
+            lastAlertTimestamp
+        };
     }
 }
 
