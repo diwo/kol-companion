@@ -1144,5 +1144,30 @@
                 }
             }
         }
+    },
+    {
+        "zone": "Baseball Diamond",
+        "adventures": {
+            "Play Ball!": {
+                "choiceText": {
+                    "Bring the Heat":                  { "note": "Hot Dmg [E] -> YR" },
+                    "Throw Some Smoke":                { "note": "All Stats +5 [E] -> YR" },
+                    "Throw a Schenectady Scorcher":    { "note": "YR", "tag": "rare" },
+                    "Throw One in the Deep Freeze":    { "note": "DR +3 [E] -> Banish" },
+                    "Throw a Snow Ball":               { "note": "MP Regen 2-4 [E] -> Banish" },
+                    "Ice Him Out":                     { "note": "Banish", "tag": "rare" },
+                    "Ice Her Out":                     { "note": "Banish", "tag": "rare" },
+                    "Throw a Ghost Pitch":             { "note": "HP Regen 3-5 [E] -> Free Fights" },
+                    "Draw a Skull on the Ball":        { "note": "Delevel -> Free Fights" },
+                    "Throw a Non-Euclidean Curveball": { "note": "Free Fights", "tag": "rare" },
+                    "Throw a Beanball":                { "note": "Passive Damage -> Sniff" },
+                    "Throw a Garbageball":             { "note": "Food/Booze -> Sniff" },
+                    "Throw Some Cheddar":              { "note": "Sniff", "tag": "rare" },
+                    "Throw a Slurve":                  { "note": "Sleaze Res +1 [E] -> +ML" },
+                    "Throw a Bacon-Wrapped Slider":    { "note": "Init +5% [E] -> +ML" },
+                    "Throw a Screwball":               { "note": "+ML 3*Level", "tag": "rare" }
+                }
+            }
+        }
     }
 ]
