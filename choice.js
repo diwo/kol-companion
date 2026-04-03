@@ -189,3 +189,16 @@ function drawCombBeachGrid() {
         img.style.border = "1px solid";
     }
 }
+
+function movePlayBaseballUI() {
+    let isPlayBaseball = !!evaluateToNodesArray("//table//b[text() = 'Play Ball!']").length;
+    if (isPlayBaseball) {
+        let lineupDiv = evaluateToNodesArray("//div[center/b/text() = 'Lineup']")[0];
+        let pitchesDiv = document.getElementById("pitches");
+        let outputDiv = document.getElementById("output");
+        lineupDiv.style.right = "";
+        lineupDiv.style.top = 480;
+        if (pitchesDiv) pitchesDiv.style.top = 500;
+        if (outputDiv) outputDiv.style.top = 0;
+    }
+}
