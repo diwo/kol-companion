@@ -410,24 +410,22 @@ async function setEffectData(effectId, {name, description, modifierText}) {
 
 let mallAlertsState = {
     windowId: 0,
-    init: false,
     running: 0,
     prevChecks: {},
+    prevRequestTimestamp: 0,
 };
 
 async function checkMallAlerts(windowId, init) {
     if (init) {
         mallAlertsState.windowId = windowId;
-        mallAlertsState.init = true;
     }
-
     if (mallAlertsState.windowId != windowId) {
         return {error: "Alerts subscribed from a different window"};
     }
+
     const maxRunTime = 5 * 60 * 1000;
     if (Date.now() - mallAlertsState.running < maxRunTime) return;
     mallAlertsState.running = Date.now();
-    mallAlertsState.init = false;
 
     let result = await doCheckMallAlerts();
     mallAlertsState.running = 0;
@@ -435,57 +433,63 @@ async function checkMallAlerts(windowId, init) {
 }
 
 async function doCheckMallAlerts() {
-    const recheckDelay = 2 * 60 * 1000;
-    const requestDelay = 500;
+    const requestDelay = 1 * 60 * 1000;
+    const recheckDelay = 30 * 60 * 1000;
     const resendAlertDelay = 6 * 60 * 60 * 1000;
+
+    if (Date.now() - mallAlertsState.prevRequestTimestamp < requestDelay) return;
 
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
     let entries = cacheFetch[mallAlertsKey];
+
     mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
+    entries.sort((a,b) => {
+        let aTimestamp = mallAlertsState.prevChecks[a]?.prevCheckTimestamp || 0;
+        let bTimestamp = mallAlertsState.prevChecks[b]?.prevCheckTimestamp || 0;
+        return aTimestamp - bTimestamp;
+    });
 
-    for (let i=0; i<entries.length; i++) {
-        if (mallAlertsState.init) return;
+    if (!entries.length) return;
 
-        let prevCheck = mallAlertsState.prevChecks[entries[i]];
-        let prevCheckTimestamp = prevCheck?.prevCheckTimestamp || 0;
-        let now = Date.now();
-        if (now - prevCheckTimestamp < recheckDelay) continue;
+    let prevCheck = mallAlertsState.prevChecks[entries[0]];
+    let prevCheckTimestamp = prevCheck?.prevCheckTimestamp || 0;
+    if (Date.now() - prevCheckTimestamp < recheckDelay) return;
 
-        let parts = entries[i].split("@");
-        let searchTerm = parts[0];
-        let targetPrice = parseFormattedNum(parts[1]);
-        if (parts.length != 2 || !searchTerm || !targetPrice) {
-            return {error: `Parse error: ${entries[i]}`};
-        }
-
-        if (i > 0) await new Promise(resolve => setTimeout(resolve, requestDelay));
-        let mallSearchResult = await fetchMallSearch(searchTerm);
-        if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
-
-        let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
-        let lowestPrice = firstListing?.price || 0;
-        let prevLowestPrice = prevCheck?.lowestPrice;
-        let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
-        let isActive = lowestPrice && lowestPrice <= targetPrice;
-        let lastAlertTimestamp = prevCheck?.lastAlertTimestamp;
-        if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice) || (isActive && now - lastAlertTimestamp  > resendAlertDelay)) {
-            let diff = targetPrice - lowestPrice;
-            let diffPercent = Math.floor((diff / targetPrice) * 100);
-            browser.notifications.create(entries[i], {
-                type: "basic", title: searchTerm,
-                message: `Now: ${lowestPrice.toLocaleString()} Meat\n` +
-                            `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
-            });
-            lastAlertTimestamp = now;
-        }
-
-        mallAlertsState.prevChecks[entries[i]] = {
-            lowestPrice,
-            prevCheckTimestamp: now,
-            lastAlertTimestamp
-        };
+    let parts = entries[0].split("@");
+    let searchTerm = parts[0];
+    let targetPrice = parseFormattedNum(parts[1]);
+    if (parts.length != 2 || !searchTerm || !targetPrice) {
+        return {error: `Parse error: ${entries[0]}`};
     }
+
+    mallAlertsState.prevRequestTimestamp = Date.now();
+    console.debug(`Mall alert searching mall for: ${searchTerm}`);
+    let mallSearchResult = await fetchMallSearch(searchTerm);
+    if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
+
+    let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
+    let lowestPrice = firstListing?.price || 0;
+    let prevLowestPrice = prevCheck?.lowestPrice;
+    let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
+    let isActive = lowestPrice && lowestPrice <= targetPrice;
+    let lastAlertTimestamp = prevCheck?.lastAlertTimestamp;
+    if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice) || (isActive && Date.now() - lastAlertTimestamp  > resendAlertDelay)) {
+        let diff = targetPrice - lowestPrice;
+        let diffPercent = Math.floor((diff / targetPrice) * 100);
+        browser.notifications.create(entries[0], {
+            type: "basic", title: searchTerm,
+            message: `Now: ${lowestPrice.toLocaleString()} Meat\n` +
+                        `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
+        });
+        lastAlertTimestamp = Date.now();
+    }
+
+    mallAlertsState.prevChecks[entries[0]] = {
+        lowestPrice,
+        prevCheckTimestamp: Date.now(),
+        lastAlertTimestamp
+    };
 }
 
 browser.notifications.onClicked.addListener(alertText => {
@@ -500,6 +504,9 @@ async function fetchMallSearch(searchTerm) {
     return extractDataFromHtml(page, (_, content) => {
         let itemTables = evaluateToNodesArray(".//div[@id='searchresults']/table[@class='itemtable']", {contextNode: content});
         if (itemTables.length > 1) return {error: `Multiple results found for search term: ${searchTerm}`};
+        if (!itemTables.length) {
+            console.debug(`No results during Mall Search for search term "${searchTerm}"`);
+        }
 
         let rows = itemTables.length ? evaluateToNodesArray(".//tr[starts-with(@id, 'stock_')]", {contextNode: itemTables[0]}) : [];
         let listings = rows.map(tr => {
