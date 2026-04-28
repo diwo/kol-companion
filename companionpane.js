@@ -82,7 +82,13 @@ async function initMallAlertsSection() {
     let mallAlertsElem = document.getElementById("mallalerts");
 
     companionPaneData.mallAlerts = await loadMallAlerts();
-    companionPaneData.mallAlerts.sort((a,b) => parseMallAlertString(b).price - parseMallAlertString(a).price);
+    companionPaneData.mallAlerts.sort((a,b) => {
+        let alertA = parseMallAlertString(a);
+        let alertB = parseMallAlertString(b);
+        if (alertA.delay == alertB.delay) return alertB.price - alertA.price;
+        if (alertA.delay && alertB.delay) return alertA.delay - alertB.delay;
+        return alertA.delay ? -1 : 1;
+    });
     companionPaneData.mallAlerts.map(createMallAlertsItem)
         .forEach(item => addSectionItem(mallAlertsElem, item, onRemoveMallAlertsItem));
     companionPaneData.mallAlertsRunning = null;
@@ -115,6 +121,7 @@ function createMallAlertsItem(itemText) {
     let wrapper = document.createElement("span");
     wrapper.append(searchTermLink);
     wrapper.append("@" + parsed.priceStr);
+    if (parsed.delay) wrapper.append("/" + parsed.delay);
     return wrapper;
 }
 
@@ -127,17 +134,6 @@ function onAddMallAlertsItem(itemText) {
 
 function onRemoveMallAlertsItem(item) {
     deleteMallAlert(item.innerText);
-}
-
-function parseMallAlertString(str) {
-    let parts = str?.split("@");
-    if (parts?.length != 2) return null;
-
-    let [searchTerm, priceStr] = parts;
-    let price = parseFormattedNum(priceStr);
-    if (!searchTerm || !price) return null;
-
-    return {searchTerm, priceStr, price};
 }
 
 async function loadMallAlerts() {

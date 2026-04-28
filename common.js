@@ -660,6 +660,21 @@ function parseFormattedNum(str) {
     return amount;
 }
 
+function parseMallAlertString(str) {
+    let parts = str?.split("@");
+    if (parts?.length != 2) return null;
+
+    let [searchTerm, argStr] = parts;
+    let argParts = argStr.split("/");
+    let [priceStr, delayStr] = argParts;
+    let price = parseFormattedNum(priceStr);
+    let delay = parseInt(delayStr) || null;
+    if (!searchTerm || !price) return null;
+    if ((argParts.length > 1 && (!delay || delay < 0))) return null;
+
+    return {searchTerm, priceStr, price, delay};
+}
+
 function getBaseUrl(doc = document) {
     let url = new URL(doc.URL);
     return url.protocol + "//" + url.host;

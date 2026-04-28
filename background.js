@@ -412,7 +412,8 @@ let mallAlertsState = {
     windowId: 0,
     running: 0,
     prevChecks: {},
-    prevRequestTimestamp: 0,
+    prevRegularRequestTimestamp: 0,
+    prevCustomDelayRequestTimestamp: 0,
 };
 
 async function checkMallAlerts(windowId, init) {
@@ -434,40 +435,58 @@ async function checkMallAlerts(windowId, init) {
 
 async function doCheckMallAlerts() {
     const requestDelay = 1 * 60 * 1000;
-    const recheckDelay = 30 * 60 * 1000;
+    const regularEntryRecheckDelay = 30 * 60 * 1000;
     const resendAlertDelay = 6 * 60 * 60 * 1000;
-
-    if (Date.now() - mallAlertsState.prevRequestTimestamp < requestDelay) return;
 
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
     let entries = cacheFetch[mallAlertsKey];
 
     mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
+    if (!entries.length) return;
+
     entries.sort((a,b) => {
         let aTimestamp = mallAlertsState.prevChecks[a]?.prevCheckTimestamp || 0;
         let bTimestamp = mallAlertsState.prevChecks[b]?.prevCheckTimestamp || 0;
         return aTimestamp - bTimestamp;
     });
 
-    if (!entries.length) return;
+    let regularEntry = entries.filter(entry => {
+        let {delay} = parseMallAlertString(entry);
+        let prevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
+        return !delay && Date.now() - prevCheckTimestamp > regularEntryRecheckDelay;
+    })[0];
+    let customDelayEntry = entries.filter(entry => {
+        let {delay} = parseMallAlertString(entry);
+        let prevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
+        return !!delay && Date.now() - prevCheckTimestamp > delay * 60 * 1000;
+    })[0];
 
-    let prevCheck = mallAlertsState.prevChecks[entries[0]];
-    let prevCheckTimestamp = prevCheck?.prevCheckTimestamp || 0;
-    if (Date.now() - prevCheckTimestamp < recheckDelay) return;
+    let isRegularPastDelay = Date.now() - mallAlertsState.prevRegularRequestTimestamp > requestDelay;
+    let isCustomPastDelay = Date.now() - mallAlertsState.prevCustomDelayRequestTimestamp > requestDelay;
+    let isOverHalfwayBetweenRegular = Date.now() - mallAlertsState.prevRegularRequestTimestamp > requestDelay/2;
+    let hasRegularSinceLastCustom = mallAlertsState.prevRegularRequestTimestamp > mallAlertsState.prevCustomDelayRequestTimestamp;
 
-    let parts = entries[0].split("@");
-    let searchTerm = parts[0];
-    let targetPrice = parseFormattedNum(parts[1]);
-    if (parts.length != 2 || !searchTerm || !targetPrice) {
-        return {error: `Parse error: ${entries[0]}`};
+    let entry;
+    if (regularEntry && isRegularPastDelay) {
+        entry = regularEntry;
+        mallAlertsState.prevRegularRequestTimestamp = Date.now();
+    } else if (customDelayEntry && isOverHalfwayBetweenRegular && (hasRegularSinceLastCustom || isCustomPastDelay)) {
+        entry = customDelayEntry;
+        mallAlertsState.prevCustomDelayRequestTimestamp = Date.now();
+    } else {
+        return;
     }
 
-    mallAlertsState.prevRequestTimestamp = Date.now();
+    let parsedEntry = parseMallAlertString(entry);
+    if (!parsedEntry) return {error: `Parse error: ${entry}`};
+    let {searchTerm, price: targetPrice} = parsedEntry;
+
     console.debug(`Mall alert searching mall for: ${searchTerm}`);
     let mallSearchResult = await fetchMallSearch(searchTerm);
     if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
 
+    let prevCheck = mallAlertsState.prevChecks[entry];
     let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
     let lowestPrice = firstListing?.price || 0;
     let prevLowestPrice = prevCheck?.lowestPrice;
@@ -477,7 +496,7 @@ async function doCheckMallAlerts() {
     if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice) || (isActive && Date.now() - lastAlertTimestamp  > resendAlertDelay)) {
         let diff = targetPrice - lowestPrice;
         let diffPercent = Math.floor((diff / targetPrice) * 100);
-        browser.notifications.create(entries[0], {
+        browser.notifications.create(entry, {
             type: "basic", title: searchTerm,
             message: `Now: ${lowestPrice.toLocaleString()} Meat\n` +
                         `Target: -${diff.toLocaleString()} Meat (-${diffPercent}%)`
@@ -485,7 +504,7 @@ async function doCheckMallAlerts() {
         lastAlertTimestamp = Date.now();
     }
 
-    mallAlertsState.prevChecks[entries[0]] = {
+    mallAlertsState.prevChecks[entry] = {
         lowestPrice,
         prevCheckTimestamp: Date.now(),
         lastAlertTimestamp
@@ -495,7 +514,7 @@ async function doCheckMallAlerts() {
 browser.notifications.onClicked.addListener(alertText => {
     if (!mallAlertsState.prevChecks[alertText]) return;
     if (!mallAlertsState.windowId) return;
-    let searchTerm = alertText.split("@")[0];
+    let {searchTerm} = parseMallAlertString(alertText);
     notifyGotoUrl(mallAlertsState.windowId, `/mall.php?pudnuggler=${encodeURIComponent(searchTerm)}`);
 });
 
