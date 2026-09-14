@@ -161,7 +161,7 @@ async function bindInventoryFilterEvents() {
     });
 
     document.addEventListener("keypress", e => {
-        if (!e.key.match(/^[a-z0-9'" .\-:!,+*?^$|(){}<=>\[\]\\]$/i)) return;
+        if (!e.key.match(/^[a-z0-9'" .\-:!%,+*?^$|(){}<=>\[\]\\]$/i)) return;
         if (document.activeElement.tagName != "INPUT" || document.activeElement.type != "text") {
             ftextNode.value += e.key;
             filterNode.dispatchEvent(new CustomEvent("ftext-change", {detail: {text: ftextNode.value}}));
@@ -404,6 +404,7 @@ function addInventoryFilterPresets() {
             "Sleaze": "sleaze resist|resist.*all elem",
         },
         "Elem": {
+            "All": "(\\+\\d+ (hot|cold|spooky|stench|sleaze) damage\\n){5}",
             "Hot": "hot (damage|spell)",
             "Cold": "cold (damage|spell)",
             "Stench": "stench (damage|spell)",
