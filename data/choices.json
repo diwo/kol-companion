@@ -1060,6 +1060,17 @@
         }
     },
     {
+        "zone": "Greater-Than Sign",
+        "adventures": {
+            "Typographical Clutter": {
+                "choiceText": {
+                    "The big apostrophe": { "note": "plus sign", "tag": "quest" },
+                    "The upper-case Q":   { "note": "Teleportitis" }
+                }
+            }
+        }
+    },
+    {
         "zone": "ChibiBuddy™",
         "adventures": {
             "ChibiBuddy™": { "choiceText": { "Have a ChibiChat™": { "note": "ChibiChanged™" } } },
@@ -1102,6 +1113,18 @@
         }
     },
     {
+        "zone": "Strange Stalagmite",
+        "adventures": {
+            "Strange Stalagmite(s)": {
+                "choiceText": {
+                    "Strangely move pieces at random until you figure it out": { "note": "Muscle" },
+                    "Develop a strange algorithm to move the parts quickly": { "note": "Mysticality" },
+                    "Ask a stranger to solve it for you": { "note": "Moxie" }
+                }
+            }
+        }
+    },
+    {
         "zone": "Clan Rumpus Room",
         "url": "/clan_rumpus.php",
         "adventures": {
@@ -1116,7 +1139,7 @@
         }
     },
     {
-        "url": "/choice.php",
+        "zone": "Peridot of Peril",
         "adventures": {
             "Peering Through Your Peridot": {
                 "choiceText": {
