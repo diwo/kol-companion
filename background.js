@@ -412,8 +412,8 @@ let mallAlertsState = {
     windowId: 0,
     running: 0,
     prevChecks: {},
-    prevRegularRequestTimestamp: 0,
     prevCustomDelayRequestTimestamp: 0,
+    prevBatchRequestTimestamp: 0,
 };
 
 async function checkMallAlerts(windowId, init) {
@@ -428,16 +428,22 @@ async function checkMallAlerts(windowId, init) {
     if (Date.now() - mallAlertsState.running < maxRunTime) return;
     mallAlertsState.running = Date.now();
 
-    let result = await doCheckMallAlerts();
+    let result;
+    try {
+        result =
+            (await checkCustomDelayMallAlerts()) ||
+            (await checkBatchMallAlerts());
+    } catch (error) {
+        result = {error};
+    }
+    if (result) console.error(result.error);
+
     mallAlertsState.running = 0;
     return result;
 }
 
-async function doCheckMallAlerts() {
+async function checkCustomDelayMallAlerts() {
     const requestDelay = 1 * 60 * 1000;
-    const regularEntryRecheckDelay = 30 * 60 * 1000;
-    const resendAlertDelay = 6 * 60 * 60 * 1000;
-
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
     let entries = cacheFetch[mallAlertsKey];
@@ -451,48 +457,87 @@ async function doCheckMallAlerts() {
         return aTimestamp - bTimestamp;
     });
 
-    let regularEntry = entries.filter(entry => {
-        let {delay} = parseMallAlertString(entry);
-        let prevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
-        return !delay && Date.now() - prevCheckTimestamp > regularEntryRecheckDelay;
-    })[0];
-    let customDelayEntry = entries.filter(entry => {
+    let entry = entries.filter(entry => {
         let {delay} = parseMallAlertString(entry);
         let prevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
         return !!delay && Date.now() - prevCheckTimestamp > delay * 60 * 1000;
     })[0];
+    if (!entry) return;
 
-    let isRegularPastDelay = Date.now() - mallAlertsState.prevRegularRequestTimestamp > requestDelay;
-    let isCustomPastDelay = Date.now() - mallAlertsState.prevCustomDelayRequestTimestamp > requestDelay;
-    let isOverHalfwayBetweenRegular = Date.now() - mallAlertsState.prevRegularRequestTimestamp > requestDelay/2;
-    let hasRegularSinceLastCustom = mallAlertsState.prevRegularRequestTimestamp > mallAlertsState.prevCustomDelayRequestTimestamp;
-
-    let entry;
-    if (regularEntry && isRegularPastDelay) {
-        entry = regularEntry;
-        mallAlertsState.prevRegularRequestTimestamp = Date.now();
-    } else if (customDelayEntry && isOverHalfwayBetweenRegular && (hasRegularSinceLastCustom || isCustomPastDelay)) {
-        entry = customDelayEntry;
-        mallAlertsState.prevCustomDelayRequestTimestamp = Date.now();
-    } else {
-        return;
-    }
+    let isPastDelay = Date.now() - mallAlertsState.prevCustomDelayRequestTimestamp > requestDelay;
+    if (!isPastDelay) return;
+    mallAlertsState.prevCustomDelayRequestTimestamp = Date.now();
 
     let parsedEntry = parseMallAlertString(entry);
     if (!parsedEntry) return {error: `Parse error: ${entry}`};
-    let {searchTerm, price: targetPrice} = parsedEntry;
+    let {searchTerm} = parsedEntry;
 
     console.debug(`Mall alert searching mall for: ${searchTerm}`);
     let mallSearchResult = await fetchMallSearch(searchTerm);
     if (mallSearchResult.error) return {error: `Error searching for ${searchTerm}: ${mallSearchResult.error}`};
 
-    let prevCheck = mallAlertsState.prevChecks[entry];
     let firstListing = mallSearchResult.listings.filter(listing => !listing.limitReached)[0];
     let lowestPrice = firstListing?.price || 0;
+    sendMallAlert(entry, lowestPrice);
+}
+
+async function checkBatchMallAlerts() {
+    const requestDelay = 15 * 60 * 1000;
+
+    const mallAlertsKey = getMallAlertsKey();
+    let cacheFetch = await browser.storage.local.get(mallAlertsKey);
+    let entries = cacheFetch[mallAlertsKey].filter(entry => !parseMallAlertString(entry).delay);
+
+    mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
+    if (!entries.length) return;
+
+    let isPastDelay = Date.now() - mallAlertsState.prevBatchRequestTimestamp > requestDelay;
+    if (!isPastDelay) return;
+    mallAlertsState.prevBatchRequestTimestamp = Date.now();
+
+    console.debug(`Mall alert fetching batch mall prices from API`);
+    let mallItems = await fetchMallpricesApi({reason: "kol-companion browser extension by Wakwak"});
+
+    for (let entry of entries) {
+        let parsedEntry = parseMallAlertString(entry);
+        let searchTerm = parsedEntry.searchTerm;
+        let exact = false;
+        if (searchTerm.startsWith('"') && searchTerm.endsWith('"')) {
+            searchTerm = searchTerm.slice(1, -1);
+            exact = true;
+        }
+
+        let matchedMallItems = [];
+        for (let mallItem of mallItems) {
+            let isMatched = exact ?
+                mallItem.name.toLowerCase() == searchTerm.toLowerCase() :
+                mallItem.name.toLowerCase().includes(searchTerm.toLowerCase());
+            if (isMatched) matchedMallItems.push(mallItem);
+        }
+
+        if (matchedMallItems.length == 1) {
+            let buyableStores = matchedMallItems[0].stores?.filter(store => !store.limit || !store.bought || store.bought < store.limit) || [];
+            let lowestPrice = buyableStores[0]?.price || 0;
+            sendMallAlert(entry, lowestPrice);
+        } else if (matchedMallItems.length) {
+            console.warn(`Found multiple items in mallprices api for search term: ${parsedEntry.searchTerm}`);
+        } else {
+            console.warn(`Unable to find item in mallprices api for search term: ${parsedEntry.searchTerm}`);
+        }
+    }
+}
+
+function sendMallAlert(entry, lowestPrice) {
+    const resendAlertDelay = 6 * 60 * 60 * 1000;
+
+    let {searchTerm, price: targetPrice} = parseMallAlertString(entry);
+
+    let prevCheck = mallAlertsState.prevChecks[entry];
     let prevLowestPrice = prevCheck?.lowestPrice;
     let wasActive = prevLowestPrice && prevLowestPrice <= targetPrice;
     let isActive = lowestPrice && lowestPrice <= targetPrice;
     let lastAlertTimestamp = prevCheck?.lastAlertTimestamp;
+
     if ((!wasActive && isActive) || (isActive && lowestPrice < prevLowestPrice) || (isActive && Date.now() - lastAlertTimestamp  > resendAlertDelay)) {
         let diff = targetPrice - lowestPrice;
         let diffPercent = Math.floor((diff / targetPrice) * 100);
@@ -544,6 +589,23 @@ async function fetchMallSearch(searchTerm) {
         });
         return {listings};
     });
+}
+
+async function fetchMallpricesApi(options) {
+    let {category, count, reason} = options || {};
+    category ||= "allitems";
+    count ||= 5;
+    if (!reason) throw Error("Missing reason for api request");
+
+    let {page} = await fetchPage(`/api.php?what=mallprices&category=${category}&count=${count}&for=${encodeURIComponent(reason)}`);
+
+    let json = JSON.parse(page);
+    let items = json?.items || [];
+    return items.map(item => ({...item, name: htmlDecode(item.name)}));
+}
+
+function htmlDecode(text) {
+    return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
 }
 
 async function fetchPage(path) {
