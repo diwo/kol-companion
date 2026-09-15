@@ -99,8 +99,8 @@ browser.runtime.onMessage.addListener(message => {
             return notifyGotoUrl(message.windowId, message.url);
         case "chooseIcon":
             return notifyChooseIcon(message.windowId, message.iconName);
-        case "fetchPrice":
-            return fetchPrice(message.itemId);
+        case "getPrice":
+            return getPriceBackend(message.itemId);
         case "queuePriceCheck":
             if (message.itemId) {
                 priceCheckQueue[message.itemId] = true;
@@ -158,20 +158,14 @@ browser.alarms.onAlarm.addListener(alarm => {
         let itemIds = Object.keys(priceCheckQueue);
         if (itemIds.length) {
             let itemId = itemIds[Math.floor(Math.random() * itemIds.length)];
-            getCachedPrice(itemId).then(async cached => {
-                let delayInMinutes;
-                try {
-                    let fetched = await fetchPrice(itemId);
-                    delete priceCheckQueue[itemId];
-                    if (fetched.timestamp == cached?.timestamp) {
-                        delayInMinutes = 0;
-                    } else {
-                        delayInMinutes = 1 / 60;
-                    }
-                } catch (e) {
-                    console.error("Error fetching price", e);
-                    delayInMinutes = 30 / 60;
-                }
+            getPriceBackend(itemId).then(() => {
+                delete priceCheckQueue[itemId];
+                const delayMilliseconds = 100;
+                return delayMilliseconds * 1/60/1000;
+            }).catch(e => {
+                console.error(`Error processing price check on itemId=${itemId}`, e);
+                return 1/2;
+            }).then(delayInMinutes => {
                 browser.alarms.create("priceCheckQueueWorker", { delayInMinutes });
             });
         } else {
@@ -210,46 +204,32 @@ browser.alarms.onAlarm.addListener(async alarm => {
 });
 browser.alarms.create("itemDescFetchQueueWorker", {delayInMinutes: 5/60});
 
-let fetchingItemIds = new Set();
-async function fetchPrice(itemId) {
+let getPriceItemIds = new Set();
+async function getPriceBackend(itemId) {
     let cacheVal = await getCachedPrice(itemId);
     let cacheAge = Date.now() - (cacheVal?.timestamp || 0);
-    if (cacheVal && (cacheVal.untradable || cacheAge < 6*60*60*1000)) {
+    if (cacheVal && (cacheVal.untradable || cacheAge < 1*60*60*1000)) {
         return cacheVal;
     }
 
-    if (fetchingItemIds.has(itemId)) {
-        while (fetchingItemIds.has(itemId)) {
+    if (getPriceItemIds.has(itemId)) {
+        while (getPriceItemIds.has(itemId)) {
             await new Promise(resolve => setTimeout(resolve, 200));
         }
         return getCachedPrice(itemId);
     }
-    fetchingItemIds.add(itemId);
+    getPriceItemIds.add(itemId);
 
-    console.debug(`Fetching price for itemId=${itemId}, cacheAge=${Math.floor(cacheAge/1000/60/60)}h`);
-    let fetched = await fetchPriceNoCache(itemId);
-
+    let fetched = await fetchPrice(itemId);
     let itemPriceKey = getItemPriceKey(itemId);
     await browser.storage.local.set({[itemPriceKey]: fetched});
-    fetchingItemIds.delete(itemId);
+    getPriceItemIds.delete(itemId);
     notifyItemUpdated([itemId]);
 
     return fetched;
 }
 
-async function fetchPriceNoCache(itemId) {
-    // const oneWeekTimespan = 2;
-    // const lifetimeTimespan = 4;
-    // let fetched = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, oneWeekTimespan));
-    // if (!fetched.data.error && !fetched.data.average) {
-    //     let fetchedLifetime = await fetchColdfrontPrice(getColdfrontPriceCheckLink(itemId, lifetimeTimespan));
-    //     if (!fetchedLifetime.data.error) {
-    //         fetched = fetchedLifetime;
-    //         fetched.data.volume = 0;
-    //     }
-    // }
-    // if (!fetched.data.error) return fetched;
-
+async function fetchPrice(itemId) {
     let mafiaMallPrices = await getMafiaMallPrices();
     let itemPrice = mafiaMallPrices.data[itemId]?.price;
     return {
@@ -259,37 +239,6 @@ async function fetchPriceNoCache(itemId) {
             volumne: 0,
         }
     };
-}
-
-function getColdfrontPriceCheckLink(itemId, timespan) {
-    return `https://kol.coldfront.net/newmarket/itemgraph.php?itemid=${itemId}&timespan=${timespan}`;
-}
-
-async function fetchColdfrontPrice(url) {
-    let data;
-    try {
-        let page = await fetchUrl(url);
-        data = parseColdfrontPrice(page);
-    } catch (e) {
-        data = {error: e};
-    }
-    let timestamp = Date.now();
-    return {timestamp, data};
-}
-
-function parseColdfrontPrice(page) {
-    let error = page.match(/\d+ is not a valid item ID/)?.[0];
-    if (error) {
-        return {error: "not a valid item ID"};
-    }
-    try {
-        let matches = page.match(/CURRENT AVG PRICE:.*?([0-9,.]+) meat.*BOUGHT THIS TIMESPAN:.*?([0-9,.]+)/);
-        let average = parseFormattedNum(matches[1]);
-        let volume = parseFormattedNum(matches[2]);
-        return {average, volume};
-    } catch (e) {
-        return {error: e};
-    }
 }
 
 let isUpdatingMafiaMallPrices = false;
@@ -303,7 +252,6 @@ async function getMafiaMallPrices() {
             return new Promise(resolve => setTimeout(() => resolve(getMafiaMallPrices())), Math.random()*1000);
         }
         isUpdatingMafiaMallPrices = true;
-        console.debug("Refreshing mall prices from mafia");
         try {
             mafiaMallPrices = {
                 data: await fetchMafiaMallPrices(),
@@ -318,6 +266,8 @@ async function getMafiaMallPrices() {
 }
 
 async function fetchMafiaMallPrices() {
+    console.debug(`Fetching prices from mafia csv`);
+
     let page = await fetchUrl("https://kolmafia.us/scripts/updateprices.php?action=getmap");
     let lines = page.split("\n");
     let mallPricesVersion = parseInt(lines[0]);

@@ -528,17 +528,13 @@ function openPriceGun(itemId) {
     open(`https://pricegun.loathers.net/item/${itemId}`);
 }
 
-// function openColdfrontPriceGraph(itemId) {
-//     open(`https://api.aventuristo.net/itemgraph?itemid=${itemId}&timespan=2`);
-// }
-
 async function getPrice(itemId, {cachedOnly} = {}) {
     if (cachedOnly) {
         await queuePriceCheck(itemId);
         return getCachedPrice(itemId);
     }
 
-    return browser.runtime.sendMessage({operation: "fetchPrice", itemId});
+    return browser.runtime.sendMessage({operation: "getPrice", itemId});
 }
 
 async function queuePriceCheck(itemId) {

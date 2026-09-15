@@ -43,14 +43,6 @@
                 "wiki.js"
             ],
             "all_frames": true
-        },
-        {
-            "matches": ["https://kol.coldfront.net/thekolwiki/index.php/*"],
-            "js": [
-                "common.js",
-                "oldwiki.js"
-            ],
-            "all_frames": true
         }
     ],
     "background": {
@@ -67,7 +59,6 @@
         "clipboardWrite",
         "https://www.kingdomofloathing.com/",
         "https://kolmafia.us/",
-        "https://kol.coldfront.net/",
         "http://127.0.0.1/"
     ]
 }
