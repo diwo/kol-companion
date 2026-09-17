@@ -155,11 +155,10 @@ function addPriceToAdventureRewardItems() {
         }
     }
 
-    redrawAdventureRewardPrices(Object.keys(itemIdToDescId), {cachedOnly: true}).then(() =>
-        redrawAdventureRewardPrices(Object.keys(itemIdToDescId), {cachedOnly: false}));
+    redrawAdventureRewardPrices(Object.keys(itemIdToDescId));
 
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
-    itemUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds, {cachedOnly: true}));
+    itemUpdateListener.onMessage.addListener(message => redrawAdventureRewardPrices(message.itemIds));
 
     for (let itemId of Object.keys(itemIdToDescId)) {
         fetchItemDataFromBackground(itemId, itemIdToDescId[itemId]);
@@ -175,24 +174,25 @@ function getItemDescIdFromItemNode(itemNode) {
     return parseInt(imgElem.getAttribute("onclick").match(/descitem\((\d+)\b/)[1]);
 }
 
-async function redrawAdventureRewardPrices(itemIds, {cachedOnly} = {}) {
-    return redrawPrices(itemIds, {cachedOnly},
-        (itemId, flags, average, volume, color, fontStyle) => {
-            let itemNameNodes = document.getElementsByClassName(`itemName${itemId}`);
-            for (let itemNameNode of itemNameNodes) {
-                itemNameNode.style.color = color;
-                itemNameNode.style.fontStyle = fontStyle;
-            }
+async function redrawAdventureRewardPrices(itemIds) {
+    await Promise.all(itemIds.map(getPrice));
 
-            let priceNodes = document.getElementsByClassName(`itemPrice${itemId}`);
-            for (let priceNode of priceNodes) {
-                if (isTradableItemFlags(flags)) {
-                    priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
-                } else {
-                    priceNode.innerHTML = "";
-                }
+    return redrawPrices(itemIds, (itemId, flags, average, volume, color, fontStyle) => {
+        let itemNameNodes = document.getElementsByClassName(`itemName${itemId}`);
+        for (let itemNameNode of itemNameNodes) {
+            itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
+        }
+
+        let priceNodes = document.getElementsByClassName(`itemPrice${itemId}`);
+        for (let priceNode of priceNodes) {
+            if (isTradableItemFlags(flags)) {
+                priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+            } else {
+                priceNode.innerHTML = "";
             }
-        });
+        }
+    });
 }
 
 function parseItemFlagsFromDescription(description) {
@@ -442,12 +442,15 @@ function select(selectName, optionTextPattern) {
     return false;
 }
 
-async function redrawPrices(itemIds, {cachedOnly}, redrawFunc, errorFunc) {
+async function redrawPrices(itemIds, redrawFunc, errorFunc) {
+    let [allItemData, allCachedPrices] = await Promise.all([
+        getItemData(itemIds),
+        getCachedPrice(itemIds),
+    ]);
+
     for (let itemId of itemIds) {
-        let [itemData, priceData] = await Promise.all([
-            getItemData(itemId),
-            getPrice(itemId, {cachedOnly})
-        ]);
+        let itemData = allItemData[itemId];
+        let priceData = allCachedPrices[itemId];
 
         let flags = itemData?.flags || {};
         if (!itemData?.flags && priceData?.untradable) {
@@ -528,17 +531,12 @@ function openPriceGun(itemId) {
     open(`https://pricegun.loathers.net/item/${itemId}`);
 }
 
-async function getPrice(itemId, {cachedOnly} = {}) {
-    if (cachedOnly) {
-        await queuePriceCheck(itemId);
-        return getCachedPrice(itemId);
-    }
-
+async function getPrice(itemId) {
     return browser.runtime.sendMessage({operation: "getPrice", itemId});
 }
 
-async function queuePriceCheck(itemId) {
-    return browser.runtime.sendMessage({operation: "queuePriceCheck", itemId});
+async function queuePriceCheck(itemIds) {
+    return browser.runtime.sendMessage({operation: "queuePriceCheck", itemIds});
 }
 
 async function fetchItemDataFromBackground(itemId, itemDescId) {
@@ -549,9 +547,14 @@ async function queueItemDescriptionFetch(itemId, itemDescId) {
     return browser.runtime.sendMessage({operation: "queueItemDescriptionFetch", itemId, itemDescId});
 }
 
-async function getFromStorage(key) {
-    let cacheFetch = await browser.storage.local.get(key);
-    return cacheFetch[key];
+async function getFromStorage(keys, keyTransformer) {
+    let keysList = Array.isArray(keys) ? keys : [keys];
+    let transform = keyTransformer || (x=>x);
+    let transformedKeyToKey = Object.fromEntries(keysList.map(k => [transform(k), k]));
+    let fetched = await browser.storage.local.get(keysList.map(transform));
+    if (!fetched) return fetched;
+    let entries = Object.keys(fetched).map(k => [transformedKeyToKey[k], fetched[k]]);
+    return Array.isArray(keys) ? Object.fromEntries(entries) : fetched[transform(keysList[0])];
 }
 
 async function scanStorage(keyMatcher, valMatcher) {
@@ -568,16 +571,16 @@ async function scanStorage(keyMatcher, valMatcher) {
     return keyVals;
 }
 
-async function getCachedPrice(itemId) {
-    return getFromStorage(getItemPriceKey(itemId));
+async function getCachedPrice(itemIds) {
+    return getFromStorage(itemIds, getItemPriceKey);
 }
 
-async function getItemData(itemId) {
-    return getFromStorage(getItemDataKey(itemId));
+async function getItemData(itemIds) {
+    return getFromStorage(itemIds, getItemDataKey);
 }
 
-async function getEffectData(effectId) {
-    return getFromStorage(getEffectDataKey(effectId));
+async function getEffectData(effectIds) {
+    return getFromStorage(effectIds, getEffectDataKey);
 }
 
 function getItemPriceKey(itemId) {

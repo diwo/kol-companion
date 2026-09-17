@@ -19,8 +19,7 @@ function handleFleaMarket() {
     }
 
     redrawFleaMarketPrices(itemIds);
-    fetchMissingPrices(itemIds);
-    itemIds.forEach(queuePriceCheck);
+    queuePriceCheck(itemIds);
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawFleaMarketPrices(message.itemIds));
 }
@@ -28,17 +27,16 @@ function handleFleaMarket() {
 function redrawFleaMarketPrices(itemIds) {
     let relevantItemIds = itemIds.filter(itemId => document.getElementById(`iname${itemId}`));
 
-    return redrawPrices(relevantItemIds, {cachedOnly: true},
-        (itemId, flags, average, volume, color, fontStyle) => {
-            let itemNameNode = document.getElementById(`iname${itemId}`);
-            itemNameNode.style.color = color;
-            itemNameNode.style.fontStyle = fontStyle;
+    return redrawPrices(relevantItemIds, (itemId, flags, average, volume, color, fontStyle) => {
+        let itemNameNode = document.getElementById(`iname${itemId}`);
+        itemNameNode.style.color = color;
+        itemNameNode.style.fontStyle = fontStyle;
 
-            let priceNode = document.getElementById(`iprice${itemId}`);
-            if (isTradableItemFlags(flags)) {
-                priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
-            } else {
-                priceNode.innerHTML = "";
-            }
-        });
+        let priceNode = document.getElementById(`iprice${itemId}`);
+        if (isTradableItemFlags(flags)) {
+            priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+        } else {
+            priceNode.innerHTML = "";
+        }
+    });
 }

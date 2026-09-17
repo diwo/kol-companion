@@ -33,32 +33,31 @@ async function handleInventoryPage() {
     bindInventoryFilterEvents();
     redrawInventoryPrices(itemIds);
 
+    let observer = new MutationObserver(() => scanToolTips());
+    observer.observe(document.body, {childList: true, subtree: true});
+
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
     itemUpdateListener.onMessage.addListener(message => redrawInventoryPrices(message.itemIds));
 
-    itemIds.forEach(queuePriceCheck);
+    queuePriceCheck(itemIds);
     queueAllInventoryItemDescriptionFetch();
-
-    let observer = new MutationObserver(() => scanToolTips());
-    observer.observe(document.body, {childList: true, subtree: true});
 }
 
 function redrawInventoryPrices(itemIds) {
     let relevantItemIds = itemIds.filter(itemId => document.getElementById(`i${itemId}`));
 
-    return redrawPrices(relevantItemIds, {cachedOnly: true},
-        (itemId, flags, average, volume, color, fontStyle) => {
-            let itemNameNode = document.getElementById(`i${itemId}`).firstChild;
-            itemNameNode.style.color = color;
-            itemNameNode.style.fontStyle = fontStyle;
+    return redrawPrices(relevantItemIds, (itemId, flags, average, volume, color, fontStyle) => {
+        let itemNameNode = document.getElementById(`i${itemId}`).firstChild;
+        itemNameNode.style.color = color;
+        itemNameNode.style.fontStyle = fontStyle;
 
-            let priceNode = document.getElementById(`price${itemId}`);
-            if (isTradableItemFlags(flags)) {
-                priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
-            } else {
-                priceNode.innerHTML = "";
-            }
-        });
+        let priceNode = document.getElementById(`price${itemId}`);
+        if (isTradableItemFlags(flags)) {
+            priceNode.innerHTML = `(${average.toLocaleString()} x ${volume.toLocaleString()})`;
+        } else {
+            priceNode.innerHTML = "";
+        }
+    });
 }
 
 function queueAllInventoryItemDescriptionFetch() {
@@ -77,7 +76,10 @@ async function scanToolTips() {
         if (itemId) {
             let name = document.evaluate(".//div[@id='description']/center/b", tooltipNode).iterateNext()?.innerText;
             let description = document.evaluate(".//blockquote", tooltipNode).iterateNext()?.innerText;
-            await browser.runtime.sendMessage({operation: "setItemData", itemId, name, description});
+            await Promise.all([
+                getPrice(itemId),
+                browser.runtime.sendMessage({operation: "setItemData", itemId, name, description}),
+            ]);
         }
     }
 }
@@ -89,10 +91,10 @@ async function sortInventory() {
 async function sortStuffbox(stuffbox) {
     let nodes = Array.from(iterateStuffboxNodes(stuffbox));
     let itemIds = nodes.map(node => node.itemId);
-    let allItemPrices = await Promise.all(itemIds.map(itemId => getPrice(itemId, {cachedOnly: true})));
-    let allItemData = await Promise.all(itemIds.map(getItemData));
-    let itemPriceMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemPrices[i]]));
-    let itemDataMap = Object.fromEntries(itemIds.map((id, i) => [id, allItemData[i]]));
+    let [itemPriceMap, itemDataMap] = await Promise.all([
+        getCachedPrice(itemIds),
+        getItemData(itemIds),
+    ]);
 
     // Reversed display order, items are popped as a stack
     nodes.sort((a, b) => {
@@ -156,8 +158,9 @@ async function bindInventoryFilterEvents() {
     resizeInventoryFtextNode();
 
     let itemUpdateListener = browser.runtime.connect({name: "itemUpdateListener"});
-    itemUpdateListener.onMessage.addListener(async () => {
-        itemDataMap = await getInventoryItemDataMap(inventory);
+    itemUpdateListener.onMessage.addListener(async message => {
+        let updatedItemData = await getInventoryItemDataMap(inventory, message.itemIds);
+        itemDataMap = {...itemDataMap, ...updatedItemData};
     });
 
     document.addEventListener("keypress", e => {
@@ -190,17 +193,22 @@ function resizeInventoryFtextNode() {
     hidden.remove();
 }
 
-async function getInventoryItemDataMap(inventory) {
+async function getInventoryItemDataMap(inventory, itemIdsFilter) {
     if (!inventory) inventory = getInventoryNodeTree();
+    let itemIdsFilterMap = itemIdsFilter && Object.fromEntries(itemIdsFilter.map(x => [x, true]));
     let itemNodes = Array.from(iterateInventoryNodeTree(inventory));
-    let itemIds = itemNodes.map(node => node.itemId);
-    let allItemData = await Promise.all(itemIds.map(getItemData));
-    let allItemPrices = await Promise.all(itemIds.map(getCachedPrice));
-    return Object.fromEntries(itemIds.map((id, i) => [id, {
-            ...allItemData[i],
-            name: itemNodes[i].itemName,
-            quantity: itemNodes[i].quantity,
-            price: allItemPrices[i]?.data
+    let filteredItemNodes = itemNodes.filter(node => !itemIdsFilterMap || itemIdsFilterMap[node.itemId]);
+    let filteredItemIds = filteredItemNodes.map(node => node.itemId);
+    let [itemData, itemPrices] = await Promise.all([
+        getItemData(filteredItemIds),
+        getCachedPrice(filteredItemIds),
+    ]);
+    return Object.fromEntries(filteredItemNodes.map(itemNode =>
+        [itemNode.itemId, {
+            ...itemData[itemNode.itemId],
+            name: itemNode.itemName,
+            quantity: itemNode.quantity,
+            price: itemPrices[itemNode.itemId]?.data
         }]));
 }
 

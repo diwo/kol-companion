@@ -62,8 +62,7 @@ async function handleDescriptionPage() {
 
         addLevelToStatRequirement();
 
-        redrawItemDescriptionPrice(itemId, thingNameNode, {cachedOnly: true}).then(() =>
-            redrawItemDescriptionPrice(itemId, thingNameNode, {cachedOnly: false}));
+        redrawItemDescriptionPrice(itemId, thingNameNode);
     }
 
     document.body.appendChild(koliteminfo1);
@@ -195,8 +194,10 @@ function addLevelToStatRequirement() {
     }
 }
 
-async function redrawItemDescriptionPrice(itemId, itemNameNode, {cachedOnly} = {}) {
-    return redrawPrices([itemId], {cachedOnly},
+async function redrawItemDescriptionPrice(itemId, itemNameNode) {
+    await getPrice(itemId);
+
+    return redrawPrices([itemId],
         (_, flags, average, volume, color, fontStyle) => {
             itemNameNode.style.color = color;
             itemNameNode.style.fontStyle = fontStyle;

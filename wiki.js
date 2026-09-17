@@ -43,28 +43,28 @@ function handleWikiItemPage(itemId) {
         }
     }
 
-    redrawWikiItemInfoPrice(itemId, {cachedOnly: true}).then(() =>
-        redrawWikiItemInfoPrice(itemId, {cachedOnly: false}));
+    redrawWikiItemInfoPrice(itemId);
 }
 
-async function redrawWikiItemInfoPrice(itemId, {cachedOnly} = {}) {
-    return redrawPrices([itemId], {cachedOnly},
-        (_, flags, average, volume, color, fontStyle) => {
-            let itemNameNode = getWikiItemNameNode();
-            if (!itemNameNode.style.color && !itemNameNode.style.backgroundColor) {
-                itemNameNode.style.color = color;
-                itemNameNode.style.fontStyle = fontStyle;
-            }
+async function redrawWikiItemInfoPrice(itemId) {
+    await getPrice(itemId);
 
-            let priceNode = document.getElementById("marketprice");
-            if (priceNode) {
-                if (isTradableItemFlags(flags)) {
-                    priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
-                } else {
-                    priceNode.innerHTML = "untradable";
-                }
+    return redrawPrices([itemId], (_, flags, average, volume, color, fontStyle) => {
+        let itemNameNode = getWikiItemNameNode();
+        if (!itemNameNode.style.color && !itemNameNode.style.backgroundColor) {
+            itemNameNode.style.color = color;
+            itemNameNode.style.fontStyle = fontStyle;
+        }
+
+        let priceNode = document.getElementById("marketprice");
+        if (priceNode) {
+            if (isTradableItemFlags(flags)) {
+                priceNode.innerHTML = `${average.toLocaleString()} x ${volume.toLocaleString()}`;
+            } else {
+                priceNode.innerHTML = "untradable";
             }
-        });
+        }
+    });
 }
 
 function getWikiItemNameNode() {

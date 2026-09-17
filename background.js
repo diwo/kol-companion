@@ -102,8 +102,9 @@ browser.runtime.onMessage.addListener(message => {
         case "getPrice":
             return getPriceBackend(message.itemId);
         case "queuePriceCheck":
-            if (message.itemId) {
-                priceCheckQueue[message.itemId] = true;
+            if (message.itemIds) {
+                let itemIds = Array.isArray(message.itemIds) ? message.itemIds : [message.itemIds];
+                for (let itemId of itemIds) priceCheckQueue[itemId] = true;
             }
             return Promise.resolve();
         case "fetchItemData":
