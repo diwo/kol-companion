@@ -394,34 +394,29 @@ async function checkMallAlerts(windowId, init) {
 }
 
 async function checkCustomDelayMallAlerts() {
-    const requestDelay = 1 * 60 * 1000;
+    if (Date.now() - mallAlertsState.prevCustomDelayRequestTimestamp < 1 * 60 * 1000) return;
+    mallAlertsState.prevCustomDelayRequestTimestamp = Date.now();
+
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
     let entries = cacheFetch[mallAlertsKey];
-
     mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
-    if (!entries.length) return;
 
+    entries = entries.filter(entry => !!parseMallAlertString(entry).delay);
     entries.sort((a,b) => {
         let aTimestamp = mallAlertsState.prevChecks[a]?.prevCheckTimestamp || 0;
         let bTimestamp = mallAlertsState.prevChecks[b]?.prevCheckTimestamp || 0;
         return aTimestamp - bTimestamp;
     });
-
-    let entry = entries.filter(entry => {
-        let {delay} = parseMallAlertString(entry);
-        let prevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
-        return !!delay && Date.now() - prevCheckTimestamp > delay * 60 * 1000;
-    })[0];
+    let entry = entries[0];
     if (!entry) return;
-
-    let isPastDelay = Date.now() - mallAlertsState.prevCustomDelayRequestTimestamp > requestDelay;
-    if (!isPastDelay) return;
-    mallAlertsState.prevCustomDelayRequestTimestamp = Date.now();
 
     let parsedEntry = parseMallAlertString(entry);
     if (!parsedEntry) return {error: `Parse error: ${entry}`};
-    let {searchTerm} = parsedEntry;
+    let {searchTerm, delay} = parsedEntry;
+
+    let entryPrevCheckTimestamp = mallAlertsState.prevChecks[entry]?.prevCheckTimestamp || 0;
+    if (Date.now() - entryPrevCheckTimestamp < delay * 60 * 1000) return;
 
     console.debug(`Mall alert searching mall for: ${searchTerm}`);
     let mallSearchResult = await fetchMallSearch(searchTerm);
@@ -433,18 +428,16 @@ async function checkCustomDelayMallAlerts() {
 }
 
 async function checkBatchMallAlerts() {
-    const requestDelay = 15 * 60 * 1000;
+    if (Date.now() - mallAlertsState.prevBatchRequestTimestamp < 15 * 60 * 1000) return;
+    mallAlertsState.prevBatchRequestTimestamp = Date.now();
 
     const mallAlertsKey = getMallAlertsKey();
     let cacheFetch = await browser.storage.local.get(mallAlertsKey);
-    let entries = cacheFetch[mallAlertsKey].filter(entry => !parseMallAlertString(entry).delay);
-
+    let entries = cacheFetch[mallAlertsKey];
     mallAlertsState.prevChecks = Object.fromEntries(entries.map(entry => [entry, mallAlertsState.prevChecks[entry]]));
-    if (!entries.length) return;
 
-    let isPastDelay = Date.now() - mallAlertsState.prevBatchRequestTimestamp > requestDelay;
-    if (!isPastDelay) return;
-    mallAlertsState.prevBatchRequestTimestamp = Date.now();
+    entries = entries.filter(entry => !parseMallAlertString(entry).delay);
+    if (!entries.length) return;
 
     console.debug(`Mall alert fetching batch mall prices from API`);
     let mallItems = await fetchMallpricesApi({reason: "kol-companion browser extension by Wakwak"});
@@ -507,10 +500,10 @@ function sendMallAlert(entry, lowestPrice) {
     };
 }
 
-browser.notifications.onClicked.addListener(alertText => {
-    if (!mallAlertsState.prevChecks[alertText]) return;
+browser.notifications.onClicked.addListener(entry => {
+    if (!mallAlertsState.prevChecks[entry]) return;
     if (!mallAlertsState.windowId) return;
-    let {searchTerm} = parseMallAlertString(alertText);
+    let {searchTerm} = parseMallAlertString(entry);
     notifyGotoUrl(mallAlertsState.windowId, `/mall.php?pudnuggler=${encodeURIComponent(searchTerm)}`);
 });
 
